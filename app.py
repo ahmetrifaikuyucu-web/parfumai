@@ -14,6 +14,11 @@ import secrets
 from functools import wraps
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask_cors import CORS
+from flask_caching import Cache
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from whitenoise import WhiteNoise
 
 load_dotenv()
 
@@ -27,8 +32,18 @@ app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
-    SESSION_PERMANENT=False
+    SESSION_PERMANENT=False,
+    CACHE_TYPE='SimpleCache',
+    CACHE_DEFAULT_TIMEOUT=300,
+    RATELIMIT_DEFAULT='200/day;50/hour',
+    RATELIMIT_STORAGE_URL='memory://'
 )
+
+# Middleware
+CORS(app)
+Cache(app)
+Limiter(get_remote_address, app=app, default_limits=['200 per day', '50 per hour'])
+app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/', prefix='static/')
 
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
 if not ADMIN_PASSWORD:
@@ -60,6 +75,14 @@ def login_required(f):
             return redirect(url_for('admin_login'))
         return f(*args, **kwargs)
     return decorated
+
+@app.after_request
+def add_security_headers(response):
+    response.headers['Cache-Control'] = 'public, max-age=86400'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    return response
 
 matching_engine = PerfumeMatchingEngine()
 

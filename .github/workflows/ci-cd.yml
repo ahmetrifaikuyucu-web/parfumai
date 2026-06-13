@@ -1,0 +1,19 @@
+name: CI/CD
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          python setup.py
+      - name: Run tests
+        run: pytest tests/ -v --tb=short
+      - name: Security audit
+        run: pip install pip-audit && pip-audit

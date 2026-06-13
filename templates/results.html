@@ -173,11 +173,11 @@ function createPerfumeCard(p, index) {
     const seasonIcons = { 'yaz': 'bi-sun', 'kis': 'bi-snow', 'dört_mevsim': 'bi-globe', 'dort_mevsim': 'bi-globe', 'ilkbahar': 'bi-flower1' };
 
     return `
-        <div class="col-md-4 result-card">
+        <div class="col-12 col-md-4 result-card">
             <div class="perfume-card-neon h-100">
                 ${p.image_url ? `
                 <div class="perfume-image-wrapper">
-                    <img src="${p.image_url}" alt="${p.name}" class="perfume-img" onerror="this.parentElement.innerHTML='<div class=\\'perfume-img-fallback\\' style=\\'background:${sc.header}\\'><span>${p.brand.charAt(0)}</span></div>'">
+                    <img src="${p.image_url}" alt="${p.name}" class="perfume-img" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'perfume-img-fallback\\' style=\\'background:${sc.header}\\'><span>${p.brand.charAt(0)}</span></div>'">
                 </div>
                 ` : `
                 <div class="perfume-image-wrapper">

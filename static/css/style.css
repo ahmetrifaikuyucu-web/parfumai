@@ -13,6 +13,7 @@
     --neon-blue: #4488ff;
     --neon-green: #00ff88;
     --neon-orange: #ff6600;
+    --neon-purple: #8b5cf6;
     --neon-cyan-glow: 0 0 20px rgba(0, 245, 255, 0.3);
     --radius: 16px;
     --radius-sm: 10px;
@@ -341,6 +342,22 @@ h1, h2, h3, h4, h5, h6 {
     transition: width 0.5s var(--ease-smooth);
 }
 
+/* ===== TOUCH TARGETS ===== */
+.btn, .badge-neon, .badge-neon-season, button, a, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+}
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+}
+.form-check-input {
+    min-width: 44px;
+    min-height: 44px;
+}
+
 /* ===== PERFUME CARDS ===== */
 .perfume-card-neon {
     background: var(--bg-card);
@@ -356,8 +373,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .perfume-card-neon:hover {
     border-color: rgba(0, 245, 255, 0.2);
-    transform: translateY(-4px);
-    box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 30px rgba(0,245,255,0.05);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.6), 0 0 30px rgba(0,245,255,0.08);
+    transition: transform 0.2s var(--ease-smooth),
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
 }
 
 .perfume-card-neon .perfume-header {
@@ -384,6 +404,12 @@ h1, h2, h3, h4, h5, h6 {
     display: block;
     position: absolute;
     top: 0; left: 0;
+    filter: blur(2px);
+    transition: filter 0.3s var(--ease-smooth);
+}
+
+.perfume-card-neon:hover .perfume-image-wrapper .perfume-img {
+    filter: blur(0);
 }
 
 .perfume-card-neon .perfume-image-wrapper .perfume-img-fallback {
