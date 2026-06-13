@@ -1,25 +1,29 @@
-# ParfumAI — Kişisel Koku Analizi & Parfüm Öneri Sistemi
+# ParfumAI — Kişisel Koku Profili & Parfüm Öneri Sistemi
 
-**Flask tabanlı, yapay zeka destekli parfüm öneri motoru.**
+**Flask tabanlı, yapay zeka destekli (isteğe bağlı) parfüm öneri motoru.**
 
-Anket yanıtlarınıza göre koku profilinizi çıkarır, 340+ parfüm arasından size özel eşleşmeler sunar. İsteğe bağlı Gemini API ile her öneri için AI açıklaması alabilirsiniz.
+Anket yanıtlarınıza göre koku profilinizi çıkarır, 340+ parfüm arasından cinsiyet ve mevsime duyarlı eşleşmeler sunar. Gemini ya da OpenRouter API ile her öneri için yapay zeka açıklaması alabilirsiniz. API anahtarı olmadan da şablon tabanlı açıklamalarla çalışır.
 
 ## Özellikler
 
 - **Koku Profili Analizi** — 7 soruluk anketle üst/orta/alt nota dağılımınızı belirler
-- **Akıllı Eşleştirme** — Cinsiyet, mevsim, nota uyumuna göre 9 parfüm (3 yaz + 3 kış + 3 dört mevsim)
-- **AI Açıklamaları** — Gemini API entegrasyonu ile "Neden bu parfüm?" açıklaması (opsiyonel)
+- **Akıllı Eşleştirme** — Cinsiyet, mevsim, nota uyumuna göre 9 parfüm (3 yaz + 3 kış + 3 4 mevsim)
+- **AI Açıklamaları** — Gemini / OpenRouter API ile "Neden bu parfüm?" (opsiyonel, şablon yedekli)
+- **Otomatik Görsel** — Her parfüme dark-neon temalı gradient görsel (Pillow ile üretilir)
 - **Radar Grafik** — 5 eksenli koku profili görselleştirmesi
 - **Yönetici Paneli** — Parfüm ekleme/silme/düzenleme, stok takibi
-- **Satış Kaydı** — CSV log ve istatistikler
-- **Harici Arama** — Fragrantica ve Parfumo bağlantıları
-- **QR & WhatsApp Paylaşım**
+- **SEO & Paylaşım** — QR kod, WhatsApp, panoya kopyala
+- **CSRF Korumalı** — Tüm POST uç noktalarında
+- **AI olmadan da çalışır** — API anahtarı gerekmez, şablon açıklamalar hazır
 
 ## Hızlı Başlangıç
 
 ```bash
 # Bağımlılıkları yükle
 pip install -r requirements.txt
+
+# Parfüm görsellerini oluştur (Pillow gerekli)
+python setup.py
 
 # Çalıştır
 python app.py
@@ -28,21 +32,22 @@ python app.py
 http://127.0.0.1:5000
 ```
 
-- **Giriş:** `admin` / `admin123` (değiştirmek için `ADMIN_PASSWORD` ortam değişkeni)
-- **AI Özelliği:** `.env` dosyasına `GEMINI_API_KEY=...` ekleyin (opsiyonel)
+- **Giriş:** `admin` / `admin123` (`.env` ile değiştirin)
+- **AI Özelliği:** `.env` dosyasına `GEMINI_API_KEY` ya da `OPENROUTER_API_KEY` ekleyin (opsiyonel)
 
 ## Proje Yapısı
 
 ```
 perfume-advisor/
 ├── app.py                # Flask ana uygulama
-├── perfume_engine.py     # 340+ parfüm veritabanı + eşleştirme
-├── ai_service.py         # Gemini / OpenRouter AI entegrasyonu
+├── perfume_engine.py     # 340+ parfüm veritabanı + eşleştirme motoru
+├── ai_service.py         # Gemini / OpenRouter AI + şablon yedek
 ├── scoring.py            # Nota skorlama motoru
 ├── questions.py          # Anket soruları
+├── setup.py              # Parfüm görsel üretici (Pillow)
 ├── templates/            # Jinja2 şablonları
 ├── static/               # CSS, JS, vendor kütüphaneler
-└── tests/                # Pytest testleri
+└── tests/                # Pytest testleri (16 test)
 ```
 
 ## API Uç Noktaları
@@ -53,7 +58,7 @@ perfume-advisor/
 | GET | `/survey` | Koku anketi |
 | POST | `/api/submit` | Anket yanıtlarını gönder |
 | GET | `/results` | Sonuçlar sayfası |
-| POST | `/api/explain` | AI açıklaması (API key gerekli) |
+| POST | `/api/explain` | AI açıklaması (opsiyonel, şablon yedekli) |
 | GET | `/api/questions` | Anket soruları (JSON) |
 | GET | `/api/stock` | Stok durumu |
 | POST | `/api/log-sale` | Satış kaydet |
@@ -61,14 +66,24 @@ perfume-advisor/
 
 ## AI Entegrasyonu
 
-Varsayılan olarak AI özellikleri **pasiftir**. Etkinleştirmek için:
+API anahtarı olmadan da çalışır — şablon tabanlı açıklamalar hazırdır.
 
-1. [Google AI Studio](https://aistudio.google.com/app/apikey) adresinden ücretsiz API key alın
-2. `.env.example` dosyasını `.env` olarak kopyalayın
-3. `GEMINI_API_KEY=` satırına key'inizi yazın
-4. Uygulamayı yeniden başlatın
+Etkinleştirmek için (isteğe bağlı):
 
-Desteklenen sağlayıcılar: **Google Gemini** (önerilen), **OpenRouter** (opsiyonel).
+```bash
+# 1. .env.example dosyasını .env olarak kopyalayın
+# 2. Aşağıdakilerden birini doldurun:
+#    GEMINI_API_KEY=...     -> https://aistudio.google.com/app/apikey
+#    OPENROUTER_API_KEY=... -> https://openrouter.ai/keys
+# 3. (isteğe bağlı) AI_PROVIDER=openrouter (varsayılan: google)
+```
+
+## Güvenlik
+
+- `.env` dosyası (API anahtarları) asla commit edilmez — `.gitignore` ile korunur
+- Tüm POST uç noktaları CSRF token ile korunur
+- Admin oturumu session bazlıdır
+- Ham veritabanı dosyaları (`data/`) git dışındadır
 
 ## Test
 

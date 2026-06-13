@@ -25,6 +25,9 @@ data/cache/
 logs/
 yedekler/
 
+# Generated perfume images (run setup.py to create)
+static/perfume_images/
+
 # OS
 Thumbs.db
 .DS_Store

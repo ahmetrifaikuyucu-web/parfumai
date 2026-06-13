@@ -108,7 +108,8 @@ def submit_survey():
                 'notes_top': p['notes_top'],
                 'notes_middle': p['notes_middle'],
                 'notes_base': p['notes_base'],
-                'in_stock': p.get('in_stock', True)
+                'in_stock': p.get('in_stock', True),
+                'image_url': p.get('image_url', '')
             }
 
         return jsonify({

@@ -43,23 +43,28 @@ def generate_explanations(note_profile, recommendations, gender, name="Misafir")
 
     Dönüş:
         dict: Her parfüme eklenmiş ai_açıklama alanı
-        veya AI yoksa boş string
+        veya AI yoksa şablon açıklama döner
     """
-    if not _ai_available():
-        return {}
-
     profile_text = _profile_to_text(note_profile)
-    prompt = _build_prompt(profile_text, recommendations, gender, name)
 
+    if _ai_available():
+        prompt = _build_prompt(profile_text, recommendations, gender, name)
+        try:
+            if PROVIDER == "openrouter":
+                raw = _call_openrouter(prompt)
+            else:
+                raw = _call_gemini(prompt)
+            result = _parse_response(raw, recommendations)
+            if result:
+                return result
+        except Exception as e:
+            print(f"[AI] API hatası, şablon kullanılıyor ({e})")
+
+    # Şablon tabanlı açıklama (API yoksa veya hata alırsa)
     try:
-        if PROVIDER == "openrouter":
-            raw = _call_openrouter(prompt)
-        else:
-            raw = _call_gemini(prompt)
-
-        return _parse_response(raw, recommendations)
+        return _template_explanations(note_profile, recommendations, name)
     except Exception as e:
-        print(f"[AI] Uyarı: Açıklama üretilemedi ({e})")
+        print(f"[AI] Şablon hatası: {e}")
         return {}
 
 
@@ -136,7 +141,7 @@ def _call_gemini(prompt):
 
 
 def _call_openrouter(prompt):
-    """OpenRouter API çağrısı (GPT-4o Mini, Claude Haiku vb.)."""
+    """OpenRouter API çağrısı (ücretsiz modeller)."""
     import requests
     resp = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
@@ -145,12 +150,12 @@ def _call_openrouter(prompt):
             "Content-Type": "application/json",
         },
         json={
-            "model": "openai/gpt-4o-mini",
+            "model": "google/gemini-2.0-flash-exp:free",
             "messages": [{"role": "user", "content": prompt}],
             "temperature": 0.7,
             "max_tokens": 1024,
         },
-        timeout=15,
+        timeout=30,
     )
     resp.raise_for_status()
     return resp.json()["choices"][0]["message"]["content"]
@@ -159,7 +164,6 @@ def _call_openrouter(prompt):
 def _parse_response(raw, recommendations):
     """AI yanıtını parse edip parfüm isimlerine göre eşler."""
     try:
-        # JSON bloğunu bul
         json_match = re.search(r"\{.*\}", raw, re.DOTALL)
         if not json_match:
             return {}
@@ -169,17 +173,60 @@ def _parse_response(raw, recommendations):
             key = item.get("parfüm", "").lower().strip()
             explanations[key] = item.get("neden", "")
 
-        # recommendations yapısına ekle
         result = {}
         for season, plist in recommendations.items():
+            if not isinstance(plist, list):
+                continue
             for p in plist[:3]:
                 pname = p.get("name", "").lower()
                 brand = p.get("brand", "").lower()
-                # Önce "marka adı" formatı, sonra sadece "adı" dene
                 for key in [f"{brand} {pname}", pname]:
                     if key in explanations:
                         result[p.get("name", "")] = explanations[key]
                         break
         return result
-    except (json.JSONDecodeError, KeyError, TypeError):
+    except (json.JSONDecodeError, KeyError, TypeError, AttributeError):
         return {}
+
+
+def _template_explanations(note_profile, recommendations, name):
+    """API olmadığında şablon tabanlı açıklama üretir."""
+    ptype = note_profile.get("profile_type", "Karma")
+    top = note_profile.get("top_dominant", "citrus")
+    mid = note_profile.get("middle_dominant", "floral")
+    base = note_profile.get("base_dominant", "musk")
+
+    templates = {
+        "Taze": [
+            f"{name}, ferah ve canlı üst notaları ({top}) seven bir profile sahip. Bu parfüm, taze açılışıyla size enerji verecek.",
+            f"Canlı ve dinamik kokuları tercih ediyorsunuz. Bu öneri, {top} ve {mid} notalarının mükemmel dengesini sunuyor.",
+            f"Enerjik yapınıza en uygun seçeneklerden biri. {top} üst notalarıyla güne ferah bir başlangıç yapın."
+        ],
+        "Dengeli": [
+            f"{name}, dengeli bir koku profiline sahip. Bu parfüm, {top}, {mid} ve {base} notaları arasında uyumlu bir geçiş sunar.",
+            f"Klasik ve her daim şık bir tercih. {mid} kalp notaları size zarif bir hava katacak.",
+            f"Her ortama uyum sağlayabilecek bu seçenek, {base} temel notalarıyla kalıcı bir iz bırakır."
+        ],
+        "Derin": [
+            f"{name}, derin ve etkileyici kokulardan hoşlanıyor. {base} alt notaları bu parfümün karakterini belirliyor.",
+            f"Gizemli ve çekici bir profil. Bu parfüm, {mid} ve {base} notalarıyla sofistike bir deneyim vaat ediyor.",
+            f"Etkileyici bir koku arayışınızda, {base} notalarının sıcaklığı ve derinliği sizi saracak."
+        ],
+        "Karma": [
+            f"{name}, çok yönlü bir koku zevkine sahip. Bu parfüm, {top} ile {base} arasında keyifli bir yolculuk sunar.",
+            f"Farklı notaları bir arada sevenler için ideal. {mid} kalp notaları öne çıkıyor.",
+            f"Her mevsime uygun bu seçenek, {top} ve {base} dengesiyle her anınıza eşlik eder."
+        ]
+    }
+
+    ptype_key = "Taze" if "taze" in ptype.lower() else "Dengeli" if "dengeli" in ptype.lower() else "Derin" if "derin" in ptype.lower() else "Karma"
+    pool = templates.get(ptype_key, templates["Karma"])
+
+    result = {}
+    for season, plist in recommendations.items():
+        if not isinstance(plist, list):
+            continue
+        for i, p in enumerate(plist[:3]):
+            result[p["name"]] = pool[i % len(pool)]
+
+    return result

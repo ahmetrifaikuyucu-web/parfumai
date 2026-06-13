@@ -50,34 +50,34 @@
             </div>
         </div>
 
-        <div class="mb-4" id="surpriseSection" style="display:none;">
-            <h5 class="fw-semibold mb-3" style="color:var(--neon-gold);">
-                <i class="bi bi-star-fill me-2"></i>Sürpriz Eşleşme
+        <div class="mb-4" id="yazSection">
+            <h5 class="fw-semibold mb-3" style="color:var(--neon-orange);">
+                <i class="bi bi-sun me-2"></i>Yaz Önerileri
             </h5>
             <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:12px;">
-                Profilinize göre beklenmedik ama mükemmel bir eşleşme
+                Sıcak havalarda ferahlık ve canlılık için
             </p>
-            <div class="row g-3 perfume-stagger" id="surpriseContainer"></div>
+            <div class="row g-3 perfume-stagger" id="yazContainer"></div>
         </div>
 
-        <div class="mb-4" id="classicSection" style="display:none;">
+        <div class="mb-4" id="kisSection">
             <h5 class="fw-semibold mb-3" style="color:var(--neon-cyan);">
-                <i class="bi bi-heart me-2"></i>Klasik Tercihler
+                <i class="bi bi-snow me-2"></i>Kış Önerileri
             </h5>
             <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:12px;">
-                Profilinize doğrudan uyumlu seçenekler
+                Soğuk günlerde sıcaklık ve derinlik için
             </p>
-            <div class="row g-3 perfume-stagger" id="classicContainer"></div>
+            <div class="row g-3 perfume-stagger" id="kisContainer"></div>
         </div>
 
-        <div class="mb-5" id="exploreSection" style="display:none;">
+        <div class="mb-5" id="dört_mevsimSection">
             <h5 class="fw-semibold mb-3" style="color:var(--neon-green);">
-                <i class="bi bi-compass me-2"></i>Keşfedebilecekleriniz
+                <i class="bi bi-globe me-2"></i>4 Mevsim Önerileri
             </h5>
             <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:12px;">
-                Farklı ama denemeye değer seçenekler
+                Yıl boyu kullanıma uygun dengeli seçenekler
             </p>
-            <div class="row g-3 perfume-stagger" id="exploreContainer"></div>
+            <div class="row g-3 perfume-stagger" id="dört_mevsimContainer"></div>
         </div>
 
         <div class="text-center mb-5 entry">
@@ -153,8 +153,6 @@
 {% block extra_scripts %}
 <script>
 const CSRF_TOKEN = '{{ csrf_token }}';
-let aiExplanations = {};
-let resultsData = null;
 
 function renderNoteBadges(notes) {
     if (!notes || notes.length === 0) return '<span class="note-badge-neon">-</span>';
@@ -177,15 +175,23 @@ function createPerfumeCard(p, index) {
     return `
         <div class="col-md-4 result-card">
             <div class="perfume-card-neon h-100">
+                ${p.image_url ? `
+                <div class="perfume-image-wrapper">
+                    <img src="${p.image_url}" alt="${p.name}" class="perfume-img" onerror="this.parentElement.innerHTML='<div class=\\'perfume-img-fallback\\' style=\\'background:${sc.header}\\'><span>${p.brand.charAt(0)}</span></div>'">
+                </div>
+                ` : `
+                <div class="perfume-image-wrapper">
+                    <div class="perfume-img-fallback" style="background:${sc.header};">
+                        <span>${p.brand.charAt(0)}</span>
+                    </div>
+                </div>
+                `}
                 <div class="perfume-header" style="border-bottom-color:${sc.header};">
                     <span class="badge-neon-season" style="background:${sc.badge};color:#000;">
                         <i class="bi ${seasonIcons[p.season] || 'bi-droplet'} me-1"></i>${seasonLabels[p.season] || p.season}
                     </span>
-                    <div class="perfume-icon" style="background:${sc.header};color:${sc.icon};">
-                        <i class="bi ${p.gender === 'erkek' ? 'bi-gender-male' : p.gender === 'kadin' ? 'bi-gender-female' : 'bi-gender-ambiguous'}"></i>
-                    </div>
-                    <h5 class="fw-bold mt-2 mb-1" style="font-size:1rem;">${p.name}</h5>
-                    <p style="color:var(--text-secondary);font-size:0.8rem;">${p.brand}</p>
+                    <h5 class="fw-bold mt-2 mb-0" style="font-size:1rem;">${p.name}</h5>
+                    <p style="color:var(--text-secondary);font-size:0.8rem;margin-top:1px;">${p.brand}</p>
                 </div>
                 <div class="perfume-body">
                     <p style="font-size:0.8rem;color:var(--text-secondary);min-height:36px;">${p.description || '-'}</p>
@@ -201,89 +207,14 @@ function createPerfumeCard(p, index) {
                         <div class="mt-1">${renderNoteBadges(p.notes_middle)}</div>
                         <small style="font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);display:block;margin-top:6px;">Temel Notalar</small>
                         <div class="mt-1">${renderNoteBadges(p.notes_base)}</div>
-                    <button class="btn-why mt-2" onclick="showWhy(this, '${p.name}', '${(p.description || '').replace(/'/g, "\\'")}')" 
-                            style="background:rgba(0,245,255,0.08);border:1px solid rgba(0,245,255,0.2);color:var(--neon-cyan);padding:6px 14px;border-radius:8px;font-size:0.8rem;cursor:pointer;width:100%;margin-top:8px;">
-                        <i class="bi bi-question-circle me-1"></i> Neden bu?
-                    </button>
+
                 </div>
             </div>
         </div>
     `;
 }
 
-function showWhy(btn, name, description) {
-    const existing = document.querySelector('.why-panel');
-    if (existing) existing.remove();
-    
-    const aiText = aiExplanations[name] || '';
-    const hasAI = aiText.length > 0;
-    
-    const panel = document.createElement('div');
-    panel.className = 'why-panel';
-    panel.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:var(--bg-secondary);border-top:2px solid ' + (hasAI ? 'var(--neon-magenta)' : 'var(--neon-cyan)') + ';padding:24px;z-index:1000;animation:slideUp 0.3s ease;border-radius:16px 16px 0 0;box-shadow:0 -8px 32px rgba(0,0,0,0.5);max-height:60vh;overflow-y:auto;';
-    panel.innerHTML = `
-        <div style="max-width:600px;margin:0 auto;">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0" style="color:var(--neon-cyan);">
-                    <i class="bi bi-lightbulb me-2"></i>Neden ${name}?
-                </h5>
-                <button onclick="this.closest('.why-panel').remove()" style="background:none;border:none;color:var(--text-secondary);font-size:1.5rem;cursor:pointer;">&times;</button>
-            </div>
-            ${hasAI ? `
-            <div style="background:rgba(255,0,229,0.05);border:1px solid rgba(255,0,229,0.15);border-radius:12px;padding:16px;margin-bottom:12px;">
-                <p style="color:var(--text-primary);font-size:0.95rem;line-height:1.6;">
-                    <i class="bi bi-magic me-2" style="color:var(--neon-magenta);"></i>${aiText}
-                </p>
-                <span style="font-size:0.7rem;color:var(--text-tertiary);"><i class="bi bi-robot me-1"></i>AI destekli açıklama</span>
-            </div>
-            ` : `
-            <p style="color:var(--text-secondary);font-size:0.95rem;line-height:1.6;">
-                ${description || 'Bu parfüm, profilinizdeki notalarla uyumlu birleşime sahip.'}
-            </p>
-            <p style="color:var(--text-tertiary);font-size:0.8rem;margin-top:8px;">
-                <i class="bi bi-info-circle me-1"></i> Benzer profillerden müşterilerimiz bu kokuyu çok sevdi.
-            </p>
-            <button onclick="fetchAIExplanation('${name.replace(/'/g, "\\'")}')" 
-                    style="margin-top:12px;padding:10px 20px;border-radius:8px;background:rgba(255,0,229,0.1);border:1px solid rgba(255,0,229,0.2);color:var(--neon-magenta);cursor:pointer;width:100%;">
-                <i class="bi bi-robot me-2"></i>AI ile Açıkla
-            </button>
-            `}
-        </div>
-    `;
-    document.body.appendChild(panel);
-}
 
-function fetchAIExplanation(name) {
-    const btn = document.querySelector('.why-panel button');
-    if (btn) { btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Açıklama alınıyor...'; btn.disabled = true; }
-    
-    fetch('/api/explain', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            perfumes: [name],
-            note_profile: resultsData ? resultsData.note_profile : {},
-            gender: resultsData ? resultsData.gender : 'unisex',
-            name: resultsData ? (resultsData.name || 'Misafir') : 'Misafir',
-            _csrf_token: CSRF_TOKEN
-        })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success && data.explanations && data.explanations[name]) {
-            aiExplanations[name] = data.explanations[name];
-            document.querySelector('.why-panel')?.remove();
-            showWhy(null, name, '');
-        } else {
-            if (btn) { btn.innerHTML = '<i class="bi bi-robot me-2"></i>AI ile Açıkla'; btn.disabled = false; }
-            alert('AI açıklaması alınamadı. API key kontrol edin.');
-        }
-    })
-    .catch(() => {
-        if (btn) { btn.innerHTML = '<i class="bi bi-robot me-2"></i>AI ile Açıkla'; btn.disabled = false; }
-        alert('Bağlantı hatası.');
-    });
-}
 
 function shareWhatsApp() {
     const text = 'ParfumAI ile koku profilimi oluşturdum! 🧪✨\nSiz de deneyin: ' + window.location.origin;
@@ -326,43 +257,33 @@ document.addEventListener('DOMContentLoaded', function() {
     let data;
     try { data = JSON.parse(stored); }
     catch (e) { sessionStorage.removeItem('results'); window.location.href = '/survey'; return; }
-    resultsData = data;
     const r = data.recommendations;
     const np = data.note_profile;
-
-    // AI açıklamalarını yükle
-    if (data.ai_explanations) {
-        aiExplanations = data.ai_explanations;
-    }
 
     document.getElementById('loadingResults').style.display = 'none';
     document.getElementById('resultsContent').style.display = 'block';
     document.getElementById('profileTypeText').textContent = r.profile_type || np.profile_type;
 
-    // Collect ALL recommendations into one array with tier assignments
-    const allRecs = [];
-    if (r.yaz && Array.isArray(r.yaz)) r.yaz.forEach((p, i) => allRecs.push({...p, tier: 'surprise', delay: i}));
-    if (r.kis && Array.isArray(r.kis)) r.kis.forEach((p, i) => allRecs.push({...p, tier: 'classic', delay: i + 3}));
-    const dmKey = r['dört_mevsim'] ? 'dört_mevsim' : (r['dort_mevsim'] ? 'dort_mevsim' : null);
-    if (dmKey && Array.isArray(r[dmKey])) r[dmKey].forEach((p, i) => allRecs.push({...p, tier: 'explore', delay: i + 6}));
-
-    // Assign tiers: first = surprise, next 3 = classic, rest = explore
-    const containers = {
-        surprise: document.getElementById('surpriseContainer'),
-        classic: document.getElementById('classicContainer'),
-        explore: document.getElementById('exploreContainer')
+    // Mevsim bazlı kategorilendirme
+    const seasonData = {
+        yaz: { container: document.getElementById('yazContainer'), title: 'Yaz Önerileri' },
+        kis: { container: document.getElementById('kisContainer'), title: 'Kış Önerileri' },
+        dört_mevsim: { container: document.getElementById('dört_mevsimContainer'), title: '4 Mevsim Önerileri' }
     };
+    const seasonKeys = ['yaz', 'kis', 'dört_mevsim'];
+    const dmKey = r['dört_mevsim'] ? 'dört_mevsim' : (r['dort_mevsim'] ? 'dort_mevsim' : null);
 
-    allRecs.forEach((p, i) => {
-        let tier = 'explore';
-        if (i === 0) tier = 'surprise';
-        else if (i <= 3) tier = 'classic';
-        
-        const section = document.getElementById(tier + 'Section');
-        if (section) section.style.display = 'block';
-        
-        const cardHtml = createPerfumeCard(p, p.delay || i);
-        containers[tier].innerHTML += cardHtml;
+    seasonKeys.forEach(key => {
+        const list = key === 'dört_mevsim' ? (r[dmKey] || []) : (r[key] || []);
+        if (list.length === 0) {
+            const section = document.getElementById(key + 'Section');
+            if (section) section.style.display = 'none';
+            return;
+        }
+        const container = seasonData[key].container;
+        list.forEach((p, i) => {
+            container.innerHTML += createPerfumeCard(p, i);
+        });
     });
 
     if (np.nota_detay) {
@@ -546,6 +467,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         assistantContent.innerHTML = ahtml;
     }
+
+    // Kartları görünür yap (stagger animation)
+    document.querySelectorAll('.perfume-stagger .result-card').forEach(function(card, i) {
+        setTimeout(function() { card.classList.add('entered'); }, (i + 1) * 120);
+    });
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 });
