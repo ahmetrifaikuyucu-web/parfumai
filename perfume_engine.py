@@ -1000,3 +1000,6 @@ class PerfumeMatchingEngine:
             return results
         except:
             return []
+
+# Global matching engine instance (used by routes)
+matching_engine = PerfumeMatchingEngine()
