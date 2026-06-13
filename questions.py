@@ -15,7 +15,7 @@ QUESTIONS = [
         "options": [
             {"text": "Kadın", "icon": "bi bi-gender-female", "scores": {"gender_female": 1}},
             {"text": "Erkek", "icon": "bi bi-gender-male", "scores": {"gender_male": 1}},
-            {"text": "Fark etmez", "icon": "bi bi-shuffle", "scores": {"gender_unisex": 1}}
+            {"text": "Fark etmez", "icon": "bi bi-gender-ambiguous", "scores": {"gender_unisex": 1}}
         ]
     },
     {
@@ -27,9 +27,9 @@ QUESTIONS = [
         "reference": "Herz, R.S. (2009). Aromatherapy Facts and Fictions. Int. J. Neuroscience.",
         "technique": "Nöroaromatik Duygu Haritalaması",
         "options": [
-            {"text": "Enerjik ve canlı", "icon": "bi bi-sun", "scores": {"top_citrus": 15, "top_bergamot": 10}},
+            {"text": "Enerjik ve canlı", "icon": "bi bi-sunrise", "scores": {"top_citrus": 15, "top_bergamot": 10}},
             {"text": "Romantik ve yumuşak", "icon": "bi bi-heart", "scores": {"middle_floral": 15, "middle_white_floral": 10}},
-            {"text": "Sakin ve huzurlu", "icon": "bi bi-moon", "scores": {"base_musk": 15, "base_amber": 10}},
+            {"text": "Sakin ve huzurlu", "icon": "bi bi-cloud-moon", "scores": {"base_musk": 15, "base_amber": 10}},
             {"text": "Gizemli ve çekici", "icon": "bi bi-eye", "scores": {"middle_spice_mid": 15, "base_oud": 10}}
         ]
     },
@@ -42,7 +42,7 @@ QUESTIONS = [
         "reference": "Jellinek, P. (1997). The Psychological Basis of Perfumery.",
         "technique": "Parfüm Piramidi Bilimi",
         "options": [
-            {"text": "Hafif, sadece ben", "icon": "bi bi-emoji-smile", "scores": {"base_musk": 15, "base_vanilla_gourmand": 10}},
+            {"text": "Hafif, sadece ben", "icon": "bi bi-person", "scores": {"base_musk": 15, "base_vanilla_gourmand": 10}},
             {"text": "Yakın çevrem hissetsin", "icon": "bi bi-people", "scores": {"middle_floral": 15, "middle_spice_mid": 10}},
             {"text": "Net biçimde fark edilsin", "icon": "bi bi-volume-up", "scores": {"middle_powdery": 15, "top_aldehyde": 10}},
             {"text": "Herkes bilsin", "icon": "bi bi-megaphone", "scores": {"middle_spice_mid": 15, "base_incense_tobacco": 10}}
@@ -60,7 +60,7 @@ QUESTIONS = [
             {"text": "Ferah ve ekşi", "icon": "bi bi-droplet-half", "scores": {"top_citrus": 15, "top_green": 10}},
             {"text": "Baharatlı ve sıcak", "icon": "bi bi-fire", "scores": {"middle_spice_mid": 15, "middle_herbal": 10}},
             {"text": "Tatlı ve kremsi", "icon": "bi bi-cupcake", "scores": {"base_vanilla_gourmand": 15, "base_amber": 10}},
-            {"text": "Topraksı ve doğal", "icon": "bi bi-tree", "scores": {"middle_herbal": 15, "base_patchouli_earthy": 10}}
+            {"text": "Topraksı ve doğal", "icon": "bi bi-flower2", "scores": {"middle_herbal": 15, "base_patchouli_earthy": 10}}
         ]
     },
     {
@@ -74,7 +74,7 @@ QUESTIONS = [
         "options": [
             {"text": "Doğal ve sade", "icon": "bi bi-leaf", "scores": {"top_green": 15, "top_citrus": 10}},
             {"text": "Klasik ve zarif", "icon": "bi bi-gem", "scores": {"middle_powdery": 15, "middle_floral": 10}},
-            {"text": "Gizemli ve derin", "icon": "bi bi-moon-stars", "scores": {"base_incense_tobacco": 15, "base_amber": 10}},
+            {"text": "Gizemli ve derin", "icon": "bi bi-stars", "scores": {"base_incense_tobacco": 15, "base_amber": 10}},
             {"text": "Modern ve cesur", "icon": "bi bi-lightning", "scores": {"middle_spice_mid": 15, "base_oud": 10}}
         ]
     },
@@ -90,7 +90,7 @@ QUESTIONS = [
             {"text": "Ferah ve sucul", "icon": "bi bi-water", "scores": {"top_aqua": 15, "top_citrus": 10}},
             {"text": "Çiçeksi ve romantik", "icon": "bi bi-flower1", "scores": {"middle_floral": 15, "middle_white_floral": 10}},
             {"text": "Odunsu ve sağlam", "icon": "bi bi-tree", "scores": {"base_woody": 15, "base_amber": 10}},
-            {"text": "Oryantal ve gizemli", "icon": "bi bi-moon", "scores": {"middle_spice_mid": 15, "base_oud": 10}}
+            {"text": "Oryantal ve gizemli", "icon": "bi bi-moon-stars", "scores": {"middle_spice_mid": 15, "base_oud": 10}}
         ]
     },
     {
@@ -105,7 +105,7 @@ QUESTIONS = [
             {"text": "Sade ve minimal", "icon": "bi bi-dash", "scores": {"top_citrus": 15, "top_green": 10}},
             {"text": "Dengeli", "icon": "bi bi-plus", "scores": {"middle_floral": 15, "middle_herbal": 10}},
             {"text": "Karmaşık ve katmanlı", "icon": "bi bi-layers-half", "scores": {"base_incense_tobacco": 15, "base_oud": 10}},
-            {"text": "Tatlı ve sıcak", "icon": "bi bi-thermometer-half", "scores": {"middle_powdery": 15, "base_vanilla_gourmand": 10}}
+            {"text": "Tatlı ve sıcak", "icon": "bi bi-thermometer-sun", "scores": {"middle_powdery": 15, "base_vanilla_gourmand": 10}}
         ]
     }
 ]
