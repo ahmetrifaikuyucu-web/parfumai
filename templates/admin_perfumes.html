@@ -176,14 +176,17 @@
     <div id="addForm" style="display:flex;flex-direction:column;gap:12px;">
       <div class="row g-2">
         <div class="col-md-6">
-          <input class="form-control" id="addName" placeholder="Parfüm adı" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-tertiary);">Parfüm Adı</label>
+          <input class="form-control" id="addName" placeholder="örn: Light Blue" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
         </div>
         <div class="col-md-6">
-          <input class="form-control" id="addBrand" placeholder="Marka" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-tertiary);">Marka</label>
+          <input class="form-control" id="addBrand" placeholder="örn: Dolce & Gabbana" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
         </div>
       </div>
       <div class="row g-2">
         <div class="col-md-4">
+          <label style="font-size:0.75rem;color:var(--text-tertiary);">Sezon</label>
           <select id="addSeason" class="form-control" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
             <option value="yaz">Yaz</option>
             <option value="kis">Kış</option>
@@ -191,6 +194,7 @@
           </select>
         </div>
         <div class="col-md-4">
+          <label style="font-size:0.75rem;color:var(--text-tertiary);">Cinsiyet</label>
           <select id="addGender" class="form-control" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
             <option value="kadın">Kadın</option>
             <option value="erkek">Erkek</option>
@@ -198,19 +202,26 @@
           </select>
         </div>
         <div class="col-md-4">
-          <input class="form-control" id="addPrice" placeholder="Fiyat (örn: 1000-1500 TL)" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-tertiary);">Fiyat Aralığı</label>
+          <input class="form-control" id="addPrice" placeholder="örn: 1000-1500 TL" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
         </div>
       </div>
-      <input class="form-control" id="addDesc" placeholder="Açıklama" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+      <div>
+        <label style="font-size:0.75rem;color:var(--text-tertiary);">Açıklama</label>
+        <input class="form-control" id="addDesc" placeholder="Parfüm hakkında kısa açıklama" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+      </div>
       <div class="row g-2">
         <div class="col-md-4">
-          <input class="form-control" id="addNotesTop" placeholder="Üst notalar (virgülle)" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-tertiary);">Üst Notalar</label>
+          <input class="form-control" id="addNotesTop" placeholder="virgülle ayır: bergamot, limon" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
         </div>
         <div class="col-md-4">
-          <input class="form-control" id="addNotesMid" placeholder="Orta notalar (virgülle)" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-tertiary);">Orta Notalar</label>
+          <input class="form-control" id="addNotesMid" placeholder="virgülle ayır: yasemin, gül" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
         </div>
         <div class="col-md-4">
-          <input class="form-control" id="addNotesBase" placeholder="Alt notalar (virgülle)" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-tertiary);">Alt Notalar</label>
+          <input class="form-control" id="addNotesBase" placeholder="virgülle ayır: misk, amber" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
         </div>
       </div>
       <button onclick="submitAdd()" class="btn-neon w-100 justify-content-center mt-2">

@@ -177,7 +177,10 @@ function createPerfumeCard(p, index) {
             <div class="perfume-card-neon h-100">
                 ${p.image_url ? `
                 <div class="perfume-image-wrapper">
-                    <img src="${p.image_url}" alt="${p.name}" class="perfume-img" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'perfume-img-fallback\\' style=\\'background:${sc.header}\\'><span>${p.brand.charAt(0)}</span></div>'">
+                    <picture>
+                        <source srcset="${p.image_url.replace('.jpg', '.webp').replace('.jpeg', '.webp')}" type="image/webp">
+                        <img src="${p.image_url}" alt="${p.name}" class="perfume-img" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'perfume-img-fallback\\' style=\\'background:${sc.header}\\'><span>${p.brand.charAt(0)}</span></div>'">
+                    </picture>
                 </div>
                 ` : `
                 <div class="perfume-image-wrapper">

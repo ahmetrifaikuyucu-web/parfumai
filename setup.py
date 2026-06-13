@@ -90,10 +90,12 @@ def main():
         if season not in SEASON_NEON: season = 'dort_mevsim'
         safe = re.sub(r'[\\/*?:"<>|]', '_', f'{p["brand"]}_{p["name"]}')[:80]
         safe = safe.replace('/', '_').replace(':', '_')
-        fpath = os.path.join(IMG_DIR, f'{safe}.jpg')
+        jpg_path = os.path.join(IMG_DIR, f'{safe}.jpg')
+        webp_path = os.path.join(IMG_DIR, f'{safe}.webp')
         try:
             img = generate(p['brand'], p['name'], season)
-            img.save(fpath, 'JPEG', quality=88)
+            img.save(jpg_path, 'JPEG', quality=88)
+            img.save(webp_path, 'WEBP', quality=80)
             p['image_url'] = f'/static/perfume_images/{safe}.jpg'
         except Exception as e:
             print(f'HATA [{i+1}/{total}]: {p["brand"]} {p["name"]} -> {e}')
