@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+{% block title %}Koku Analizi — ParfumAI{% endblock %}
+
+{% block content %}
+<div class="container py-4 mt-2">
+    <div class="row mb-4">
+        <div class="col-lg-8 mx-auto text-center">
+            <div class="entry">
+                <h1 class="fw-bold mb-2" style="letter-spacing:-0.02em;">Koku <span class="text-gradient-cyan">Analizi</span></h1>
+                <p class="mb-3" style="color:var(--text-secondary);">Psikolojik bilinçaltı testi ile kokusal profilinizi haritalıyoruz.</p>
+                <div class="progress-neon mx-auto" style="max-width:400px;">
+                    <div id="progressBar" class="progress-bar" style="width:0%"></div>
+                </div>
+                <p class="mt-2" style="font-size:0.85rem;color:var(--text-tertiary);">
+                    <span id="currentStep">0</span> / <span id="totalSteps">{{ questions|length + 1 }}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <form id="surveyForm">
+                <div class="question-card-neon mb-3 fade-in" data-qid="gender" data-gender="true">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="question-number"><i class="bi bi-person"></i></span>
+                        <span class="question-category">{{ gender_question.category }}</span>
+                    </div>
+                    <h5 class="question-text mb-2">{{ gender_question.question }}</h5>
+                    {% if gender_question.subtext %}
+                    <p class="question-subtext mb-3">{{ gender_question.subtext }}</p>
+                    {% endif %}
+                    <div class="options-list">
+                    {% for opt in gender_question.options %}
+                    <label class="option-neon" for="gender_{{ loop.index0 }}">
+                        <input class="form-check-input" type="radio"
+                               name="gender" id="gender_{{ loop.index0 }}"
+                               value="{{ opt.text }}" required>
+                        {% if opt.icon %}<i class="bi {{ opt.icon }} option-icon"></i>{% endif %}
+                        <span class="form-check-label">{{ opt.text }}</span>
+                    </label>
+                    {% endfor %}
+                    </div>
+                </div>
+
+                {% for q in questions %}
+                <div class="question-card-neon mb-3 fade-in" data-qid="{{ q.id }}" style="display:none;">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="question-number">{{ q.id }}</span>
+                        <span class="question-category">{{ q.category }}</span>
+                    </div>
+                    <h5 class="question-text mb-2">{{ q.question }}</h5>
+                    {% if q.subtext %}
+                    <p class="question-subtext mb-3">{{ q.subtext }}</p>
+                    {% endif %}
+                    <div class="options-list">
+                        {% for opt in q.options %}
+                        <label class="option-neon" for="q{{ q.id }}o{{ loop.index0 }}">
+                            <input class="form-check-input" type="radio"
+                                   name="q{{ q.id }}" id="q{{ q.id }}o{{ loop.index0 }}"
+                                   value="{{ loop.index0 }}" required>
+                            {% if opt.icon %}<i class="bi {{ opt.icon }} option-icon"></i>{% endif %}
+                            <span class="form-check-label">{{ opt.text }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div id="nameCard" class="question-card-neon mb-3 text-center fade-in" style="display:none;">
+                    <div class="py-3">
+                        <i class="bi bi-check-circle" style="font-size:3rem;color:var(--neon-green);"></i>
+                        <h4 class="fw-bold mt-3">Analiz Tamamlandı</h4>
+                        <p style="color:var(--text-secondary);">Size nasıl hitap edelim?</p>
+                        <div class="row justify-content-center">
+                            <div class="col-md-6">
+                                <input type="text" id="userName" class="form-control form-control-lg text-center mb-3"
+                                       placeholder="Adınız" value="Misafir"
+                                       style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:12px;font-size:1.1rem;">
+                                <button type="button" id="submitBtn" class="btn-neon w-100 d-flex align-items-center justify-content-center gap-2">
+                                     <i class="bi bi-magic"></i> Kokusal Profilimi Oluştur
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4" id="navButtons">
+                    <button type="button" id="prevBtn" class="btn-neon-outline d-flex align-items-center gap-1"
+                            style="background:transparent;border:none;color:var(--text-secondary) !important;padding:0;" disabled>
+                        <i class="bi bi-chevron-left"></i> Önceki
+                    </button>
+                    <button type="button" id="nextBtn" class="btn-neon d-flex align-items-center gap-2">
+                        Sonraki <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="loadingOverlay" class="overlay-neon" style="display:none;">
+    <div class="overlay-content">
+        <div class="spinner"></div>
+        <h4 style="font-weight:500;">Kokusal Profiliniz Oluşturuluyor</h4>
+        <p id="loadingStatus" style="color:var(--text-secondary);font-size:0.9rem;">Limbik sistem haritalanıyor...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const CSRF_TOKEN = '{{ csrf_token }}';
+const totalQuestions = {{ questions|length }};
+const totalSteps = totalQuestions + 1;
+const questionList = [];
+
+questionList.push('gender');
+document.querySelectorAll('.question-card-neon[data-qid]:not([data-gender])').forEach(el => {
+    questionList.push(parseInt(el.getAttribute('data-qid')));
+});
+
+let currentStep = 0;
+let answers = {};
+let selectedGender = null;
+
+document.getElementById('totalSteps').textContent = totalSteps;
+
+function updateProgress() {
+    const pct = totalSteps > 0 ? Math.round((currentStep / totalSteps) * 100) : 0;
+    document.getElementById('progressBar').style.width = Math.min(pct, 100) + '%';
+    document.getElementById('currentStep').textContent = Math.min(currentStep, totalSteps);
+}
+
+function showStep(index) {
+    document.querySelectorAll('.question-card-neon').forEach(c => c.style.display = 'none');
+    document.getElementById('nameCard').style.display = 'none';
+
+    if (index >= totalSteps) {
+        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('prevBtn').style.display = 'none';
+        document.getElementById('nameCard').style.display = 'block';
+        currentStep = index;
+        updateProgress();
+        return;
+    }
+
+    document.getElementById('nextBtn').style.display = 'inline-flex';
+    document.getElementById('prevBtn').style.display = 'inline-flex';
+
+    const qid = questionList[index];
+    const el = document.querySelector(`.question-card-neon[data-qid="${qid}"]`);
+    if (el) el.style.display = 'block';
+
+    currentStep = index;
+    document.getElementById('prevBtn').disabled = index === 0;
+    updateProgress();
+
+    const isLast = index === totalSteps - 1;
+    document.getElementById('nextBtn').innerHTML = isLast ? 'Tamamla <i class="bi bi-chevron-right"></i>' : 'Sonraki <i class="bi bi-chevron-right"></i>';
+
+    if (qid === 'gender') {
+        const radios = document.querySelectorAll('input[name="gender"]');
+        radios.forEach(r => {
+            if (selectedGender && r.value === selectedGender) {
+                r.checked = true;
+                r.closest('.option-neon').classList.add('selected');
+            } else {
+                r.closest('.option-neon').classList.remove('selected');
+            }
+        });
+    } else {
+        const radios = document.querySelectorAll(`input[name="q${qid}"]`);
+        radios.forEach(r => {
+            if (answers[qid] !== undefined && parseInt(r.value) === answers[qid]) {
+                r.checked = true;
+                r.closest('.option-neon').classList.add('selected');
+            } else {
+                r.checked = false;
+                r.closest('.option-neon').classList.remove('selected');
+            }
+        });
+    }
+}
+
+document.getElementById('nextBtn').addEventListener('click', function() {
+    const qid = questionList[currentStep];
+
+    if (qid === 'gender') {
+        const selected = document.querySelector('input[name="gender"]:checked');
+        if (!selected) {
+            document.querySelector('.question-card-neon[data-gender="true"]').style.border = '1px solid var(--neon-magenta)';
+            setTimeout(() => document.querySelector('.question-card-neon[data-gender="true"]').style.border = '1px solid var(--glass-border)', 1000);
+            return;
+        }
+        selectedGender = selected.value;
+    } else {
+        const selected = document.querySelector(`input[name="q${qid}"]:checked`);
+        if (!selected) {
+            const card = document.querySelector(`.question-card-neon[data-qid="${qid}"]`);
+            if (card) {
+                card.style.border = '1px solid var(--neon-magenta)';
+                setTimeout(() => card.style.border = '1px solid var(--glass-border)', 1000);
+            }
+            return;
+        }
+        answers[qid] = parseInt(selected.value);
+    }
+
+    showStep(currentStep + 1);
+});
+
+document.getElementById('prevBtn').addEventListener('click', function() {
+    showStep(currentStep - 1);
+});
+
+document.querySelectorAll('.option-neon').forEach(label => {
+    label.addEventListener('click', function() {
+        const parent = this.closest('.question-card-neon');
+        if (parent) {
+            parent.querySelectorAll('.option-neon').forEach(l => l.classList.remove('selected'));
+            this.classList.add('selected');
+            parent.style.border = '1px solid var(--neon-cyan)';
+            setTimeout(() => parent.style.border = '1px solid var(--glass-border)', 500);
+        }
+    });
+});
+
+document.getElementById('submitBtn').addEventListener('click', function() {
+    const name = document.getElementById('userName').value.trim() || 'Misafir';
+    const gender = selectedGender || 'unisex';
+    document.getElementById('loadingOverlay').style.display = 'flex';
+
+    const statuses = [
+        'Limbik sistem haritalanıyor...',
+        'Amigdala duygu profili oluşturuluyor...',
+        'Hipokampus koku-anı bağlantıları analiz ediliyor...',
+        'Top-Middle-Base nota oranları hesaplanıyor...',
+        'Cinsiyet tercihinize göre filtreleme yapılıyor...',
+        'Parfüm veritabanı taranıyor...',
+        'AI eşleme yapılıyor...',
+        'Kişisel kokusal profiliniz oluşturuluyor...'
+    ];
+
+    let si = 0;
+    const siInterval = setInterval(() => {
+        if (si < statuses.length) document.getElementById('loadingStatus').textContent = statuses[si];
+        si++;
+    }, 600);
+
+    sessionStorage.removeItem('results');
+
+    fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers: answers, gender: gender, name: name, _csrf_token: CSRF_TOKEN })
+    })
+    .then(r => r.json())
+    .then(data => {
+        clearInterval(siInterval);
+        if (data.success) {
+            sessionStorage.setItem('results', JSON.stringify(data));
+            window.location.href = '/results';
+        } else {
+            alert('Hata: ' + data.error);
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+    })
+    .catch(err => {
+        clearInterval(siInterval);
+            alert('Bağlantı hatası: ' + err);
+        document.getElementById('loadingOverlay').style.display = 'none';
+    });
+});
+
+// Swipe navigation support
+let touchStartX = 0;
+let touchEndX = 0;
+
+document.addEventListener('touchstart', function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+}, { passive: true });
+
+document.addEventListener('touchend', function(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+}, { passive: true });
+
+function handleSwipe() {
+    const diff = touchStartX - touchEndX;
+    if (Math.abs(diff) < 50) return; // Minimum swipe distance
+    
+    if (diff > 0) {
+        // Swipe left = next
+        document.getElementById('nextBtn').click();
+    } else {
+        // Swipe right = previous
+        if (currentStep > 0) {
+            document.getElementById('prevBtn').click();
+        }
+    }
+}
+
+showStep(0);
+</script>
+{% endblock %}

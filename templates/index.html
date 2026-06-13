@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block title %}ParfumAI — Keşfedin{% endblock %}
+
+{% block content %}
+<div class="hero-neon">
+    <div class="particle-container" id="particles"></div>
+    <div class="container position-relative" style="z-index:1;">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <div class="entry">
+                    <h1 class="hero-title-neon mb-4">
+                        Kokusal<br>
+                        <span class="gradient-neon">Parmak İzinizi</span><br>
+                        Keşfedin
+                    </h1>
+                    <p class="hero-subtitle-neon mb-4">
+                        6 bilimsel soruyla nörobilim, psikiyatri ve parfümeri biliminin
+                        kesiştiği noktada <strong style="color:var(--text-primary);">size özel</strong> koku profilinizi
+                        oluşturuyoruz.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 mb-4">
+                        <a href="/survey" class="btn-neon text-decoration-none">
+                            Analize Başla
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                        <a href="/about" class="btn-neon-outline text-decoration-none">
+                            Bilimsel Altyapı
+                        </a>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge rounded-pill" style="background:rgba(0,245,255,0.08);color:var(--neon-cyan);font-weight:400;padding:6px 14px;border:1px solid rgba(0,245,255,0.15);">
+                            Limbik Sistem
+                        </span>
+                        <span class="badge rounded-pill" style="background:rgba(255,0,229,0.08);color:var(--neon-magenta);font-weight:400;padding:6px 14px;border:1px solid rgba(255,0,229,0.15);">
+                            Amigdala Analizi
+                        </span>
+                        <span class="badge rounded-pill" style="background:rgba(255,215,0,0.08);color:var(--neon-gold);font-weight:400;padding:6px 14px;border:1px solid rgba(255,215,0,0.15);">
+                            Top-Middle-Base Notes
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-flex justify-content-center">
+                <div class="entry" style="animation-delay:0.2s;">
+                    <i class="bi bi-droplet" style="font-size:10rem;color:rgba(0,245,255,0.06);"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5 my-3">
+    <div class="row g-4">
+        <div class="col-md-4 entry">
+            <div class="card-glass h-100 p-3">
+                <div class="card-body">
+                    <div class="feature-icon-neon mb-3" style="background:rgba(0,245,255,0.08);color:var(--neon-cyan);">
+                        <i class="bi bi-clipboard-data"></i>
+                    </div>
+                    <h5 class="fw-bold">6 Bilimsel Soru</h5>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;">
+                        Nörobilim, duygusal profil, kişilik analizi ve nota haritalama
+                        temelli kapsamlı değerlendirme.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 entry">
+            <div class="card-glass h-100 p-3">
+                <div class="card-body">
+                    <div class="feature-icon-neon mb-3" style="background:rgba(255,0,229,0.08);color:var(--neon-magenta);">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <h5 class="fw-bold">AI Destekli Eşleme</h5>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;">
+                        Koku profilinize göre yazlık, kışlık ve 4 mevsim unisex
+                        parfüm önerileri.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 entry">
+            <div class="card-glass h-100 p-3">
+                <div class="card-body">
+                    <div class="feature-icon-neon mb-3" style="background:rgba(255,215,0,0.08);color:var(--neon-gold);">
+                        <i class="bi bi-database"></i>
+                    </div>
+                    <h5 class="fw-bold">Zengin Veritabanı</h5>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;">
+                        <span data-count="342" class="fw-bold" style="color:var(--neon-gold);">0</span> premium parfüm, her biri detaylı nota profilleriyle
+                        analiz edildi.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section-divider"></div>
+
+<div class="container py-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6 mb-4 mb-lg-0 entry">
+            <h2 class="fw-bold mb-4" style="font-size:2rem;letter-spacing:-0.02em;">Nasıl Çalışır?</h2>
+            <div class="d-flex mb-4 align-items-start">
+                <div class="question-number me-3 flex-shrink-0">1</div>
+                <div>
+                    <h6 class="fw-semibold" style="color:var(--neon-cyan);">Koku Analizi</h6>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;">6 soruluk bilimsel anketi yanıtlayın. Her soru limbik sisteminizdeki koku-duygu bağlantısını haritalar.</p>
+                </div>
+            </div>
+            <div class="d-flex mb-4 align-items-start">
+                <div class="question-number me-3 flex-shrink-0" style="background:rgba(255,0,229,0.1);color:var(--neon-magenta);border-color:rgba(255,0,229,0.2);">2</div>
+                <div>
+                    <h6 class="fw-semibold" style="color:var(--neon-magenta);">Nota Profili Çıkarma</h6>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;">Yanıtlarınız analiz edilir, Top-Middle-Base nota oranlarınız hesaplanır.</p>
+                </div>
+            </div>
+            <div class="d-flex mb-4 align-items-start">
+                <div class="question-number me-3 flex-shrink-0" style="background:rgba(0,255,136,0.1);color:var(--neon-green);border-color:rgba(0,255,136,0.2);">3</div>
+                <div>
+                    <h6 class="fw-semibold" style="color:var(--neon-green);">AI Eşleme</h6>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;">Yapay zeka, profilinize en uygun parfümleri veritabanımızdan seçer.</p>
+                </div>
+            </div>
+            <div class="d-flex align-items-start">
+                <div class="question-number me-3 flex-shrink-0" style="background:rgba(255,215,0,0.1);color:var(--neon-gold);border-color:rgba(255,215,0,0.2);">4</div>
+                <div>
+                    <h6 class="fw-semibold" style="color:var(--neon-gold);">3 Özel Öneri</h6>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;">Her mevsim için 3 parfüm önerisi alırsınız.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 text-center entry">
+            <div class="card-glass d-inline-block p-4" style="min-width:260px;">
+                <div class="d-flex gap-3 justify-content-center">
+                    <div><span class="badge-neon-season" style="background:var(--neon-cyan);color:#000;">Top</span></div>
+                    <div><span class="badge-neon-season" style="background:var(--neon-magenta);color:#000;">Middle</span></div>
+                    <div><span class="badge-neon-season" style="background:var(--neon-gold);color:#000;">Base</span></div>
+                </div>
+                <p class="mt-3 mb-0" style="color:var(--text-tertiary);font-size:0.85rem;">Nota katmanları ve duyusal profiliniz</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('particles');
+    if (!container) return;
+    
+    const colors = ['#00f5ff', '#ff00e5', '#ffd700', '#00ff88'];
+    
+    function createParticle() {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = Math.random() * 6 + 2;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        p.style.cssText = `
+            width: ${size}px;
+            height: ${size}px;
+            background: ${color};
+            left: ${Math.random() * 100}%;
+            animation-duration: ${Math.random() * 8 + 6}s;
+            animation-delay: ${Math.random() * 4}s;
+        `;
+        container.appendChild(p);
+        setTimeout(() => p.remove(), 15000);
+    }
+    
+    for (let i = 0; i < 15; i++) createParticle();
+    
+    setInterval(createParticle, 800);
+});
+</script>
+{% endblock %}

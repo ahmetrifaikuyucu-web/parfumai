@@ -1,0 +1,118 @@
+PARFUMAI — LİSANS SÖZLEŞMESİ
+==============================
+Copyright (c) 2026 Ahmet Rıfai Kuyucu
+Tüm Hakları Saklıdır — All Rights Reserved.
+
+1. LİSANS KAPSAMI
+-----------------
+Bu lisans sözleşmesi, "ParfumAI" adlı yazılım ürününün (bundan sonra
+"Yazılım" olarak anılacaktır) tüm bileşenlerini kapsar:
+
+  • Kaynak kodu (.py dosyaları)
+  • Parfüm veritabanı ve nota profilleri
+  • Ön yüz şablonları (HTML, CSS, JavaScript)
+  • Statik varlıklar (görseller, ikonlar, fontlar)
+  • Belgeler ve yapılandırma dosyaları
+  • Türev çalışmalar ve uyarlamalar
+
+2. YASAKLANAN KULLANIMLAR
+--------------------------
+Aşağıdaki eylemler kesinlikle yasaktır:
+
+  a) KOPYALAMA VE ÇOĞALTMA
+     Yazılımın tamamının veya herhangi bir bölümünün izinsiz
+     kopyalanması, çoğaltılması veya arşivlenmesi.
+
+  b) DAĞITIM
+     Yazılımın herhangi bir ortamda (web, FTP, e-posta, fiziksel
+     medya) izinsiz dağıtılması, satılması, kiralanması veya
+     kullanıma sunulması.
+
+  c) TİCARİ KULLANIM
+     Yazılımın herhangi bir ticari işletmede, kurumda veya
+     gelir getirici faaliyette kullanılması.
+
+  d) TERSİNE MÜHENDİSLİK
+     Kaynak kodun tersine mühendislik, ayrıştırma veya
+     derleme çözümleme işlemlerine tabi tutulması.
+
+  e) DEĞİŞİKLİK VE TÜREV ÇALIŞMALAR
+     Yazılımın değiştirilmesi, uyarlanması, genişletilmesi veya
+     türev çalışmalar oluşturulması.
+
+  f) VERİTANI ÇIKARMA (SCRAPING)
+     API uç noktalarının otomatize araçlarla taranması,
+     parfüm veritabanının veya kullanıcı verilerinin
+     toplanması.
+
+  g) YENİDEN YAYINLAMA
+     Yazılımın veya bileşenlerinin başka bir platformda,
+     başka bir marka altında veya başka bir isimle
+     yayınlanması.
+
+3. FİKRİ MÜLKİYET HAKLARI
+--------------------------
+  a) "ParfumAI" markası, logosu ve tüm türevleri Ahmet Rıfai
+     Kuyucu'nun tescilsiz markasıdır. İzinsiz kullanımı
+     yasaktır.
+
+  b) Parfüm veritabanındaki nota profilleri, eşleme
+     algoritmaları ve puanlama motoru ticari sır niteliğindedir.
+
+  c) Üçüncü taraf kütüphaneler kendi lisanslarına tabidir
+     (bkz. NOTICE dosyası).
+
+4. GARANTİ REDDİ
+----------------
+Bu yazılım "OLDUĞU GİBİ" sağlanmaktadır. YAZAR, AÇIK VEYA
+ZIMNİ HİÇBİR GARANTİ VERMEZ:
+
+  • Yazılımın hatasız çalışacağı garantisi verilmez.
+  • Parfüm önerilerinin kişisel zevke veya cilt tipine
+    uygunluğu garanti edilmez.
+  • Koku analizi sonuçları tıbbi veya psikiyatrik bir tanı
+    niteliği taşımaz.
+
+5. SORUMLULUK SINIRLAMASI
+--------------------------
+YAZAR, HİÇBİR DURUMDA AŞAĞIDAKİLERDEN SORUMLU TUTULAMAZ:
+
+  a) Kullanıcının yazılımı kullanması sonucu oluşabilecek
+     dolaylı, arızi, özel veya sonuçsal zararlar.
+
+  b) Parfüm alerjisi, cilt tahrişi veya diğer fiziksel
+     reaksiyonlar.
+
+  c) Kâr kaybı, iş kesintisi veya veri kaybı.
+
+  d) Üçüncü tarafların talepleri.
+
+6. FESHİN HÜKÜMSÜZLÜĞÜ
+------------------------
+Bu lisansın herhangi bir hükmünün geçersiz olması, diğer
+hükümlerin geçerliliğini etkilemez. Geçersiz hüküm yerine,
+tarafların asıl niyetine en yakın geçerli hüküm uygulanır.
+
+7. FESİH
+--------
+Bu lisansın 2. maddesindeki yasaklardan herhangi birinin
+ihlali halinde lisans DERHAL VE İHBARSIZ feshedilir. Feshin
+ardından yazılımın tüm kopyaları imha edilmelidir.
+
+8. YÜRÜRLÜKTEKİ HUKUK
+----------------------
+Bu lisans sözleşmesi Türkiye Cumhuriyeti kanunlarına tabidir.
+Uyuşmazlıklarda İstanbul Mahkemeleri ve İcra Daireleri
+yetkilidir.
+
+9. İLETİŞİM
+-----------
+Lisans talepleri, ticari kullanım izinleri ve diğer
+soruşturmalar için aşağıdaki kanallardan iletişime geçiniz:
+
+  E-posta: ahmetrifaikuyucu@outlook.com.tr
+  LinkedIn: https://linkedin.com/in/ahmetrfaikuyucu
+
+---
+Ahmet Rıfai Kuyucu
+2026

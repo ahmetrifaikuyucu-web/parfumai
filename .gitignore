@@ -1,0 +1,30 @@
+# ParfumAI — .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Test
+.pytest_cache/
+.vscode/
+.idea/
+
+# Environment
+.env
+
+# Runtime data (auto-generated)
+data/perfume_database.json
+data/audit_log.jsonl
+data/sales_log.csv
+data/cache/
+
+# Logs
+logs/
+yedekler/
+
+# OS
+Thumbs.db
+.DS_Store
