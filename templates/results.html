@@ -1,557 +1,205 @@
 {% extends "base.html" %}
-{% block title %}Kokusal Profiliniz — ParfumAI{% endblock %}
-
-{% block content %}
-<div class="container py-4 mt-2">
-    <div id="loadingResults" class="loading-neon">
-        <div class="spinner-neon"></div>
-        <p style="color:var(--text-secondary);">Sonuçlarınız yükleniyor...</p>
-    </div>
-
-    <div id="resultsContent" style="display:none;">
-        <div class="row mb-4">
-            <div class="col-lg-8 mx-auto text-center entry">
-                <i class="bi bi-check-circle-fill" style="font-size:2.5rem;color:var(--neon-green);"></i>
-                <h1 class="fw-bold mt-2" style="letter-spacing:-0.02em;">Kokusal Profiliniz <span class="text-gradient-cyan">Hazır</span></h1>
-                <p class="mb-0" style="color:var(--text-secondary);font-size:1.05rem;" id="userGreeting">Merhaba!</p>
-            </div>
-        </div>
-
-        <div class="row mb-5">
-            <div class="col-lg-10 mx-auto">
-                <div class="card-glass p-4 entry">
-                    <div class="d-flex align-items-center gap-2 mb-4">
-                        <i class="bi bi-pie-chart" style="color:var(--neon-cyan);font-size:1.3rem;"></i>
-                        <h5 class="fw-semibold mb-0">Nota Profiliniz</h5>
-                    </div>
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <canvas id="noteChart" height="220"></canvas>
-                        </div>
-                        <div class="col-md-3 mt-3 mt-md-0 text-center">
-                            <canvas id="layerChart" height="180" style="max-width:180px;margin:0 auto;"></canvas>
-                        </div>
-                        <div class="col-md-3 mt-3 mt-md-0">
-                            <div class="text-center p-3" style="background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid var(--glass-border);">
-                                <small style="color:var(--text-tertiary);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;">Profil Tipi</small>
-                                <h6 class="fw-bold mt-1 mb-0 profile-badge-neon" id="profileTypeText">-</h6>
-                            </div>
-                            <div class="mt-2 text-center" style="font-size:0.75rem;color:var(--text-secondary);">
-                                <span style="color:var(--neon-orange);">&#9679;</span> &Uuml;st: <span id="topPctText">-</span>%
-                                &nbsp;
-                                <span style="color:var(--neon-cyan);">&#9679;</span> Orta: <span id="midPctText">-</span>%
-                                &nbsp;
-                                <span style="color:var(--neon-green);">&#9679;</span> Temel: <span id="basePctText">-</span>%
-                            </div>
-                            <div id="noteDetails" class="mt-2"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row mb-2">
-            <div class="col-12 text-center entry">
-                <h3 class="fw-bold" style="letter-spacing:-0.02em;">
-                    <i class="bi bi-droplet me-2" style="color:var(--neon-cyan);"></i>
-                    Size Özel <span class="text-gradient-magenta">9 Parfüm</span> Önerisi
-                </h3>
-                <p style="color:var(--text-secondary);">Her mevsim için 3'er özel parfüm</p>
-            </div>
-        </div>
-
-        <div class="mb-4" id="yazSection">
-            <h5 class="fw-semibold mb-3" style="color:var(--neon-orange);">
-                <i class="bi bi-sun me-2"></i>Yaz Önerileri
-            </h5>
-            <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:12px;">
-                Sıcak havalarda ferahlık ve canlılık için
-            </p>
-            <div class="row g-3 perfume-stagger" id="yazContainer"></div>
-        </div>
-
-        <div class="mb-4" id="kisSection">
-            <h5 class="fw-semibold mb-3" style="color:var(--neon-cyan);">
-                <i class="bi bi-snow me-2"></i>Kış Önerileri
-            </h5>
-            <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:12px;">
-                Soğuk günlerde sıcaklık ve derinlik için
-            </p>
-            <div class="row g-3 perfume-stagger" id="kisContainer"></div>
-        </div>
-
-        <div class="mb-5" id="dört_mevsimSection">
-            <h5 class="fw-semibold mb-3" style="color:var(--neon-green);">
-                <i class="bi bi-globe me-2"></i>4 Mevsim Önerileri
-            </h5>
-            <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:12px;">
-                Yıl boyu kullanıma uygun dengeli seçenekler
-            </p>
-            <div class="row g-3 perfume-stagger" id="dört_mevsimContainer"></div>
-        </div>
-
-        <div class="text-center mb-5 entry">
-            <a href="/survey" class="btn-neon text-decoration-none d-inline-flex align-items-center gap-3" 
-               style="font-size:1.3rem;padding:16px 40px;border-radius:16px;">
-                <i class="bi bi-person-plus" style="font-size:1.5rem;"></i> YENİ MÜŞTERİ
-            </a>
-            <p style="color:var(--text-tertiary);font-size:0.8rem;margin-top:8px;">Yeni analiz için dokunun</p>
-        </div>
-
-        <div class="text-center mb-4 entry">
-            <div class="d-flex flex-wrap gap-2 justify-content-center">
-                <button onclick="shareWhatsApp()" class="btn-share" style="background:rgba(37,211,102,0.1);border:1px solid rgba(37,211,102,0.2);color:#25d366;">
-                    <i class="bi bi-whatsapp me-1"></i> WhatsApp
-                </button>
-                <button onclick="shareQR()" class="btn-share" style="background:rgba(0,245,255,0.1);border:1px solid rgba(0,245,255,0.2);color:var(--neon-cyan);">
-                    <i class="bi bi-qr-code me-1"></i> QR Kod
-                </button>
-                <button onclick="shareCopy(event)" class="btn-share" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.2);color:var(--neon-gold);">
-                    <i class="bi bi-clipboard me-1"></i> Kopyala
-                </button>
-            </div>
-        </div>
-
-        <div class="row mb-5">
-            <div class="col-12">
-                <div class="card-glass p-4 entry">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <i class="bi bi-search" style="color:var(--neon-cyan);"></i>
-                        <h5 class="fw-semibold mb-0">Keşif: Daha Fazla Parfüm</h5>
-                    </div>
-                    <p style="color:var(--text-secondary);font-size:0.9rem;">
-                        Aşağıdaki linklerle Fragrantica ve Parfumo'da size özenle seçilmiş notalara göre arama yapın.
-                    </p>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="p-3" style="background:rgba(0,245,255,0.03);border-radius:12px;border:1px solid var(--glass-border);">
-                                <h6 class="fw-semibold mb-2" style="color:var(--neon-cyan);">
-                                    <i class="bi bi-flower1 me-1"></i> Fragrantica
-                                </h6>
-                                <div class="d-flex flex-wrap gap-2" id="fragranticaLinks"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="p-3" style="background:rgba(0,255,136,0.03);border-radius:12px;border:1px solid var(--glass-border);">
-                                <h6 class="fw-semibold mb-2" style="color:var(--neon-green);">
-                                    <i class="bi bi-flower2 me-1"></i> Parfumo
-                                </h6>
-                                <div class="d-flex flex-wrap gap-2" id="parfumoLinks"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-<!-- Assistant Panel (hidden - Shift+A or 3-finger tap) -->
-<div id="assistantPanel" style="display:none;position:fixed;top:0;right:0;width:350px;height:100vh;background:var(--bg-secondary);border-left:2px solid var(--neon-cyan);z-index:9999;overflow-y:auto;padding:24px;box-shadow:-4px 0 20px rgba(0,0,0,0.5);">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="fw-bold mb-0" style="color:var(--neon-cyan);">
-            <i class="bi bi-headset me-2"></i>Asistan Paneli
-        </h5>
-        <button onclick="toggleAssistant()" style="background:none;border:none;color:var(--text-secondary);font-size:1.5rem;cursor:pointer;">&times;</button>
-    </div>
-    <div id="assistantContent">
-        <p style="color:var(--text-secondary);font-size:0.85rem;">Sonuçlar yüklendiğinde satış noktaları burada görünecek.</p>
-    </div>
-</div>
-</div>
+{% block title %}ParfumAI — Koku Profiliniz{% endblock %}
+{% block extra_head %}
+<meta name="description" content="ParfumAI ile kişisel koku profilinizi keşfedin.">
+<meta property="og:title" content="ParfumAI — Koku Profiliniz">
+<meta property="og:description" content="Kişisel koku profiliniz bilimsel olarak analiz edildi.">
 {% endblock %}
 
-{% block extra_scripts %}
-<script>
-const CSRF_TOKEN = '{{ csrf_token }}';
+{% block content %}
+<div id="loadingScreen" class="overlay-parfum">
+    <div style="text-align:center;">
+        <div class="spinner"></div>
+        <p style="color:var(--text-secondary);font-size:0.9rem;">Profiliniz yükleniyor...</p>
+    </div>
+</div>
 
-function renderNoteBadges(notes) {
-    if (!notes || notes.length === 0) return '<span class="note-badge-neon">-</span>';
-    return notes.map(n => `<span class="note-badge-neon">${n.replace(/_/g, ' ')}</span>`).join('');
-}
+<div id="resultsContent" style="display:none;">
+    <div class="hero-small">
+        <div class="container">
+            <span class="profile-badge mb-3" id="profileBadge"><i class="bi bi-droplet"></i> <span id="profilAdi"></span></span>
+            <h1>Koku Profiliniz</h1>
+            <p id="aciklama"></p>
+        </div>
+    </div>
 
-function createPerfumeCard(p, index) {
-    const seasonColors = {
-        'yaz': { header: 'rgba(255,102,0,0.08)', icon: 'var(--neon-orange)', badge: 'var(--neon-orange)' },
-        'kis': { header: 'rgba(0,245,255,0.08)', icon: 'var(--neon-cyan)', badge: 'var(--neon-cyan)' },
-        'dört_mevsim': { header: 'rgba(0,255,136,0.08)', icon: 'var(--neon-green)', badge: 'var(--neon-green)' },
-        'dort_mevsim': { header: 'rgba(0,255,136,0.08)', icon: 'var(--neon-green)', badge: 'var(--neon-green)' },
-        'ilkbahar': { header: 'rgba(255,102,0,0.08)', icon: 'var(--neon-orange)', badge: 'var(--neon-orange)' }
-    };
-    const sc = seasonColors[p.season] || seasonColors['dort_mevsim'];
-    const seasonLabels = { 'yaz': 'Yaz', 'kis': 'Kış', 'dört_mevsim': '4 Mevsim', 'dort_mevsim': '4 Mevsim', 'ilkbahar': 'İlkbahar' };
-    const genderLabels = { 'unisex': 'Unisex', 'kadin': 'Kadın', 'erkek': 'Erkek' };
-    const seasonIcons = { 'yaz': 'bi-sun', 'kis': 'bi-snow', 'dört_mevsim': 'bi-globe', 'dort_mevsim': 'bi-globe', 'ilkbahar': 'bi-flower1' };
-
-    return `
-        <div class="col-12 col-md-4 result-card">
-            <div class="perfume-card-neon h-100">
-                ${p.image_url ? `
-                <div class="perfume-image-wrapper">
-                    <picture>
-                        <source srcset="${p.image_url.replace('.jpg', '.webp').replace('.jpeg', '.webp')}" type="image/webp">
-                        <img src="${p.image_url}" alt="${p.name}" class="perfume-img" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'perfume-img-fallback\\' style=\\'background:${sc.header}\\'><span>${p.brand.charAt(0)}</span></div>'">
-                    </picture>
+    <div class="container py-5">
+        <div class="row g-4 mb-5">
+            <div class="col-lg-6">
+                <div class="chart-wrapper fade-in">
+                    <canvas id="radarChart"></canvas>
                 </div>
-                ` : `
-                <div class="perfume-image-wrapper">
-                    <div class="perfume-img-fallback" style="background:${sc.header};">
-                        <span>${p.brand.charAt(0)}</span>
-                    </div>
-                </div>
-                `}
-                <div class="perfume-header" style="border-bottom-color:${sc.header};">
-                    <span class="badge-neon-season" style="background:${sc.badge};color:#000;">
-                        <i class="bi ${seasonIcons[p.season] || 'bi-droplet'} me-1"></i>${seasonLabels[p.season] || p.season}
-                    </span>
-                    <h5 class="fw-bold mt-2 mb-0" style="font-size:1rem;">${p.name}</h5>
-                    <p style="color:var(--text-secondary);font-size:0.8rem;margin-top:1px;">${p.brand}</p>
-                </div>
-                <div class="perfume-body">
-                    <p style="font-size:0.8rem;color:var(--text-secondary);min-height:36px;">${p.description || '-'}</p>
-                    <div class="d-flex gap-2 mb-2 flex-wrap">
-                        <span class="badge-neon">${genderLabels[p.gender] || p.gender}</span>
-                        <span class="badge-neon">${p.price_range || '-'}</span>
-                        ${p.in_stock === false ? '<span class="badge-neon" style="background:rgba(255,0,0,0.15);color:#ff6666;border-color:rgba(255,0,0,0.2);">Stokta Yok</span>' : ''}
-                    </div>
-                    <div class="mt-2">
-                        <small style="font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);">Üst Notalar</small>
-                        <div class="mt-1">${renderNoteBadges(p.notes_top)}</div>
-                        <small style="font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);display:block;margin-top:6px;">Kalp Notaları</small>
-                        <div class="mt-1">${renderNoteBadges(p.notes_middle)}</div>
-                        <small style="font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);display:block;margin-top:6px;">Temel Notalar</small>
-                        <div class="mt-1">${renderNoteBadges(p.notes_base)}</div>
-
+            </div>
+            <div class="col-lg-6">
+                <div class="chart-wrapper fade-in">
+                    <canvas id="pieChart"></canvas>
                 </div>
             </div>
         </div>
-    `;
-}
 
-
-
-function shareWhatsApp() {
-    const text = 'ParfumAI ile koku profilimi oluşturdum! 🧪✨\nSiz de deneyin: ' + window.location.origin;
-    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
-}
-
-function shareQR() {
-    const url = window.location.origin;
-    const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url);
-
-    const panel = document.createElement('div');
-    panel.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:10000;display:flex;align-items:center;justify-content:center;';
-    panel.innerHTML = `
-        <div style="background:var(--bg-secondary);padding:32px;border-radius:20px;text-align:center;max-width:360px;">
-            <h5 class="fw-bold mb-3" style="color:var(--neon-cyan);">QR Kod</h5>
-            <img src="${qrUrl}" alt="QR Code" style="width:200px;height:200px;border-radius:12px;margin-bottom:16px;">
-            <p style="color:var(--text-secondary);font-size:0.85rem;">Telefonunuzla tarayın</p>
-            <button onclick="this.closest('div[style]').remove()" style="margin-top:12px;padding:10px 24px;border-radius:8px;background:rgba(0,245,255,0.1);border:1px solid rgba(0,245,255,0.2);color:var(--neon-cyan);cursor:pointer;">Kapat</button>
+        <div class="text-center mb-5 reveal">
+            <div class="card-parfum p-4 d-inline-block" style="min-width:300px;box-shadow:var(--shadow-lg);">
+                <p class="mb-2" style="color:var(--text-muted);font-size:0.85rem;">Koku Profili Gücü</p>
+                <div class="d-inline-flex align-items-center gap-2">
+                    <span id="profilYuzde" style="font-size:2.8rem;font-weight:700;color:var(--accent-blue);font-family:var(--font-heading);"></span>
+                    <span style="color:var(--text-muted);font-size:0.9rem;">/ 100</span>
+                </div>
+                <div class="progress-parfum mt-2" style="width:220px;margin:0 auto;height:8px;">
+                    <div class="progress-bar" id="profilBar" style="width:0%;height:100%;"></div>
+                </div>
+            </div>
         </div>
-    `;
-    document.body.appendChild(panel);
-    panel.addEventListener('click', function(e) { if (e.target === panel) panel.remove(); });
-}
 
-function shareCopy(e) {
-    const text = 'ParfumAI Koku Profili\n' + window.location.origin;
-    navigator.clipboard.writeText(text).then(() => {
-        const btn = e.target.closest('.btn-share');
-        if (!btn) return;
-        const original = btn.innerHTML;
-        btn.innerHTML = '<i class="bi bi-check me-1"></i> Kopyalandı!';
-        setTimeout(() => btn.innerHTML = original, 2000);
-    }).catch(() => {});
-}
+        <div class="text-center mb-4 reveal">
+            <h2 class="section-title" style="font-size:1.6rem;">Size En Uygun Parfümler</h2>
+            <p class="section-subtitle">Koku profilinize göre seçilmiş öneriler</p>
+        </div>
 
-document.addEventListener('DOMContentLoaded', function() {
-    const stored = sessionStorage.getItem('results');
-    if (!stored) { window.location.href = '/survey'; return; }
+        <div id="yetersizUyari" class="text-center py-4 reveal" style="display:none;">
+            <div class="card-parfum p-4 d-inline-block">
+                <i class="bi bi-emoji-neutral" style="font-size:2rem;color:var(--accent-gold);"></i>
+                <p class="mt-2 mb-0" style="color:var(--text-secondary);">Henüz yeterli parfüm veritabanımız bulunmuyor.</p>
+            </div>
+        </div>
 
-    let data;
-    try { data = JSON.parse(stored); }
-    catch (e) { sessionStorage.removeItem('results'); window.location.href = '/survey'; return; }
-    const r = data.recommendations;
+        <div class="row g-4" id="sonuclar"></div>
+
+        <div class="text-center mt-5 reveal">
+            <a href="/survey" class="btn-parfum-outline">
+                <i class="bi bi-arrow-left"></i> Tekrar Dene
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const dataStr = localStorage.getItem('lastResult');
+    if (!dataStr) {
+        document.getElementById('loadingScreen').innerHTML = '<div style="text-align:center;"><p style="color:var(--text-secondary);">Henüz bir analiz yapılmamış. <a href="/survey" style="color:var(--accent-blue);">Analize başlayın</a></p></div>';
+        return;
+    }
+    const data = JSON.parse(dataStr);
+    if (!data.success) {
+        document.getElementById('loadingScreen').innerHTML = '<div style="text-align:center;"><p style="color:#e74c3c;">Analiz sonucu alınamadı. <a href="/survey" class="btn-parfum-outline mt-3" style="font-size:0.85rem;display:inline-flex;">Tekrar Dene</a></p></div>';
+        return;
+    }
+
     const np = data.note_profile;
+    const recs = data.recommendations;
 
-    document.getElementById('loadingResults').style.display = 'none';
+    document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('resultsContent').style.display = 'block';
-    document.getElementById('profileTypeText').textContent = r.profile_type || np.profile_type;
-    document.getElementById('topPctText').textContent = np.top_pct;
-    document.getElementById('midPctText').textContent = np.middle_pct;
-    document.getElementById('basePctText').textContent = np.base_pct;
 
-    // Mevsim bazlı kategorilendirme
-    const seasonData = {
-        yaz: { container: document.getElementById('yazContainer'), title: 'Yaz Önerileri' },
-        kis: { container: document.getElementById('kisContainer'), title: 'Kış Önerileri' },
-        dört_mevsim: { container: document.getElementById('dört_mevsimContainer'), title: '4 Mevsim Önerileri' }
+    const profileNames = {
+        'Yaz-Kehribar (Top Note Ağırlıklı)': 'Yaz-Kehribar Profil',
+        'Kış-Derin (Base Note Ağırlıklı)': 'Kış-Derin Profil',
+        'İlkbahar-Yaz (Middle Note Ağırlıklı)': 'İlkbahar-Yaz Profil',
+        'Hafif Yaz Eğilimli': 'Hafif Yaz Profil',
+        'Hafif Kış Eğilimli': 'Hafif Kış Profil',
+        '4 Mevsim Unisex (Dengeli Profil)': '4 Mevsim Dengeli Profil',
+        'Karma Profil': 'Karma Profil',
+        'Dengeli': 'Dengeli Profil'
     };
-    const seasonKeys = ['yaz', 'kis', 'dört_mevsim'];
-    const dmKey = r['dört_mevsim'] ? 'dört_mevsim' : (r['dort_mevsim'] ? 'dort_mevsim' : null);
+    const pn = profileNames[np.profile_type] || np.profile_type;
+    document.getElementById('profilAdi').textContent = pn;
+    const selectedCount = (data.selected_notes || 0) + (data.selected_keywords || 0) + (data.selected_themes || 0);
+    document.getElementById('aciklama').textContent = `Seçtiğiniz notalara göre Jaccard benzerlik hesaplaması ile eşleştirildi.`;
 
-    seasonKeys.forEach(key => {
-        const list = key === 'dört_mevsim' ? (r[dmKey] || []) : (r[key] || []);
-        if (list.length === 0) {
-            const section = document.getElementById(key + 'Section');
-            if (section) section.style.display = 'none';
-            return;
+    const avg = Math.round((np.top_pct + np.middle_pct + np.base_pct) / 3);
+    document.getElementById('profilYuzde').textContent = avg;
+    document.getElementById('profilBar').style.width = avg + '%';
+
+    const allPerfumes = (recs.yaz || []).concat(recs.kis || []).concat(recs.dört_mevsim || []);
+    const container = document.getElementById('sonuclar');
+
+    if (allPerfumes.length === 0) {
+        document.getElementById('yetersizUyari').style.display = 'block';
+    }
+
+    allPerfumes.forEach(function(p, idx) {
+        const col = document.createElement('div');
+        col.className = 'col-md-6 col-xl-4 result-card';
+        col.style.animationDelay = (idx * 0.1) + 's';
+
+        const notesHtml = [];
+        if (p.notes_top && p.notes_top.length) {
+            if (p.benzerlik_yuzde) {
+                notesHtml.push('<div class="mb-2"><span class="badge-parfum" style="background:var(--accent-blue);color:#fff;font-size:0.75rem;">%' + p.benzerlik_yuzde + ' Eşleşme</span></div>');
+            }
+            notesHtml.push('<div class="mb-1"><small style="color:var(--text-muted);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;">Üst</small> ' +
+                p.notes_top.slice(0,4).map(function(n) { return '<span class="note-badge">' + n + '</span>'; }).join(' ') + '</div>');
         }
-        const container = seasonData[key].container;
-        list.forEach((p, i) => {
-            container.innerHTML += createPerfumeCard(p, i);
-        });
+        if (p.notes_middle && p.notes_middle.length) {
+            notesHtml.push('<div class="mb-1"><small style="color:var(--text-muted);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;">Orta</small> ' +
+                p.notes_middle.slice(0,4).map(function(n) { return '<span class="note-badge">' + n + '</span>'; }).join(' ') + '</div>');
+        }
+        if (p.notes_base && p.notes_base.length) {
+            notesHtml.push('<div class="mb-1"><small style="color:var(--text-muted);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;">Alt</small> ' +
+                p.notes_base.slice(0,4).map(function(n) { return '<span class="note-badge">' + n + '</span>'; }).join(' ') + '</div>');
+        }
+
+        const imgPath = '/static/perfume_images/' + encodeURIComponent(p.brand) + '_' + encodeURIComponent(p.name) + '.jpg';
+
+        col.innerHTML = '<div class="perfume-card">' +
+            '<div class="perfume-image-wrapper">' +
+                '<img class="perfume-img" src="' + imgPath + '" alt="' + p.name + '" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=\\\'perfume-img-fallback\\\'><i class=\\\'bi bi-droplet\\\' style=\\\'color:var(--accent-blue);opacity:0.15;font-size:4rem;\\\'></i></div>\'">' +
+            '</div>' +
+            '<div class="perfume-header"><h5>' + p.name + '</h5><small>' + p.brand + '</small></div>' +
+            '<div class="perfume-body">' +
+                '<div class="d-flex justify-content-between mb-2">' +
+                    '<span class="badge-parfum"><i class="bi bi-droplet"></i> ' + p.season + '</span>' +
+                '</div>' +
+                notesHtml.join('') +
+            '</div>' +
+        '</div>';
+        container.appendChild(col);
+
+        setTimeout(function() {
+            col.classList.add('entered');
+        }, idx * 100 + 100);
     });
 
-    if (np.nota_detay) {
-        const dd = document.getElementById('noteDetails');
-        let html = '';
-        for (const [cat, notes] of Object.entries(np.nota_detay)) {
-            const entries = Object.entries(notes).sort((a,b) => b[1] - a[1]).slice(0, 3);
-            if (entries.length > 0) {
-                const color = cat === 'top' ? 'var(--neon-orange)' : cat === 'middle' ? 'var(--neon-cyan)' : 'var(--neon-green)';
-                html += `<div class="mb-2" style="font-size:0.85rem;">
-                    <span style="font-weight:600;color:${color};">${cat.toUpperCase()}: </span>`;
-                html += entries.map(([k,v]) =>
-                    `<span class="note-badge-neon">${k.replace(/_/g,' ')} ${v}p</span>`
-                ).join('');
-                html += `</div>`;
-            }
-        }
-        dd.innerHTML = html;
-    }
-
-    // Radar chart - 5 axis scent profile
-    const radarLabels = [];
-    const radarData = [];
-    const radarColors = [];
-    
-    // Build 5-axis data from nota_detay
-    if (np.nota_detay) {
-        // Top dominant
-        const topNotes = np.nota_detay.top || {};
-        const topMax = Object.values(topNotes).sort((a,b) => b-a)[0] || 0;
-        radarLabels.push('Tazelik');
-        radarData.push(Math.min(100, topMax * 3));
-        radarColors.push('#ff6600');
-        
-        // Middle floral
-        const midNotes = np.nota_detay.middle || {};
-        const floralVal = (midNotes.floral || 0) + (midNotes.white_floral || 0);
-        radarLabels.push('Çiçeksi');
-        radarData.push(Math.min(100, floralVal * 2));
-        radarColors.push('#00f5ff');
-        
-        // Middle spice
-        const spiceVal = (midNotes.spice_mid || 0) + (midNotes.herbal || 0);
-        radarLabels.push('Baharatlı');
-        radarData.push(Math.min(100, spiceVal * 2));
-        radarColors.push('#ff00e5');
-        
-        // Base woody
-        const baseNotes = np.nota_detay.base || {};
-        const woodyVal = (baseNotes.woody || 0) + (baseNotes.leather || 0);
-        radarLabels.push('Odunsu');
-        radarData.push(Math.min(100, woodyVal * 2));
-        radarColors.push('#00ff88');
-        
-        // Base sweet
-        const sweetVal = (baseNotes.vanilla_gourmand || 0) + (baseNotes.amber || 0) + (baseNotes.musk || 0);
-        radarLabels.push('Tatlı/Şehvetli');
-        radarData.push(Math.min(100, sweetVal * 2));
-        radarColors.push('#ffd700');
-    }
-    
-    new Chart(document.getElementById('noteChart'), {
+    new Chart(document.getElementById('radarChart'), {
         type: 'radar',
         data: {
-            labels: radarLabels,
+            labels: ['Üst Nota', 'Orta Nota', 'Alt Nota'],
             datasets: [{
-                label: 'Sizin Profiliniz',
-                data: radarData,
-                backgroundColor: 'rgba(0, 245, 255, 0.15)',
-                borderColor: '#00f5ff',
-                borderWidth: 2,
-                pointBackgroundColor: radarColors,
-                pointBorderColor: '#fff',
-                pointBorderWidth: 1,
+                label: 'Koku Profiliniz',
+                data: [np.top_pct, np.middle_pct, np.base_pct],
+                borderColor: '#2b6cb0',
+                backgroundColor: 'rgba(43,108,176,0.08)',
+                pointBackgroundColor: '#2b6cb0',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2,
                 pointRadius: 5,
-                pointHoverRadius: 7
+                borderWidth: 2.5
             }]
         },
         options: {
-            responsive: true,
-            animation: { duration: 800 },
-            scales: {
-                r: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        display: false,
-                        stepSize: 20
-                    },
-                    grid: {
-                        color: 'rgba(255,255,255,0.06)'
-                    },
-                    angleLines: {
-                        color: 'rgba(255,255,255,0.06)'
-                    },
-                    pointLabels: {
-                        font: { size: 12, family: "'Inter', sans-serif", weight: '600' },
-                        color: '#8888a0'
-                    }
-                }
-            },
-            plugins: {
-                legend: { display: false },
-                tooltip: { enabled: false }
-            }
+            responsive: true, maintainAspectRatio: true,
+            plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { size: 11, family: "'Inter', sans-serif" } } } },
+            scales: { r: { beginAtZero: true, max: 100, ticks: { stepSize: 25, font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.06)' }, angleLines: { color: 'rgba(0,0,0,0.06)' }, pointLabels: { font: { size: 11, family: "'Inter', sans-serif" }, color: '#3d4048' } } }
         }
     });
 
-    var layerChartCanvas = document.getElementById('layerChart');
-    if (layerChartCanvas) {
-        var layerCtx = layerChartCanvas.getContext('2d');
-        new Chart(layerCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Ust Notalar', 'Orta Notalar', 'Temel Notalar'],
-                datasets: [{
-                    data: [np.top_pct, np.middle_pct, np.base_pct],
-                    backgroundColor: ['rgba(255,107,53,0.85)', 'rgba(0,210,211,0.85)', 'rgba(0,230,118,0.85)'],
-                    borderColor: ['rgba(255,107,53,1)', 'rgba(0,210,211,1)', 'rgba(0,230,118,1)'],
-                    borderWidth: 2,
-                    hoverOffset: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                cutout: '65%',
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(10,10,15,0.9)',
-                        titleColor: '#e8e8f0',
-                        bodyColor: '#b0b0c0',
-                        borderColor: 'rgba(255,255,255,0.1)',
-                        borderWidth: 1,
-                        callbacks: {
-                            label: function(ctx) {
-                                return ctx.parsed + '%';
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    function generateSearchLinks() {
-        const fLinks = document.getElementById('fragranticaLinks');
-        const pLinks = document.getElementById('parfumoLinks');
-        fLinks.innerHTML = '';
-        pLinks.innerHTML = '';
-
-        const allTerms = [];
-
-        [r.yaz, r.kis, r[dmKey]].forEach(list => {
-            if (list && Array.isArray(list)) {
-                list.forEach(p => {
-                    allTerms.push(p.brand + ' ' + p.name);
-                    (p.notes_top || []).forEach(n => { if (n) allTerms.push(n); });
-                    (p.notes_middle || []).forEach(n => { if (n) allTerms.push(n); });
-                    (p.notes_base || []).forEach(n => { if (n) allTerms.push(n); });
-                });
-            }
-        });
-
-        if (np.top_dominant) allTerms.push(np.top_dominant);
-        if (np.middle_dominant) allTerms.push(np.middle_dominant);
-        if (np.base_dominant) allTerms.push(np.base_dominant);
-
-        const uniqueTerms = [...new Set(allTerms)].slice(0, 10);
-
-        uniqueTerms.forEach(term => {
-            const termClean = term.replace(/_/g, ' ').trim();
-
-            const fUrl = `https://www.fragrantica.com/search/?q=${encodeURIComponent(termClean)}`;
-            const fBadge = document.createElement('a');
-            fBadge.href = fUrl;
-            fBadge.target = '_blank';
-            fBadge.rel = 'noopener noreferrer';
-            fBadge.className = 'note-badge-neon text-decoration-none';
-            fBadge.textContent = termClean;
-            fBadge.title = `Fragrantica'da "${termClean}" ara`;
-            fLinks.appendChild(fBadge);
-
-            const pUrl = `https://www.parfumo.com/search?q=${encodeURIComponent(termClean)}`;
-            const pBadge = document.createElement('a');
-            pBadge.href = pUrl;
-            pBadge.target = '_blank';
-            pBadge.rel = 'noopener noreferrer';
-            pBadge.className = 'note-badge-neon text-decoration-none';
-            pBadge.textContent = termClean;
-            pBadge.title = `Parfumo'da "${termClean}" ara`;
-            pLinks.appendChild(pBadge);
-        });
-    }
-
-    generateSearchLinks();
-
-    // Populate assistant panel
-    const assistantContent = document.getElementById('assistantContent');
-    if (assistantContent) {
-        let ahtml = '<div class="mb-3"><h6 style="color:var(--neon-gold);">Profil Özeti</h6>';
-        ahtml += '<p style="font-size:0.85rem;color:var(--text-secondary);">Tip: ' + (r.profile_type || '-') + '</p>';
-        ahtml += '<p style="font-size:0.85rem;color:var(--text-secondary);">Top: ' + np.top_pct + '% | Mid: ' + np.middle_pct + '% | Base: ' + np.base_pct + '%</p>';
-        ahtml += '</div>';
-
-        ahtml += '<div class="mb-3"><h6 style="color:var(--neon-cyan);">Satış Noktaları</h6>';
-        ahtml += '<ul style="font-size:0.85rem;color:var(--text-secondary);list-style:none;padding:0;">';
-        ahtml += '<li style="padding:6px 0;border-bottom:1px solid var(--glass-border);">Müşteriye ilk olarak #1 öneriyi denetin</li>';
-        ahtml += '<li style="padding:6px 0;border-bottom:1px solid var(--glass-border);">Mevsim tercihini sorun</li>';
-        ahtml += '<li style="padding:6px 0;border-bottom:1px solid var(--glass-border);">Fiyat aralığını kontrol edin</li>';
-        ahtml += '<li style="padding:6px 0;">Sürpriz öneriyi açıklayarak güven oluşturun</li>';
-        ahtml += '</ul></div>';
-
-        ahtml += '<div><h6 style="color:var(--neon-green);">Hızlı Aksiyonlar</h6>';
-        ahtml += '<button class="w-100 mb-2" style="padding:10px;border-radius:8px;background:rgba(0,245,255,0.1);border:1px solid rgba(0,245,255,0.2);color:var(--neon-cyan);cursor:pointer;" onclick="alert(\'Satış kaydedildi!\')">Satışı Kaydet</button>';
-        ahtml += '<button class="w-100" style="padding:10px;border-radius:8px;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.2);color:var(--neon-green);cursor:pointer;" onclick="alert(\'Yeni müşteri!\')">Yeni Müşteri</button>';
-        ahtml += '</div>';
-
-        assistantContent.innerHTML = ahtml;
-    }
-
-    // Kartları görünür yap (stagger animation)
-    document.querySelectorAll('.perfume-stagger .result-card').forEach(function(card, i) {
-        setTimeout(function() { card.classList.add('entered'); }, (i + 1) * 120);
+    new Chart(document.getElementById('pieChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Üst Nota', 'Orta Nota', 'Alt Nota'],
+            datasets: [{ data: [np.top_pct, np.middle_pct, np.base_pct], backgroundColor: ['#2b6cb0', '#0ea5e9', '#16a34a'], borderWidth: 0 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: true, cutout: '62%',
+            plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { size: 11, family: "'Inter', sans-serif" } } } }
+        }
     });
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-});
-
-// Assistant Panel - hidden by default
-let assistantVisible = false;
-
-function toggleAssistant() {
-    assistantVisible = !assistantVisible;
-    const panel = document.getElementById('assistantPanel');
-    if (panel) panel.style.display = assistantVisible ? 'block' : 'none';
-}
-
-// Hidden trigger: 3-finger tap on results content
-document.addEventListener('touchstart', function(e) {
-    if (e.touches.length >= 3) {
-        e.preventDefault();
-        toggleAssistant();
-    }
-}, { passive: false });
-
-// Also trigger with Shift+A keyboard shortcut
-document.addEventListener('keydown', function(e) {
-    if (e.shiftKey && e.key === 'A') {
-        toggleAssistant();
-    }
-});
+    const reveals = document.querySelectorAll('.reveal');
+    const ro = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('revealed'); ro.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    reveals.forEach(function(r) { ro.observe(r); });
+})();
 </script>
 {% endblock %}

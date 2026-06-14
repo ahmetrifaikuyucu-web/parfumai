@@ -2,6 +2,7 @@ import os
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
 from utils import generate_csrf_token, csrf_required, login_required
 from perfume_engine import _init_database, save_database, PERFUME_DATABASE, _write_audit, check_critical_stock
+from ml_similarity import clear_cache as clear_ml_cache
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -85,9 +86,12 @@ def edit_perfume():
         if p['name'] == name and field in p:
             old_val = p[field]
             if field in ('in_stock',):
-                p[field] = bool(value)
-            elif field in ('price_range', 'description'):
+                p[field] = value == 'true' or value is True
+            elif field in ('price_range', 'description', 'season', 'gender'):
                 p[field] = str(value) if value else p[field]
+            elif field in ('notes_top', 'notes_middle', 'notes_base'):
+                raw = str(value) if value else ''
+                p[field] = [n.strip().lower().replace(' ', '_') for n in raw.split(',') if n.strip()]
             save_database()
             _write_audit("admin", "EDIT", "perfume_database",
                         perfumes.index(p), {field: old_val}, {field: p[field]})
@@ -127,6 +131,7 @@ def add_perfume():
         new_p[key] = [n.strip().lower().replace(' ', '_') for n in new_p[key] if n.strip()]
     PERFUME_DATABASE.append(new_p)
     save_database()
+    clear_ml_cache()
     _write_audit("admin", "ADD", "perfume_database", len(PERFUME_DATABASE)-1, None, new_p)
     return jsonify({'success': True, 'perfume': new_p})
 
@@ -143,6 +148,7 @@ def delete_perfume():
             removed = perfumes.pop(i)
             PERFUME_DATABASE[:] = perfumes
             save_database()
+            clear_ml_cache()
             _write_audit("admin", "DELETE", "perfume_database", i, removed, None)
             return jsonify({'success': True})
     return jsonify({'success': False, 'error': 'Parf\u00fcm bulunamad\u0131'}), 404

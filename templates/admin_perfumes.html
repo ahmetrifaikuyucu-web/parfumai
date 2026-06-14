@@ -1,17 +1,16 @@
 {% extends "base.html" %}
 {% block title %}Parfüm Yönetimi — ParfumAI{% endblock %}
 {% block content %}
-<div class="container py-4 mt-2">
-    <div class="row mb-4">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <h1 class="fw-bold mb-0" style="font-size:1.5rem;letter-spacing:-0.02em;">
-                <i class="bi bi-box-seam me-2" style="color:var(--neon-cyan);"></i>
-                Parfüm <span class="text-gradient-cyan">Yönetimi</span>
-            </h1>
-            <a href="/admin" class="btn-neon-outline text-decoration-none" style="padding:8px 20px;font-size:0.85rem;">
+<div class="container py-4 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="section-title mb-0" style="font-size:1.5rem;">
+            <i class="bi bi-box-seam me-2" style="color:var(--accent-blue);"></i>Parfüm Yönetimi
+        </h1>
+        <div class="d-flex gap-2">
+            <a href="/admin" class="btn-parfum-outline text-decoration-none" style="padding:8px 20px;font-size:0.85rem;">
                 <i class="bi bi-arrow-left me-1"></i> Admin Panel
             </a>
-            <button onclick="showAddModal()" class="btn-neon text-decoration-none" style="padding:8px 20px;font-size:0.85rem;">
+            <button onclick="showAddModal()" class="btn-parfum text-decoration-none" style="padding:8px 20px;font-size:0.85rem;">
                 <i class="bi bi-plus-lg me-1"></i> Yeni Ekle
             </button>
         </div>
@@ -21,124 +20,123 @@
         <div class="col-md-6 mx-auto">
             <form method="GET" class="d-flex gap-2">
                 <input type="text" name="q" class="form-control" placeholder="Parfüm veya marka ara..." value="{{ search }}"
-                       style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:12px;">
-                <button type="submit" class="btn-neon" style="padding:10px 24px;">
+                       style="border:1px solid var(--border-light);border-radius:var(--radius);">
+                <button type="submit" class="btn-parfum" style="padding:10px 24px;">
                     <i class="bi bi-search"></i>
                 </button>
             </form>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-12">
-            <p style="color:var(--text-tertiary);font-size:0.85rem;">{{ total }} parfüm bulundu</p>
-            {% if pages > 1 %}
-            <div class="d-flex gap-2 mb-3 flex-wrap">
-                {% for p in range(1, pages + 1) %}
-                <a href="?page={{ p }}{% if search %}&q={{ search }}{% endif %}"
-                   class="badge-neon text-decoration-none"
-                   style="{% if p == page %}background:rgba(0,245,255,0.2);color:var(--neon-cyan);border-color:var(--neon-cyan);{% endif %}cursor:pointer;">{{ p }}</a>
-                {% endfor %}
-            </div>
-            {% endif %}
-            <div class="card-glass p-3">
-                <div style="overflow-x:auto;">
-                    <table class="table-neon" style="font-size:0.8rem;">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Parfüm</th>
-                                <th>Marka</th>
-                                <th>Sezon</th>
-                                <th>Cinsiyet</th>
-                                <th>Fiyat</th>
-                                <th>Stok</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for p in perfumes %}
-                            <tr>
-                                <td style="color:var(--text-tertiary);">{{ loop.index + (page-1)*50 }}</td>
-                                <td style="font-weight:500;">{{ p.name }}</td>
-                                <td>{{ p.brand }}</td>
-                                <td>
-                                    <span class="badge-neon-season" style="background:{% if p.season == 'yaz' %}var(--neon-orange){% elif p.season == 'kis' %}var(--neon-cyan){% else %}var(--neon-green){% endif %};color:#000;">
-                                        {{ p.season }}
-                                    </span>
-                                </td>
-                                <td>{{ p.gender }}</td>
-                                <td style="color:var(--text-secondary);">{{ p.price_range }}</td>
-                                    <td>
-                                        <button class="toggle-stock btn-neon-outline" data-name="{{ p.name }}"
-                                                style="padding:4px 12px;font-size:0.75rem;{% if p.get('in_stock', True) %}color:var(--neon-green);border-color:var(--neon-green);{% else %}color:#ff6666;border-color:#ff6666;{% endif %}"
-                                                onclick="toggleStock(this)">
-                                            {% if p.get('in_stock', True) %}Stokta{% else %}Yok{% endif %}
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex gap-1">
-                                            <button onclick="editPerfume('{{ p.name|e }}', '{{ p.brand|e }}', '{{ p.season|e }}', '{{ p.gender|e }}', '{{ p.price_range|e }}', '{{ (p.description or '')|e }}', '{{ (p.notes_top|join(', '))|e }}', '{{ (p.notes_middle|join(', '))|e }}', '{{ (p.notes_base|join(', '))|e }}')"
-                                                    style="background:none;border:none;color:var(--neon-cyan);font-size:1rem;cursor:pointer;padding:4px 8px;"
-                                                    title="Düzenle"><i class="bi bi-pencil"></i></button>
-                                            <button onclick="deletePerfume('{{ p.name|e }}')"
-                                                    style="background:none;border:none;color:#ff6666;font-size:1.1rem;cursor:pointer;padding:4px 8px;"
-                                                    title="Sil">&times;</button>
-                                        </div>
-                                    </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+    <div>
+        <p style="color:var(--text-muted);font-size:0.85rem;">{{ total }} parfüm bulundu</p>
+        {% if pages > 1 %}
+        <div class="d-flex gap-2 mb-3 flex-wrap">
+            {% for p in range(1, pages + 1) %}
+            <a href="?page={{ p }}{% if search %}&q={{ search }}{% endif %}"
+               class="badge rounded-pill text-decoration-none"
+               style="{% if p == page %}background:var(--accent-blue);color:#fff;{% else %}background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border-light);{% endif %}padding:4px 14px;font-size:0.8rem;">{{ p }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="card-parfum p-3">
+            <div style="overflow-x:auto;">
+                <table class="table-parfum">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Parfüm</th>
+                            <th>Marka</th>
+                            <th>Sezon</th>
+                            <th>Cinsiyet</th>
+                            <th>Fiyat</th>
+                            <th>Stok</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in perfumes %}
+                        <tr>
+                            <td style="color:var(--text-muted);">{{ loop.index + (page-1)*50 }}</td>
+                            <td style="font-weight:500;">{{ p.name }}</td>
+                            <td>{{ p.brand }}</td>
+                            <td>
+                                <span class="badge rounded-pill" style="background:{% if p.season == 'yaz' %}rgba(245,166,35,0.1);color:var(--accent-gold);border:1px solid rgba(245,166,35,0.2);{% elif p.season == 'kis' %}rgba(74,144,217,0.1);color:var(--accent-blue);border:1px solid rgba(74,144,217,0.2);{% else %}rgba(0,188,212,0.1);color:var(--accent-cyan);border:1px solid rgba(0,188,212,0.2);{% endif %}padding:3px 10px;font-size:0.75rem;">
+                                    {{ p.season }}
+                                </span>
+                            </td>
+                            <td style="color:var(--text-secondary);font-size:0.85rem;">{{ p.gender }}</td>
+                            <td style="color:var(--text-secondary);font-size:0.85rem;">{{ p.price_range }}</td>
+                            <td>
+                                <button class="toggle-stock btn-parfum-outline" data-name="{{ p.name }}"
+                                        style="padding:4px 12px;font-size:0.75rem;{% if p.get('in_stock', True) %}color:var(--accent-green);border-color:var(--accent-green);{% else %}color:#e74c3c;border-color:#e74c3c;{% endif %}"
+                                        onclick="toggleStock(this)">
+                                    {% if p.get('in_stock', True) %}Stokta{% else %}Yok{% endif %}
+                                </button>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <button onclick="editPerfume('{{ p.name|e }}', '{{ p.brand|e }}', '{{ p.season|e }}', '{{ p.gender|e }}', '{{ p.price_range|e }}', '{{ (p.description or '')|e }}', '{{ (p.notes_top|join(', '))|e }}', '{{ (p.notes_middle|join(', '))|e }}', '{{ (p.notes_base|join(', '))|e }}')"
+                                            style="background:none;border:none;color:var(--accent-blue);font-size:1rem;cursor:pointer;padding:4px 8px;"
+                                            title="Düzenle"><i class="bi bi-pencil"></i></button>
+                                    <button onclick="deletePerfume('{{ p.name|e }}')"
+                                            style="background:none;border:none;color:#e74c3c;font-size:1.1rem;cursor:pointer;padding:4px 8px;"
+                                            title="Sil">&times;</button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Düzenle Modal -->
-<div id="editModal" class="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;overflow:auto;">
-  <div class="modal-content" style="max-width:600px;margin:60px auto;background:#1a1a2e;border:1px solid var(--glass-border);border-radius:16px;padding:30px;">
+<div id="editModal" class="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;overflow:auto;">
+  <div class="modal-content" style="max-width:600px;margin:60px auto;background:#fff;border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:30px;box-shadow:var(--shadow-lg);">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h5 class="fw-bold mb-0"><i class="bi bi-pencil me-2" style="color:var(--neon-cyan);"></i>Parfüm Düzenle</h5>
-      <button onclick="closeEditModal()" style="background:none;border:none;color:var(--text-tertiary);font-size:1.5rem;">&times;</button>
+      <h5 class="mb-0" style="font-family:var(--font-heading);font-weight:600;">
+        <i class="bi bi-pencil me-2" style="color:var(--accent-blue);"></i>Parfüm Düzenle
+      </h5>
+      <button onclick="closeEditModal()" style="background:none;border:none;color:var(--text-muted);font-size:1.5rem;">&times;</button>
     </div>
     <div id="editForm" style="display:flex;flex-direction:column;gap:12px;">
-      <p style="color:var(--text-tertiary);font-size:0.85rem;" id="editPerfumeName"></p>
+      <p style="color:var(--text-muted);font-size:0.85rem;" id="editPerfumeName"></p>
       <div class="row g-2">
         <div class="col-md-6">
-          <label style="font-size:0.75rem;color:var(--text-tertiary);">Marka</label>
-          <input class="form-control" id="editBrand" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-muted);">Marka</label>
+          <input class="form-control" id="editBrand" style="border:1px solid var(--border-light);border-radius:var(--radius);">
         </div>
         <div class="col-md-6">
-          <label style="font-size:0.75rem;color:var(--text-tertiary);">Fiyat</label>
-          <input class="form-control" id="editPrice" placeholder="örn: 1000-1500 TL" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-muted);">Fiyat</label>
+          <input class="form-control" id="editPrice" placeholder="örn: 1000-1500 TL" style="border:1px solid var(--border-light);border-radius:var(--radius);">
         </div>
       </div>
       <div>
-        <label style="font-size:0.75rem;color:var(--text-tertiary);">Açıklama</label>
-        <textarea class="form-control" id="editDesc" rows="2" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;"></textarea>
+        <label style="font-size:0.75rem;color:var(--text-muted);">Açıklama</label>
+        <textarea class="form-control" id="editDesc" rows="2" style="border:1px solid var(--border-light);border-radius:var(--radius);"></textarea>
       </div>
       <div class="row g-2">
         <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-tertiary);">Sezon</label>
-          <select id="editSeason" class="form-control" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-muted);">Sezon</label>
+          <select id="editSeason" class="form-control" style="border:1px solid var(--border-light);border-radius:var(--radius);">
             <option value="yaz">Yaz</option>
             <option value="kis">Kış</option>
             <option value="dört_mevsim">4 Mevsim</option>
           </select>
         </div>
         <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-tertiary);">Cinsiyet</label>
-          <select id="editGender" class="form-control" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-muted);">Cinsiyet</label>
+          <select id="editGender" class="form-control" style="border:1px solid var(--border-light);border-radius:var(--radius);">
             <option value="kadın">Kadın</option>
             <option value="erkek">Erkek</option>
             <option value="unisex">Unisex</option>
           </select>
         </div>
         <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-tertiary);">Stok</label>
-          <select id="editStock" class="form-control" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-muted);">Stok</label>
+          <select id="editStock" class="form-control" style="border:1px solid var(--border-light);border-radius:var(--radius);">
             <option value="true">Stokta</option>
             <option value="false">Stokta Yok</option>
           </select>
@@ -146,88 +144,89 @@
       </div>
       <div class="row g-2">
         <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-tertiary);">Üst notalar</label>
-          <input class="form-control" id="editNotesTop" placeholder="virgülle ayır" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-muted);">Üst notalar</label>
+          <input class="form-control" id="editNotesTop" placeholder="virgülle ayır" style="border:1px solid var(--border-light);border-radius:var(--radius);">
         </div>
         <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-tertiary);">Orta notalar</label>
-          <input class="form-control" id="editNotesMid" placeholder="virgülle ayır" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-muted);">Orta notalar</label>
+          <input class="form-control" id="editNotesMid" placeholder="virgülle ayır" style="border:1px solid var(--border-light);border-radius:var(--radius);">
         </div>
         <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-tertiary);">Alt notalar</label>
-          <input class="form-control" id="editNotesBase" placeholder="virgülle ayır" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-muted);">Alt notalar</label>
+          <input class="form-control" id="editNotesBase" placeholder="virgülle ayır" style="border:1px solid var(--border-light);border-radius:var(--radius);">
         </div>
       </div>
-      <button onclick="submitEdit()" class="btn-neon w-100 justify-content-center mt-2">
+      <button onclick="submitEdit()" class="btn-parfum w-100 justify-content-center mt-2">
         <i class="bi bi-check-lg me-1"></i> Kaydet
       </button>
-      <div id="editError" style="color:#ff6666;font-size:0.85rem;display:none;"></div>
+      <div id="editError" style="color:#e74c3c;font-size:0.85rem;display:none;"></div>
     </div>
   </div>
 </div>
 
-<!-- Yeni Parfüm Ekle Modal -->
-<div id="addModal" class="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;overflow:auto;">
-  <div class="modal-content" style="max-width:600px;margin:60px auto;background:#1a1a2e;border:1px solid var(--glass-border);border-radius:16px;padding:30px;">
+<div id="addModal" class="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;overflow:auto;">
+  <div class="modal-content" style="max-width:600px;margin:60px auto;background:#fff;border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:30px;box-shadow:var(--shadow-lg);">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h5 class="fw-bold mb-0"><i class="bi bi-plus-circle me-2" style="color:var(--neon-cyan);"></i>Yeni Parfüm Ekle</h5>
-      <button onclick="closeAddModal()" style="background:none;border:none;color:var(--text-tertiary);font-size:1.5rem;">&times;</button>
+      <h5 class="mb-0" style="font-family:var(--font-heading);font-weight:600;">
+        <i class="bi bi-plus-circle me-2" style="color:var(--accent-blue);"></i>Yeni Parfüm Ekle
+      </h5>
+      <button onclick="closeAddModal()" style="background:none;border:none;color:var(--text-muted);font-size:1.5rem;">&times;</button>
     </div>
     <div id="addForm" style="display:flex;flex-direction:column;gap:12px;">
       <div class="row g-2">
         <div class="col-md-6">
-          <label style="font-size:0.75rem;color:var(--text-tertiary);">Parfüm Adı</label>
-          <input class="form-control" id="addName" placeholder="örn: Light Blue" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-muted);">Parfüm Adı</label>
+          <input class="form-control" id="addName" placeholder="örn: Light Blue" style="border:1px solid var(--border-light);border-radius:var(--radius);">
         </div>
         <div class="col-md-6">
-          <label style="font-size:0.75rem;color:var(--text-tertiary);">Marka</label>
-          <input class="form-control" id="addBrand" placeholder="örn: Dolce & Gabbana" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-muted);">Marka</label>
+          <input class="form-control" id="addBrand" placeholder="örn: Dolce & Gabbana" style="border:1px solid var(--border-light);border-radius:var(--radius);">
         </div>
       </div>
       <div class="row g-2">
         <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-tertiary);">Sezon</label>
-          <select id="addSeason" class="form-control" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-muted);">Sezon</label>
+          <select id="addSeason" class="form-control" style="border:1px solid var(--border-light);border-radius:var(--radius);">
             <option value="yaz">Yaz</option>
             <option value="kis">Kış</option>
             <option value="dört_mevsim">4 Mevsim</option>
           </select>
         </div>
         <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-tertiary);">Cinsiyet</label>
-          <select id="addGender" class="form-control" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-muted);">Cinsiyet</label>
+          <select id="addGender" class="form-control" style="border:1px solid var(--border-light);border-radius:var(--radius);">
             <option value="kadın">Kadın</option>
             <option value="erkek">Erkek</option>
             <option value="unisex">Unisex</option>
           </select>
         </div>
         <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-tertiary);">Fiyat Aralığı</label>
-          <input class="form-control" id="addPrice" placeholder="örn: 1000-1500 TL" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-muted);">Fiyat Aralığı</label>
+          <input class="form-control" id="addPrice" placeholder="örn: 1000-1500 TL" style="border:1px solid var(--border-light);border-radius:var(--radius);">
         </div>
       </div>
       <div>
-        <label style="font-size:0.75rem;color:var(--text-tertiary);">Açıklama</label>
-        <input class="form-control" id="addDesc" placeholder="Parfüm hakkında kısa açıklama" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+        <label style="font-size:0.75rem;color:var(--text-muted);">Açıklama</label>
+        <input class="form-control" id="addDesc" placeholder="Parfüm hakkında kısa açıklama" style="border:1px solid var(--border-light);border-radius:var(--radius);">
       </div>
       <div class="row g-2">
         <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-tertiary);">Üst Notalar</label>
-          <input class="form-control" id="addNotesTop" placeholder="virgülle ayır: bergamot, limon" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-muted);">Üst Notalar</label>
+          <input class="form-control" id="addNotesTop" placeholder="virgülle ayır: bergamot, limon" style="border:1px solid var(--border-light);border-radius:var(--radius);">
         </div>
         <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-tertiary);">Orta Notalar</label>
-          <input class="form-control" id="addNotesMid" placeholder="virgülle ayır: yasemin, gül" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-muted);">Orta Notalar</label>
+          <input class="form-control" id="addNotesMid" placeholder="virgülle ayır: yasemin, gül" style="border:1px solid var(--border-light);border-radius:var(--radius);">
         </div>
         <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-tertiary);">Alt Notalar</label>
-          <input class="form-control" id="addNotesBase" placeholder="virgülle ayır: misk, amber" style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;">
+          <label style="font-size:0.75rem;color:var(--text-muted);">Alt Notalar</label>
+          <input class="form-control" id="addNotesBase" placeholder="virgülle ayır: misk, amber" style="border:1px solid var(--border-light);border-radius:var(--radius);">
         </div>
       </div>
-      <button onclick="submitAdd()" class="btn-neon w-100 justify-content-center mt-2">
+      <button onclick="submitAdd()" class="btn-parfum w-100 justify-content-center mt-2">
         <i class="bi bi-check-lg me-1"></i> Kaydet
       </button>
-      <div id="addError" style="color:#ff6666;font-size:0.85rem;display:none;"></div>
+      <div id="addError" style="color:#e74c3c;font-size:0.85rem;display:none;"></div>
     </div>
   </div>
 </div>
@@ -248,12 +247,12 @@ function toggleStock(btn) {
         if (data.success) {
             if (data.in_stock) {
                 btn.textContent = 'Stokta';
-                btn.style.color = 'var(--neon-green)';
-                btn.style.borderColor = 'var(--neon-green)';
+                btn.style.color = 'var(--accent-green)';
+                btn.style.borderColor = 'var(--accent-green)';
             } else {
                 btn.textContent = 'Yok';
-                btn.style.color = '#ff6666';
-                btn.style.borderColor = '#ff6666';
+                btn.style.color = '#e74c3c';
+                btn.style.borderColor = '#e74c3c';
             }
         }
     });
@@ -297,17 +296,10 @@ function submitAdd() {
     })
     .then(r => r.json())
     .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            err.textContent = data.error || 'Hata oluştu.';
-            err.style.display = 'block';
-        }
+        if (data.success) { location.reload(); }
+        else { err.textContent = data.error || 'Hata oluştu.'; err.style.display = 'block'; }
     })
-    .catch(() => {
-        err.textContent = 'Bağlantı hatası.';
-        err.style.display = 'block';
-    });
+    .catch(() => { err.textContent = 'Bağlantı hatası.'; err.style.display = 'block'; });
 }
 
 function editPerfume(name, brand, season, gender, price, desc, notesTop, notesMid, notesBase) {
@@ -317,20 +309,15 @@ function editPerfume(name, brand, season, gender, price, desc, notesTop, notesMi
     document.getElementById('editDesc').value = desc;
     document.getElementById('editSeason').value = season;
     document.getElementById('editGender').value = gender;
-    document.getElementById('editStock').value = 'true';
-
     document.getElementById('editNotesTop').value = notesTop;
     document.getElementById('editNotesMid').value = notesMid;
     document.getElementById('editNotesBase').value = notesBase;
-
     document.getElementById('editModal').dataset.perfumeName = name;
     document.getElementById('editModal').style.display = 'block';
     document.getElementById('editError').style.display = 'none';
 }
 
-function closeEditModal() {
-    document.getElementById('editModal').style.display = 'none';
-}
+function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
 
 function submitEdit() {
     const name = document.getElementById('editModal').dataset.perfumeName;
@@ -339,7 +326,7 @@ function submitEdit() {
     const desc = document.getElementById('editDesc').value.trim();
     const season = document.getElementById('editSeason').value;
     const gender = document.getElementById('editGender').value;
-    const inStock = document.getElementById('editStock').value === 'true';
+    const inStock = document.getElementById('editStock').value;
     const notesTop = document.getElementById('editNotesTop').value.trim();
     const notesMid = document.getElementById('editNotesMid').value.trim();
     const notesBase = document.getElementById('editNotesBase').value.trim();
@@ -347,46 +334,34 @@ function submitEdit() {
 
     if (!brand || !price) {
         err.textContent = 'Marka ve fiyat zorunludur.';
-        err.style.display = 'block';
-        return;
+        err.style.display = 'block'; return;
     }
 
     const updates = [
-        fetch('/admin/perfumes/edit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, field: 'brand', value: brand, _csrf_token: CSRF_TOKEN })
-        }),
-        fetch('/admin/perfumes/edit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, field: 'price_range', value: price, _csrf_token: CSRF_TOKEN })
-        }),
-        fetch('/admin/perfumes/edit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, field: 'description', value: desc, _csrf_token: CSRF_TOKEN })
-        })
+        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'brand', value: brand, _csrf_token: CSRF_TOKEN }) }),
+        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'price_range', value: price, _csrf_token: CSRF_TOKEN }) }),
+        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'description', value: desc, _csrf_token: CSRF_TOKEN }) }),
+        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'season', value: season, _csrf_token: CSRF_TOKEN }) }),
+        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'gender', value: gender, _csrf_token: CSRF_TOKEN }) }),
+        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'in_stock', value: inStock, _csrf_token: CSRF_TOKEN }) })
     ];
-
-    Promise.all(updates).then(() => location.reload()).catch(() => {
-        err.textContent = 'Güncelleme hatası.';
-        err.style.display = 'block';
-    });
+    if (notesTop) {
+        updates.push(fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'notes_top', value: notesTop, _csrf_token: CSRF_TOKEN }) }));
+    }
+    if (notesMid) {
+        updates.push(fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'notes_middle', value: notesMid, _csrf_token: CSRF_TOKEN }) }));
+    }
+    if (notesBase) {
+        updates.push(fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'notes_base', value: notesBase, _csrf_token: CSRF_TOKEN }) }));
+    }
+    Promise.all(updates).then(() => location.reload()).catch(() => { err.textContent = 'Güncelleme hatası.'; err.style.display = 'block'; });
 }
 
 function deletePerfume(name) {
     if (!confirm('"' + name + '" silinsin mi?')) return;
-    fetch('/admin/perfumes/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name, _csrf_token: CSRF_TOKEN })
-    })
+    fetch('/admin/perfumes/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, _csrf_token: CSRF_TOKEN }) })
     .then(r => r.json())
-    .then(data => {
-        if (data.success) location.reload();
-        else alert(data.error || 'Silme hatası');
-    });
+    .then(data => { if (data.success) location.reload(); else alert(data.error || 'Silme hatası'); });
 }
 </script>
 {% endblock %}

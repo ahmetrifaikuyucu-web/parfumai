@@ -1,97 +1,194 @@
 {% extends "base.html" %}
-{% block title %}Koku Analizi — ParfumAI{% endblock %}
+{% block title %}ParfumAI — Koku Anketi{% endblock %}
+{% block extra_head %}
+<style>
+    .survey-hero {
+        background: var(--bg-dark);
+        padding: 6rem 0 2.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .survey-hero::before {
+        content: '';
+        position: absolute;
+        top: -100px; right: -100px;
+        width: 300px; height: 300px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(43,108,176,0.12) 0%, transparent 60%);
+    }
+    .survey-hero h1 { color: #fff; position: relative; z-index: 1; }
+    .survey-hero p { color: rgba(255,255,255,0.6); position: relative; z-index: 1; }
+    .section-label {
+        font-family: var(--font-heading);
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+    .section-desc {
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        margin-bottom: 1rem;
+    }
+    .checkbox-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 8px;
+    }
+    .checkbox-grid label {
+        display: block;
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.82rem;
+        background: var(--card-bg);
+    }
+    .checkbox-grid label:hover {
+        border-color: var(--accent-blue);
+        background: rgba(43,108,176,0.05);
+    }
+    .checkbox-grid input:checked + span {
+        color: var(--accent-blue);
+        font-weight: 600;
+    }
+    .checkbox-grid input:checked ~ * { color: var(--accent-blue); }
+    .checkbox-grid label:has(input:checked) {
+        border-color: var(--accent-blue);
+        background: rgba(43,108,176,0.08);
+    }
+    .checkbox-grid input { display: none; }
+    .gender-group {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+    .gender-group label {
+        flex: 1;
+        max-width: 180px;
+        text-align: center;
+        padding: 14px 20px;
+        border-radius: 12px;
+        border: 2px solid var(--border);
+        cursor: pointer;
+        transition: all 0.2s;
+        background: var(--card-bg);
+        font-weight: 500;
+    }
+    .gender-group label:hover {
+        border-color: var(--accent-blue);
+    }
+    .gender-group label:has(input:checked) {
+        border-color: var(--accent-blue);
+        background: rgba(43,108,176,0.1);
+        box-shadow: 0 0 0 3px rgba(43,108,176,0.15);
+    }
+    .gender-group input { display: none; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-4 mt-2">
-    <div class="row mb-4">
-        <div class="col-lg-8 mx-auto text-center">
-            <div class="entry">
-                <h1 class="fw-bold mb-2" style="letter-spacing:-0.02em;">Koku <span class="text-gradient-cyan">Analizi</span></h1>
-                <p class="mb-3" style="color:var(--text-secondary);">Psikolojik bilinçaltı testi ile kokusal profilinizi haritalıyoruz.</p>
-                <div class="progress-neon mx-auto" style="max-width:400px;">
-                    <div id="progressBar" class="progress-bar" style="width:0%"></div>
-                </div>
-                <p class="mt-2" style="font-size:0.85rem;color:var(--text-tertiary);">
-                    <span id="currentStep">0</span> / <span id="totalSteps">{{ questions|length + 1 }}</span>
-                </p>
-            </div>
-        </div>
+<div class="survey-hero">
+    <div class="container">
+        <h1 class="section-title">Koku Profili Anketi</h1>
+        <p class="section-subtitle">ScentMate tarzı anketimizle size en uygun parfümleri bulalım.</p>
     </div>
+</div>
 
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <form id="surveyForm">
-                <div class="question-card-neon mb-3 fade-in" data-qid="gender" data-gender="true">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <span class="question-number"><i class="bi bi-person"></i></span>
-                        <span class="question-category">{{ gender_question.category }}</span>
-                    </div>
-                    <h5 class="question-text mb-2">{{ gender_question.question }}</h5>
-                    {% if gender_question.subtext %}
-                    <p class="question-subtext mb-3">{{ gender_question.subtext }}</p>
-                    {% endif %}
-                    <div class="options-list">
-                    {% for opt in gender_question.options %}
-                    <label class="option-neon" for="gender_{{ loop.index0 }}">
-                        <input class="form-check-input" type="radio"
-                               name="gender" id="gender_{{ loop.index0 }}"
-                               value="{{ opt.text }}" required>
-                        {% if opt.icon %}<i class="bi {{ opt.icon }} option-icon"></i>{% endif %}
-                        <span class="form-check-label">{{ opt.text }}</span>
-                    </label>
-                    {% endfor %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <form id="surveyForm" autocomplete="off">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+
+                <div class="card-parfum p-4 mb-3">
+                    <p class="section-label">Cinsiyetiniz</p>
+                    <p class="section-desc">Kendinizi hangi cinsiyet kimliğiyle tanımlıyorsunuz?</p>
+                    <div class="gender-group">
+                        <label><input type="radio" name="gender" value="kadin" required> <span>Kadın</span></label>
+                        <label><input type="radio" name="gender" value="erkek" required> <span>Erkek</span></label>
+                        <label><input type="radio" name="gender" value="unisex" required> <span>Fark etmez</span></label>
                     </div>
                 </div>
 
-                {% for q in questions %}
-                <div class="question-card-neon mb-3 fade-in" data-qid="{{ q.id }}" style="display:none;">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <span class="question-number">{{ q.id }}</span>
-                        <span class="question-category">{{ q.category }}</span>
-                    </div>
-                    <h5 class="question-text mb-2">{{ q.question }}</h5>
-                    {% if q.subtext %}
-                    <p class="question-subtext mb-3">{{ q.subtext }}</p>
-                    {% endif %}
-                    <div class="options-list">
-                        {% for opt in q.options %}
-                        <label class="option-neon" for="q{{ q.id }}o{{ loop.index0 }}">
-                            <input class="form-check-input" type="radio"
-                                   name="q{{ q.id }}" id="q{{ q.id }}o{{ loop.index0 }}"
-                                   value="{{ loop.index0 }}" required>
-                            {% if opt.icon %}<i class="bi {{ opt.icon }} option-icon"></i>{% endif %}
-                            <span class="form-check-label">{{ opt.text }}</span>
-                        </label>
+                <div class="card-parfum p-4 mb-3">
+                    <p class="section-label">Parfümünüz hangi duyguları ifade etsin?</p>
+                    <p class="section-desc">Seçtiğiniz kelimeler koku profilinizi belirlememize yardımcı olacak.</p>
+                    <div class="checkbox-grid" id="keywordsGrid">
+                        {% set keywords = [
+                            ("Tatlı", "sweet"), ("Nazik", "gentle"), ("Zarif", "elegant"),
+                            ("Olgun", "mature"), ("Seksi", "sexy"), ("Kadınsı", "feminine"),
+                            ("Ferah", "fresh"), ("Klasik", "classy"), ("Yumuşak", "soft"),
+                            ("Samimi", "easygoing"), ("Komşu Kızı", "girl_next_door"), ("Genç Kız", "young_lady"),
+                            ("Sevimli", "lovely"), ("Canlı", "lively"), ("Temiz", "clean"),
+                            ("Yaz", "summer"), ("Serinletici", "refreshing"), ("Sıcak", "warm"),
+                            ("Erkeksi", "masculine"), ("Ağırbaşlı", "reliable"), ("Gizemli", "mysterious"),
+                            ("Sakin", "low_profile"), ("Yoğun", "strong_smell"), ("Kış", "winter"),
+                            ("Çimen", "grass"), ("Bitkisel", "plants"),
+                            ("Büyük Markalar", "big_brands"), ("Lüks", "luxury"),
+                            ("Popüler", "well_known"), ("Reklamlarda Görülen", "seen_in_ads")
+                        ] %}
+                        {% for text, val in keywords %}
+                        <label><input type="checkbox" name="keywords" value="{{ val }}"> <span>{{ text }}</span></label>
                         {% endfor %}
                     </div>
                 </div>
-                {% endfor %}
 
-                <div id="nameCard" class="question-card-neon mb-3 text-center fade-in" style="display:none;">
-                    <div class="py-3">
-                        <i class="bi bi-check-circle" style="font-size:3rem;color:var(--neon-green);"></i>
-                        <h4 class="fw-bold mt-3">Analiz Tamamlandı</h4>
-                        <p style="color:var(--text-secondary);">Size nasıl hitap edelim?</p>
-                        <div class="row justify-content-center">
-                            <div class="col-md-6">
-                                <input type="text" id="userName" class="form-control form-control-lg text-center mb-3"
-                                       placeholder="Adınız" value="Misafir"
-                                       style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:12px;font-size:1.1rem;">
-                                <button type="button" id="submitBtn" class="btn-neon w-100 d-flex align-items-center justify-content-center gap-2">
-                                     <i class="bi bi-magic"></i> Kokusal Profilimi Oluştur
-                                </button>
-                            </div>
-                        </div>
+                <div class="card-parfum p-4 mb-3">
+                    <p class="section-label">Hangi notaları seversiniz?</p>
+                    <p class="section-desc">En sevdiğiniz koku notalarını seçin.</p>
+                    <div class="checkbox-grid" id="notesGrid">
+                        {% set notes = [
+                            ("Misk", "musk"), ("Yasemin", "jasmine"), ("Gül", "rose"),
+                            ("Bergamot", "bergamot"), ("Limon", "lemon"), ("Portakal Çiçeği", "neroli"),
+                            ("Lavanta", "lavender"), ("Vadideki Zambak", "lily_of_the_valley"),
+                            ("Tonka Fasulyesi", "tonka"), ("Menekşe", "violet"),
+                            ("Greyfurt", "grapefruit"), ("İris", "iris"),
+                            ("Ylang-Ylang", "ylang"), ("Şeftali", "peach"), ("Portakal", "orange"),
+                            ("Karabiber", "pepper"), ("Kakule", "cardamom"), ("Frezya", "freesia"),
+                            ("Yeşil Yapraklar", "green_leaves"), ("Deri", "leather"),
+                            ("Paçuli", "patchouli"), ("Sedir", "cedar"),
+                            ("Vetiver", "vetiver"), ("Vanilya", "vanilla")
+                        ] %}
+                        {% for text, val in notes %}
+                        <label><input type="checkbox" name="notes" value="{{ val }}"> <span>{{ text }}</span></label>
+                        {% endfor %}
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between mt-4" id="navButtons">
-                    <button type="button" id="prevBtn" class="btn-neon-outline d-flex align-items-center gap-1"
-                            style="background:transparent;border:none;color:var(--text-secondary) !important;padding:0;" disabled>
-                        <i class="bi bi-chevron-left"></i> Önceki
-                    </button>
-                    <button type="button" id="nextBtn" class="btn-neon d-flex align-items-center gap-2">
-                        Sonraki <i class="bi bi-chevron-right"></i>
+                <div class="card-parfum p-4 mb-3">
+                    <p class="section-label">Hangi koku temalarını seversiniz?</p>
+                    <p class="section-desc">En çok hangi parfüm ailelerine yakın hissediyorsunuz?</p>
+                    <div class="checkbox-grid" id="themesGrid">
+                        {% set themes = [
+                            ("Çiçeksi", "floral"), ("Çiçeksi Meyveli", "floral_fruity"),
+                            ("Oryantal Çiçeksi", "oriental_floral"), ("Odunsu Çiçeksi", "woody_floral"),
+                            ("Odunsu Fougere", "woody_fougere"), ("Fougere", "fougere"),
+                            ("Oryantal Odunsu", "oriental_woody"), ("Oryantal", "oriental"),
+                            ("Narenciye Fougere", "citrus_fougere"), ("Oryantal Gurme", "oriental_gourmand"),
+                            ("Baharatlı Odunsu", "woody_spicy"), ("Şipre Çiçeksi", "chypre_floral"),
+                            ("Meyveli Gurme", "fruity_gourmand"), ("Yeşil Çiçeksi", "floral_green"),
+                            ("Baharatlı Oryantal", "oriental_spicy"), ("Baharatlı Fougere", "spicy_fougere"),
+                            ("Narenciye", "citrus"), ("Odunsu", "woody"),
+                            ("Deri", "leather_theme"), ("Meyveli Fougere", "fruity_fougere"),
+                            ("Oryantal Fougere", "oriental_fougere"), ("Sucul Çiçeksi", "floral_aquatic"),
+                            ("Sucul Fougere", "aquatic_fougere"), ("Şipre", "chypre"),
+                            ("Yeşil Fougere", "green_fougere"), ("Aldehit Çiçeksi", "floral_aldehyde"),
+                            ("Odunsu Şipre", "chypre_woody"), ("Şipre Meyveli", "chypre_fruity"),
+                            ("Sucul Odunsu", "aquatic_woody"), ("Narenciye Gurme", "citrus_gourmand")
+                        ] %}
+                        {% for text, val in themes %}
+                        <label><input type="checkbox" name="themes" value="{{ val }}"> <span>{{ text }}</span></label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="text-center py-4">
+                    <button type="submit" class="btn-parfum" style="font-size:1rem;padding:16px 44px;">
+                        <i class="bi bi-search"></i> Profilimi Analiz Et
                     </button>
                 </div>
             </form>
@@ -99,208 +196,46 @@
     </div>
 </div>
 
-<div id="loadingOverlay" class="overlay-neon" style="display:none;">
-    <div class="overlay-content">
-        <div class="spinner"></div>
-        <h4 style="font-weight:500;">Kokusal Profiliniz Oluşturuluyor</h4>
-        <p id="loadingStatus" style="color:var(--text-secondary);font-size:0.9rem;">Limbik sistem haritalanıyor...</p>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_scripts %}
 <script>
 const CSRF_TOKEN = '{{ csrf_token }}';
-const totalQuestions = {{ questions|length }};
-const totalSteps = totalQuestions + 1;
-const questionList = [];
-
-questionList.push('gender');
-document.querySelectorAll('.question-card-neon[data-qid]:not([data-gender])').forEach(el => {
-    questionList.push(parseInt(el.getAttribute('data-qid')));
-});
-
-let currentStep = 0;
-let answers = {};
-let selectedGender = null;
-
-document.getElementById('totalSteps').textContent = totalSteps;
-
-function updateProgress() {
-    const pct = totalSteps > 0 ? Math.round((currentStep / totalSteps) * 100) : 0;
-    document.getElementById('progressBar').style.width = Math.min(pct, 100) + '%';
-    document.getElementById('currentStep').textContent = Math.min(currentStep, totalSteps);
-}
-
-function showStep(index) {
-    document.querySelectorAll('.question-card-neon').forEach(c => c.style.display = 'none');
-    document.getElementById('nameCard').style.display = 'none';
-
-    if (index >= totalSteps) {
-        document.getElementById('nextBtn').style.display = 'none';
-        document.getElementById('prevBtn').style.display = 'none';
-        document.getElementById('nameCard').style.display = 'block';
-        currentStep = index;
-        updateProgress();
-        return;
-    }
-
-    document.getElementById('nextBtn').style.display = 'inline-flex';
-    document.getElementById('prevBtn').style.display = 'inline-flex';
-
-    const qid = questionList[index];
-    const el = document.querySelector(`.question-card-neon[data-qid="${qid}"]`);
-    if (el) el.style.display = 'block';
-
-    currentStep = index;
-    document.getElementById('prevBtn').disabled = index === 0;
-    updateProgress();
-
-    const isLast = index === totalSteps - 1;
-    document.getElementById('nextBtn').innerHTML = isLast ? 'Tamamla <i class="bi bi-chevron-right"></i>' : 'Sonraki <i class="bi bi-chevron-right"></i>';
-
-    if (qid === 'gender') {
-        const radios = document.querySelectorAll('input[name="gender"]');
-        radios.forEach(r => {
-            if (selectedGender && r.value === selectedGender) {
-                r.checked = true;
-                r.closest('.option-neon').classList.add('selected');
-            } else {
-                r.closest('.option-neon').classList.remove('selected');
-            }
-        });
-    } else {
-        const radios = document.querySelectorAll(`input[name="q${qid}"]`);
-        radios.forEach(r => {
-            if (answers[qid] !== undefined && parseInt(r.value) === answers[qid]) {
-                r.checked = true;
-                r.closest('.option-neon').classList.add('selected');
-            } else {
-                r.checked = false;
-                r.closest('.option-neon').classList.remove('selected');
-            }
-        });
-    }
-}
-
-document.getElementById('nextBtn').addEventListener('click', function() {
-    const qid = questionList[currentStep];
-
-    if (qid === 'gender') {
-        const selected = document.querySelector('input[name="gender"]:checked');
-        if (!selected) {
-            document.querySelector('.question-card-neon[data-gender="true"]').style.border = '1px solid var(--neon-magenta)';
-            setTimeout(() => document.querySelector('.question-card-neon[data-gender="true"]').style.border = '1px solid var(--glass-border)', 1000);
-            return;
-        }
-        selectedGender = selected.value;
-    } else {
-        const selected = document.querySelector(`input[name="q${qid}"]:checked`);
-        if (!selected) {
-            const card = document.querySelector(`.question-card-neon[data-qid="${qid}"]`);
-            if (card) {
-                card.style.border = '1px solid var(--neon-magenta)';
-                setTimeout(() => card.style.border = '1px solid var(--glass-border)', 1000);
-            }
-            return;
-        }
-        answers[qid] = parseInt(selected.value);
-    }
-
-    showStep(currentStep + 1);
-});
-
-document.getElementById('prevBtn').addEventListener('click', function() {
-    showStep(currentStep - 1);
-});
-
-document.querySelectorAll('.option-neon').forEach(label => {
-    label.addEventListener('click', function() {
-        const parent = this.closest('.question-card-neon');
-        if (parent) {
-            parent.querySelectorAll('.option-neon').forEach(l => l.classList.remove('selected'));
-            this.classList.add('selected');
-            parent.style.border = '1px solid var(--neon-cyan)';
-            setTimeout(() => parent.style.border = '1px solid var(--glass-border)', 500);
-        }
-    });
-});
-
-document.getElementById('submitBtn').addEventListener('click', function() {
-    const name = document.getElementById('userName').value.trim() || 'Misafir';
-    const gender = selectedGender || 'unisex';
-    document.getElementById('loadingOverlay').style.display = 'flex';
-
-    const statuses = [
-        'Limbik sistem haritalanıyor...',
-        'Amigdala duygu profili oluşturuluyor...',
-        'Hipokampus koku-anı bağlantıları analiz ediliyor...',
-        'Top-Middle-Base nota oranları hesaplanıyor...',
-        'Cinsiyet tercihinize göre filtreleme yapılıyor...',
-        'Parfüm veritabanı taranıyor...',
-        'AI eşleme yapılıyor...',
-        'Kişisel kokusal profiliniz oluşturuluyor...'
-    ];
-
-    let si = 0;
-    const siInterval = setInterval(() => {
-        if (si < statuses.length) document.getElementById('loadingStatus').textContent = statuses[si];
-        si++;
-    }, 600);
-
-    sessionStorage.removeItem('results');
-
+document.getElementById('surveyForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const keywords = formData.getAll('keywords');
+    const notes = formData.getAll('notes');
+    const themes = formData.getAll('themes');
+    const gender = formData.get('gender') || 'unisex';
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Analiz Ediliyor...';
     fetch('/api/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers: answers, gender: gender, name: name, _csrf_token: CSRF_TOKEN })
+        body: JSON.stringify({
+            keywords: keywords,
+            notes: notes,
+            themes: themes,
+            gender: gender,
+            name: 'Misafir',
+            '_csrf_token': CSRF_TOKEN
+        })
     })
     .then(r => r.json())
     .then(data => {
-        clearInterval(siInterval);
         if (data.success) {
-            sessionStorage.setItem('results', JSON.stringify(data));
+            localStorage.setItem('lastResult', JSON.stringify(data));
             window.location.href = '/results';
         } else {
-            alert('Hata: ' + data.error);
-            document.getElementById('loadingOverlay').style.display = 'none';
+            alert('Hata: ' + (data.error || 'Bilinmeyen hata'));
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-search"></i> Profilimi Analiz Et';
         }
     })
-    .catch(err => {
-        clearInterval(siInterval);
-            alert('Bağlantı hatası: ' + err);
-        document.getElementById('loadingOverlay').style.display = 'none';
+    .catch(() => {
+        alert('Bağlantı hatası. Lütfen tekrar deneyin.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-search"></i> Profilimi Analiz Et';
     });
 });
-
-// Swipe navigation support
-let touchStartX = 0;
-let touchEndX = 0;
-
-document.addEventListener('touchstart', function(e) {
-    touchStartX = e.changedTouches[0].screenX;
-}, { passive: true });
-
-document.addEventListener('touchend', function(e) {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-}, { passive: true });
-
-function handleSwipe() {
-    const diff = touchStartX - touchEndX;
-    if (Math.abs(diff) < 50) return; // Minimum swipe distance
-    
-    if (diff > 0) {
-        // Swipe left = next
-        document.getElementById('nextBtn').click();
-    } else {
-        // Swipe right = previous
-        if (currentStep > 0) {
-            document.getElementById('prevBtn').click();
-        }
-    }
-}
-
-showStep(0);
 </script>
 {% endblock %}

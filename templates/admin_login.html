@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 {% block title %}Admin Giriş — ParfumAI{% endblock %}
 {% block content %}
-<div class="container py-5">
+<div class="container py-5 mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card-glass p-4 entry">
+        <div class="col-md-5 reveal">
+            <div class="card-parfum p-4">
                 <div class="text-center mb-4">
-                    <i class="bi bi-shield-lock" style="font-size:2.5rem;color:var(--neon-cyan);"></i>
-                    <h4 class="fw-bold mt-2">Admin Giriş</h4>
+                    <i class="bi bi-shield-lock" style="font-size:2rem;color:var(--accent-blue);"></i>
+                    <h4 class="mt-2" style="font-family:var(--font-heading);font-weight:600;">Admin Giriş</h4>
                 </div>
                 {% if error %}
-                <div class="alert alert-danger py-2" style="font-size:0.9rem;background:rgba(255,0,0,0.1);border:1px solid rgba(255,0,0,0.2);color:#ff6666;">{{ error }}</div>
+                <div class="alert alert-danger py-2" style="font-size:0.9rem;background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.2);color:#e74c3c;border-radius:var(--radius);">{{ error }}</div>
                 {% endif %}
                 <form method="POST">
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                     <div class="mb-3">
                         <input type="password" name="password" class="form-control form-control-lg"
                                placeholder="Şifre" required autofocus
-                               style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:12px;font-size:1.1rem;text-align:center;">
+                               style="border:1px solid var(--border-light);border-radius:var(--radius);font-size:1.1rem;text-align:center;">
                     </div>
-                    <button type="submit" class="btn-neon w-100 justify-content-center">
+                    <button type="submit" class="btn-parfum w-100 justify-content-center">
                         <i class="bi bi-box-arrow-in-right"></i> Giriş
                     </button>
                 </form>
-                <p class="mt-3 text-center" style="color:var(--text-tertiary);font-size:0.8rem;">
+                <p class="mt-3 text-center" style="color:var(--text-muted);font-size:0.8rem;">
                     <i class="bi bi-info-circle me-1"></i> Yetkili personel içindir
                 </p>
             </div>
