@@ -20,7 +20,7 @@ load_dotenv()
 
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
 if not ADMIN_PASSWORD:
-    ADMIN_PASSWORD = 'admin123'
+    raise RuntimeError("ADMIN_PASSWORD environment variable is required. Set it before running the application.")
 
 FLASK_DEBUG = os.environ.get('FLASK_DEBUG', '0') == '1'
 
