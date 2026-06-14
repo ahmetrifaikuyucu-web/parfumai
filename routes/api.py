@@ -185,13 +185,46 @@ def submit_survey():
         except Exception as e:
             print(f"[AI] A\u00e7\u0131klama \u00fcretilemedi: {e}")
 
+        from perfume_engine import PERFUME_DATABASE
+
+        def compute_note_profile(user_notes_set):
+            top_count = 0
+            middle_count = 0
+            base_count = 0
+            for p in PERFUME_DATABASE:
+                for key, counter in [('notes_top', 'top'), ('notes_middle', 'middle'), ('notes_base', 'base')]:
+                    vals = p.get(key, [])
+                    if isinstance(vals, list):
+                        for v in vals:
+                            v_norm = v.lower().replace(' ', '_')
+                            if v_norm in user_notes_set:
+                                if counter == 'top':
+                                    top_count += 1
+                                elif counter == 'middle':
+                                    middle_count += 1
+                                else:
+                                    base_count += 1
+            total = top_count + middle_count + base_count
+            if total == 0:
+                return 33, 33, 34
+            top_pct = round((top_count / total) * 100)
+            middle_pct = round((middle_count / total) * 100)
+            base_pct = 100 - top_pct - middle_pct
+            return top_pct, middle_pct, base_pct
+
+        top_pct, middle_pct, base_pct = compute_note_profile(user_notes)
+
+        top_notes_list = [n for n in selected_notes if any(n.lower().replace(' ', '_') in [v.lower().replace(' ', '_') for v in p.get('notes_top', [])] for p in PERFUME_DATABASE)]
+        middle_notes_list = [n for n in selected_notes if any(n.lower().replace(' ', '_') in [v.lower().replace(' ', '_') for v in p.get('notes_middle', [])] for p in PERFUME_DATABASE)]
+        base_notes_list = [n for n in selected_notes if any(n.lower().replace(' ', '_') in [v.lower().replace(' ', '_') for v in p.get('notes_base', [])] for p in PERFUME_DATABASE)]
+
         note_profile = {
-            'top_pct': round(len(selected_notes) * 8.33) if selected_notes else 33,
-            'middle_pct': round(len(selected_keywords) * 8.33) if selected_keywords else 33,
-            'base_pct': round(len(selected_themes) * 8.33) if selected_themes else 34,
-            'top_dominant': selected_notes[0] if selected_notes else 'citrus',
-            'middle_dominant': 'floral',
-            'base_dominant': 'musk',
+            'top_pct': top_pct,
+            'middle_pct': middle_pct,
+            'base_pct': base_pct,
+            'top_dominant': top_notes_list[0] if top_notes_list else ('citrus' if selected_notes else 'citrus'),
+            'middle_dominant': middle_notes_list[0] if middle_notes_list else 'floral',
+            'base_dominant': base_notes_list[0] if base_notes_list else 'musk',
             'profile_type': profile_type,
             'nota_detay': {}
         }
@@ -280,3 +313,45 @@ def log_sale():
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 400
+
+
+@api_bp.route('/api/similar/<path:name>')
+def get_similar(name):
+    from urllib.parse import unquote
+    from perfume_engine import PERFUME_DATABASE
+    from ml_similarity import find_similar
+
+    decoded = unquote(name)
+    source = next((p for p in PERFUME_DATABASE if p['name'] == decoded), None)
+    if not source:
+        return jsonify({'success': False, 'error': 'Parfüm bulunamadı'}), 404
+
+    similar = find_similar(decoded, PERFUME_DATABASE, top_n=9)
+    if not similar:
+        similar = [dict(p) for p in PERFUME_DATABASE[:9]]
+
+    for p in similar:
+        if p['name'] == decoded and 'benzerlik_yuzde' in p:
+            del p['benzerlik_yuzde']
+
+    def clean_perfume(p):
+        return {
+            'name': p['name'],
+            'brand': p['brand'],
+            'season': p['season'],
+            'gender': p['gender'],
+            'description': p['description'],
+            'price_range': p['price_range'],
+            'notes_top': p['notes_top'],
+            'notes_middle': p['notes_middle'],
+            'notes_base': p['notes_base'],
+            'in_stock': p.get('in_stock', True),
+            'image_url': p.get('image_url', ''),
+            'benzerlik_yuzde': p.get('benzerlik_yuzde', 0)
+        }
+
+    return jsonify({
+        'success': True,
+        'source': clean_perfume(source),
+        'similar': [clean_perfume(p) for p in similar]
+    })

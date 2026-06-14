@@ -197,6 +197,8 @@
 </div>
 
 <script>
+localStorage.removeItem('lastResult');
+
 const CSRF_TOKEN = '{{ csrf_token }}';
 document.getElementById('surveyForm').addEventListener('submit', function(e) {
     e.preventDefault();
