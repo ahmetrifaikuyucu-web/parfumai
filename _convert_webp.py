@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Parfüm görsellerini WebP formatına dönüştürür ve setup.py'nin bir parçasıdır."""
+"""Parfüm görsellerini WebP formatına dönüştürür."""
 import os, glob
 from PIL import Image
 
@@ -7,7 +7,7 @@ IMG_DIR = os.path.join(os.path.dirname(__file__), 'static', 'perfume_images')
 
 def main():
     if not os.path.exists(IMG_DIR):
-        print('Gorsel dizini bulunamadi. Once python setup.py calistirin.')
+        print('Gorsel dizini bulunamadi. Once python app.py calistirarak gor sellerin olusmasini bekleyin.')
         return
     
     jpegs = glob.glob(os.path.join(IMG_DIR, '*.jpg')) + glob.glob(os.path.join(IMG_DIR, '*.jpeg'))

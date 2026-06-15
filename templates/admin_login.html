@@ -1,33 +1,72 @@
 {% extends "base.html" %}
 {% block title %}Admin Giriş — ParfumAI{% endblock %}
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card-glass p-4 entry">
-                <div class="text-center mb-4">
-                    <i class="bi bi-shield-lock" style="font-size:2.5rem;color:var(--neon-cyan);"></i>
-                    <h4 class="fw-bold mt-2">Admin Giriş</h4>
-                </div>
-                {% if error %}
-                <div class="alert alert-danger py-2" style="font-size:0.9rem;background:rgba(255,0,0,0.1);border:1px solid rgba(255,0,0,0.2);color:#ff6666;">{{ error }}</div>
-                {% endif %}
-                <form method="POST">
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
-                    <div class="mb-3">
-                        <input type="password" name="password" class="form-control form-control-lg"
-                               placeholder="Şifre" required autofocus
-                               style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:12px;font-size:1.1rem;text-align:center;">
-                    </div>
-                    <button type="submit" class="btn-neon w-100 justify-content-center">
-                        <i class="bi bi-box-arrow-in-right"></i> Giriş
-                    </button>
-                </form>
-                <p class="mt-3 text-center" style="color:var(--text-tertiary);font-size:0.8rem;">
-                    <i class="bi bi-info-circle me-1"></i> Yetkili personel içindir
-                </p>
+<style>
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: var(--bg-dark);
+    padding: 2rem 0;
+}
+.login-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+    box-shadow: var(--shadow-xl);
+    max-width: 420px;
+    margin: 0 auto;
+    animation: loginIn 0.5s ease;
+}
+@keyframes loginIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.login-card .login-icon {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    background: rgba(43,108,176,0.1);
+    font-size: 1.5rem;
+    color: var(--accent-blue);
+}
+</style>
+<div class="login-page">
+    <div class="container">
+        <div class="login-card">
+            <div class="login-icon"><i class="bi bi-shield-lock"></i></div>
+            <h4 class="text-center mb-3" style="font-family:var(--font-heading);font-weight:600;">Admin Giriş</h4>
+            {% if error %}
+            <div style="background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.2);color:#e74c3c;border-radius:var(--radius);padding:12px 18px;font-size:var(--text-base);margin-bottom:1rem;">
+                <i class="bi bi-exclamation-circle me-1"></i> {{ error }}
             </div>
+            {% endif %}
+            <form method="POST" id="loginForm">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                <div class="mb-3">
+                    <input type="password" name="password" class="form-control form-control-lg"
+                           placeholder="Şifre" required autofocus
+                           style="border:1px solid var(--border-light);border-radius:var(--radius);font-size:1.1rem;text-align:center;padding:14px;">
+                </div>
+                <button type="submit" class="btn-parfum w-100 justify-content-center" id="loginBtn" style="padding:14px;">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Giriş
+                </button>
+            </form>
+            <p class="mt-3 text-center" style="color:var(--text-muted);font-size:var(--text-sm);">
+                <i class="bi bi-info-circle me-1"></i> Yetkili personel içindir
+            </p>
         </div>
     </div>
 </div>
+<script>
+document.getElementById('loginForm').addEventListener('submit', function() {
+    var btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Giriş yapılıyor...';
+});
+</script>
 {% endblock %}

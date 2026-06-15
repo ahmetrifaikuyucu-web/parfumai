@@ -1,306 +1,920 @@
 {% extends "base.html" %}
-{% block title %}Koku Analizi — ParfumAI{% endblock %}
+{% block title %}ParfumAI — Koku Anketi{% endblock %}
+{% block extra_head %}
+<style>
+:root {
+    --step-size: 42px;
+    --step-line: 2px;
+}
+.wizard-hero {
+    background: var(--bg-dark);
+    padding: 5rem 0 1.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.wizard-hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(43,108,176,0.12) 0%, transparent 60%);
+}
+.wizard-hero h1 { color: #fff; position: relative; z-index: 1; }
+.wizard-hero p { color: rgba(255,255,255,0.6); position: relative; z-index: 1; }
+
+/* Mode selector */
+.mode-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    max-width: 600px;
+    margin: 2rem auto;
+}
+.mode-card {
+    background: var(--bg-card);
+    border: 2px solid var(--border-light);
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.mode-card:hover {
+    border-color: var(--accent-blue);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(43,108,176,0.15);
+}
+.mode-card .icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+.mode-card h4 { font-weight: 700; margin-bottom: 0.5rem; font-size: var(--text-xl); }
+.mode-card p { font-size: var(--text-base); color: var(--text-secondary); margin: 0; line-height: 1.6; }
+
+/* Simple question layout */
+.simple-step {
+    display: none;
+    animation: fadeStep 0.35s ease;
+}
+.simple-step.active { display: block; }
+
+.question-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s;
+}
+.question-card:has(input:checked) {
+    border-color: var(--accent-blue);
+    background: rgba(43,108,176,0.04);
+}
+.question-card .q-text {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+.question-card .q-sub {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+.question-card .options {
+    display: grid;
+    gap: 6px;
+}
+.question-card .options label {
+    display: block;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    cursor: pointer;
+    font-size: var(--text-base);
+    transition: all 0.2s;
+}
+.question-card .options label:hover {
+    border-color: var(--accent-blue);
+}
+.question-card .options input:checked + span {
+    color: var(--accent-blue);
+    font-weight: 600;
+}
+.question-card .options label:has(input:checked) {
+    border-color: var(--accent-blue);
+    background: rgba(43,108,176,0.08);
+}
+.question-card .options input { display: none; }
+
+/* Stepper */
+.stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 1.5rem auto;
+    max-width: 600px;
+    padding: 0 1rem;
+}
+.step-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+.step-circle {
+    width: var(--step-size);
+    height: var(--step-size);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-base);
+    font-weight: 700;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+.step-indicator.active .step-circle {
+    border-color: var(--accent-blue);
+    background: var(--accent-blue);
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(43,108,176,0.15);
+}
+.step-indicator.done .step-circle {
+    border-color: var(--accent-green);
+    background: var(--accent-green);
+    color: #fff;
+}
+.step-label {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 6px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    transition: color 0.3s ease;
+}
+.step-indicator.active .step-label { color: var(--accent-blue); }
+.step-indicator.done .step-label { color: var(--accent-green); }
+.step-line {
+    flex: 1;
+    height: var(--step-line);
+    background: var(--border-light);
+    margin: 0 -1px;
+    position: relative;
+    z-index: 1;
+    align-self: flex-start;
+    margin-top: calc(var(--step-size) / 2 - var(--step-line) / 2);
+    transition: background 0.3s ease;
+}
+.step-line.done { background: var(--accent-green); }
+
+/* Steps content */
+.wizard-step {
+    display: none;
+    animation: fadeStep 0.35s ease;
+}
+.wizard-step.active { display: block; }
+@keyframes fadeStep {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.step-header {
+    text-align: center;
+    margin-bottom: 1.25rem;
+}
+.step-header h3 {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+.step-header p {
+    color: var(--text-secondary);
+    font-size: var(--text-base);
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+/* Search */
+.search-wrapper {
+    position: relative;
+    margin-bottom: 1rem;
+}
+.search-wrapper input {
+    width: 100%;
+    padding: 12px 16px 12px 42px;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    font-size: var(--text-base);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    transition: var(--transition);
+    outline: none;
+}
+.search-wrapper input:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(43,108,176,0.1);
+}
+.search-wrapper .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+.search-wrapper .clear-search {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 4px;
+    display: none;
+}
+.search-wrapper .clear-search.visible { display: block; }
+
+.sel-count {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    text-align: right;
+    margin-bottom: 0.75rem;
+}
+.sel-count strong { color: var(--accent-blue); }
+
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+    max-height: 360px;
+    overflow-y: auto;
+    padding: 2px;
+}
+.checkbox-grid label {
+    display: block;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: var(--text-sm);
+    background: var(--card-bg);
+}
+.checkbox-grid label:hover {
+    border-color: var(--accent-blue);
+    background: rgba(43,108,176,0.04);
+}
+.checkbox-grid label:focus-within {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+}
+.checkbox-grid input:checked + span { color: var(--accent-blue); font-weight: 600; }
+.checkbox-grid label:has(input:checked) {
+    border-color: var(--accent-blue);
+    background: rgba(43,108,176,0.08);
+}
+.checkbox-grid input { display: none; }
+.checkbox-grid label.hidden { display: none; }
+
+.gender-group {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+.gender-group label {
+    flex: 1;
+    max-width: 200px;
+    text-align: center;
+    padding: 18px 24px;
+    border-radius: 12px;
+    border: 2px solid var(--border-light);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--card-bg);
+    font-weight: 500;
+    font-size: var(--text-base);
+}
+.gender-group label:hover { border-color: var(--accent-blue); }
+.gender-group label:focus-within {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+}
+.gender-group label:has(input:checked) {
+    border-color: var(--accent-blue);
+    background: rgba(43,108,176,0.1);
+    box-shadow: 0 0 0 3px rgba(43,108,176,0.15);
+}
+.gender-group input { display: none; }
+
+.wizard-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    gap: 12px;
+}
+.wizard-nav .btn-prev {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 50px;
+    padding: 12px 28px;
+    font-size: var(--text-base);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.wizard-nav .btn-prev:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+.wizard-nav .btn-prev:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    border-color: var(--border-light);
+    color: var(--text-muted);
+}
+.wizard-nav .btn-next {
+    background: var(--accent-blue);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 28px;
+    font-size: var(--text-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 14px rgba(43,108,176,0.3);
+}
+.wizard-nav .btn-next:hover {
+    background: #1d4e8c;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(43,108,176,0.35);
+}
+.wizard-nav .btn-submit {
+    background: var(--accent-green);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 32px;
+    font-size: var(--text-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 14px rgba(22,163,74,0.3);
+}
+.wizard-nav .btn-submit:hover {
+    background: #15803d;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(22,163,74,0.35);
+}
+.wizard-nav .btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.no-results {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-muted);
+    font-size: var(--text-base);
+    display: none;
+}
+.no-results.visible { display: block; }
+
+.checkbox-grid::-webkit-scrollbar { width: 4px; }
+.checkbox-grid::-webkit-scrollbar-track { background: transparent; }
+.checkbox-grid::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 4px; }
+
+.step-enter { animation: stepIn 0.35s ease forwards; }
+@keyframes stepIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--accent-blue);
+    color: #fff;
+    padding: 8px 16px;
+    z-index: 10000;
+    transition: top 0.2s;
+}
+.skip-link:focus { top: 0; }
+
+@media (max-width: 576px) {
+    .mode-grid { grid-template-columns: 1fr; }
+    .checkbox-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+    .step-label { font-size: 0.5rem; }
+    .gender-group { flex-direction: column; align-items: center; }
+    .gender-group label { max-width: 100%; width: 100%; }
+    .wizard-nav { flex-direction: column; }
+    .wizard-nav .btn-prev,
+    .wizard-nav .btn-next,
+    .wizard-nav .btn-submit { width: 100%; justify-content: center; }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-4 mt-2">
-    <div class="row mb-4">
-        <div class="col-lg-8 mx-auto text-center">
-            <div class="entry">
-                <h1 class="fw-bold mb-2" style="letter-spacing:-0.02em;">Koku <span class="text-gradient-cyan">Analizi</span></h1>
-                <p class="mb-3" style="color:var(--text-secondary);">Psikolojik bilinçaltı testi ile kokusal profilinizi haritalıyoruz.</p>
-                <div class="progress-neon mx-auto" style="max-width:400px;">
-                    <div id="progressBar" class="progress-bar" style="width:0%"></div>
+<a href="#surveyContainer" class="skip-link">İçeriğe atla</a>
+
+<div class="wizard-hero">
+    <div class="container">
+        <h1 class="section-title">Koku Profili Anketi</h1>
+        <p class="section-subtitle">Size en uygun parfümleri bulalım.</p>
+    </div>
+</div>
+
+<div class="container py-3" id="surveyContainer">
+
+    <!-- MODE SELECTOR -->
+    <div id="modeSelector" class="row justify-content-center">
+        <div class="col-lg-8">
+            <div style="text-align:center;margin-bottom:1rem;">
+                <h3 style="font-family:var(--font-heading);font-weight:700;font-size:var(--text-3xl);">Parfüm bilgi seviyeniz nedir?</h3>
+                <p style="color:var(--text-muted);font-size:0.9rem;">Size en uygun anketi seçelim.</p>
+            </div>
+            <div class="mode-grid">
+                <div class="mode-card" onclick="selectMode('simple')" role="button" tabindex="0" aria-label="Başlangıç seviyesi anketi">
+                    <div class="icon">🌿</div>
+                    <h4>Başlangıç</h4>
+                    <p>Parfüm notalarını bilmiyorum. Basit sorularla profilimi oluşturmak istiyorum.</p>
                 </div>
-                <p class="mt-2" style="font-size:0.85rem;color:var(--text-tertiary);">
-                    <span id="currentStep">0</span> / <span id="totalSteps">{{ questions|length + 1 }}</span>
-                </p>
+                <div class="mode-card" onclick="selectMode('expert')" role="button" tabindex="0" aria-label="İleri seviye anketi">
+                    <div class="icon">🔬</div>
+                    <h4>İleri</h4>
+                    <p>Notaları ve koku ailelerini biliyorum. Detaylı seçim yapmak istiyorum.</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <form id="surveyForm">
-                <div class="question-card-neon mb-3 fade-in" data-qid="gender" data-gender="true">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <span class="question-number"><i class="bi bi-person"></i></span>
-                        <span class="question-category">{{ gender_question.category }}</span>
-                    </div>
-                    <h5 class="question-text mb-2">{{ gender_question.question }}</h5>
-                    {% if gender_question.subtext %}
-                    <p class="question-subtext mb-3">{{ gender_question.subtext }}</p>
-                    {% endif %}
-                    <div class="options-list">
-                    {% for opt in gender_question.options %}
-                    <label class="option-neon" for="gender_{{ loop.index0 }}">
-                        <input class="form-check-input" type="radio"
-                               name="gender" id="gender_{{ loop.index0 }}"
-                               value="{{ opt.text }}" required>
-                        {% if opt.icon %}<i class="bi {{ opt.icon }} option-icon"></i>{% endif %}
-                        <span class="form-check-label">{{ opt.text }}</span>
-                    </label>
-                    {% endfor %}
-                    </div>
+    <!-- ====== BEGINNER PATH (Simple Questions) ====== -->
+    <div id="simpleSurvey" style="display:none;">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div style="text-align:center;margin-bottom:1.5rem;">
+                    <h3 style="font-family:var(--font-heading);font-weight:700;font-size:var(--text-3xl);">Birkaç soru ile koku profilinizi çıkaralım</h3>
+                    <p style="color:var(--text-muted);font-size:0.88rem;">Hiç nota bilgisi gerektirmeyen sorular. İçinizden geldiği gibi cevaplayın.</p>
                 </div>
 
-                {% for q in questions %}
-                <div class="question-card-neon mb-3 fade-in" data-qid="{{ q.id }}" style="display:none;">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <span class="question-number">{{ q.id }}</span>
-                        <span class="question-category">{{ q.category }}</span>
-                    </div>
-                    <h5 class="question-text mb-2">{{ q.question }}</h5>
-                    {% if q.subtext %}
-                    <p class="question-subtext mb-3">{{ q.subtext }}</p>
-                    {% endif %}
-                    <div class="options-list">
-                        {% for opt in q.options %}
-                        <label class="option-neon" for="q{{ q.id }}o{{ loop.index0 }}">
-                            <input class="form-check-input" type="radio"
-                                   name="q{{ q.id }}" id="q{{ q.id }}o{{ loop.index0 }}"
-                                   value="{{ loop.index0 }}" required>
-                            {% if opt.icon %}<i class="bi {{ opt.icon }} option-icon"></i>{% endif %}
-                            <span class="form-check-label">{{ opt.text }}</span>
-                        </label>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endfor %}
+                <button type="button" class="btn-prev" onclick="selectMode(null)" style="margin-bottom:1rem;">
+                    <i class="bi bi-arrow-left"></i> Geri
+                </button>
 
-                <div id="nameCard" class="question-card-neon mb-3 text-center fade-in" style="display:none;">
-                    <div class="py-3">
-                        <i class="bi bi-check-circle" style="font-size:3rem;color:var(--neon-green);"></i>
-                        <h4 class="fw-bold mt-3">Analiz Tamamlandı</h4>
-                        <p style="color:var(--text-secondary);">Size nasıl hitap edelim?</p>
-                        <div class="row justify-content-center">
-                            <div class="col-md-6">
-                                <input type="text" id="userName" class="form-control form-control-lg text-center mb-3"
-                                       placeholder="Adınız" value="Misafir"
-                                       style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:12px;font-size:1.1rem;">
-                                <button type="button" id="submitBtn" class="btn-neon w-100 d-flex align-items-center justify-content-center gap-2">
-                                     <i class="bi bi-magic"></i> Kokusal Profilimi Oluştur
-                                </button>
-                            </div>
+                <form id="simpleForm" autocomplete="off" novalidate>
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+
+                    <!-- Gender -->
+                    <div class="question-card">
+                        <div class="q-text">Cinsiyetiniz</div>
+                        <div class="q-sub">Kendinizi hangi cinsiyet kimliğiyle tanımlıyorsunuz?</div>
+                        <div class="gender-group" role="radiogroup" aria-label="Cinsiyet seçimi">
+                            <label><input type="radio" name="gender" value="kadin" required> <span>Kadın</span></label>
+                            <label><input type="radio" name="gender" value="erkek"> <span>Erkek</span></label>
+                            <label><input type="radio" name="gender" value="unisex" checked> <span>Fark etmez</span></label>
                         </div>
                     </div>
-                </div>
 
-                <div class="d-flex justify-content-between mt-4" id="navButtons">
-                    <button type="button" id="prevBtn" class="btn-neon-outline d-flex align-items-center gap-1"
-                            style="background:transparent;border:none;color:var(--text-secondary) !important;padding:0;" disabled>
-                        <i class="bi bi-chevron-left"></i> Önceki
-                    </button>
-                    <button type="button" id="nextBtn" class="btn-neon d-flex align-items-center gap-2">
-                        Sonraki <i class="bi bi-chevron-right"></i>
-                    </button>
-                </div>
-            </form>
+                    <!-- 6 Questions from legacy/questions.py -->
+                    {% for q in questions %}
+                    <div class="question-card">
+                        <div class="q-text">{{ q.question }}</div>
+                        {% if q.subtext %}
+                        <div class="q-sub">{{ q.subtext }}</div>
+                        {% endif %}
+                        <div class="options" role="radiogroup" aria-label="{{ q.question }}">
+                            {% for opt in q.options %}
+                            <label><input type="radio" name="q_{{ q.id }}" value="{{ loop.index0 }}" {% if loop.first %}required{% endif %}> <span>{{ opt.text }}</span></label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <div class="wizard-nav" style="justify-content:center;">
+                        <button type="submit" class="btn-submit" id="simpleSubmitBtn">
+                            <i class="bi bi-search"></i> Profilimi Analiz Et
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== EXPERT PATH (Wizard with steps) ====== -->
+    <div id="expertSurvey" style="display:none;">
+        <nav class="stepper" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="4" aria-label="Anket adımları">
+            <div class="step-indicator active" data-step="1">
+                <div class="step-circle" aria-current="step">1</div>
+                <span class="step-label">Cinsiyet</span>
+            </div>
+            <div class="step-line" data-step="1"></div>
+            <div class="step-indicator" data-step="2">
+                <div class="step-circle">2</div>
+                <span class="step-label">Duygular</span>
+            </div>
+            <div class="step-line" data-step="2"></div>
+            <div class="step-indicator" data-step="3">
+                <div class="step-circle">3</div>
+                <span class="step-label">Notalar</span>
+            </div>
+            <div class="step-line" data-step="3"></div>
+            <div class="step-indicator" data-step="4">
+                <div class="step-circle">4</div>
+                <span class="step-label">Temalar</span>
+            </div>
+        </nav>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <form id="expertForm" autocomplete="off" novalidate>
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+
+                    <!-- STEP 1: Gender -->
+                    <div class="wizard-step active" data-step="1" role="tabpanel">
+                        <div class="card-parfum p-4">
+                            <div class="step-header">
+                                <h3>Cinsiyetiniz</h3>
+                                <p>Kendinizi hangi cinsiyet kimliğiyle tanımlıyorsunuz?</p>
+                            </div>
+                            <div class="gender-group" role="radiogroup" aria-label="Cinsiyet seçimi">
+                                <label><input type="radio" name="gender" value="kadin"> <span>Kadın</span></label>
+                                <label><input type="radio" name="gender" value="erkek"> <span>Erkek</span></label>
+                                <label><input type="radio" name="gender" value="unisex"> <span>Fark etmez</span></label>
+                            </div>
+                            <p id="gender-error" class="text-center" style="color:#e74c3c;font-size:0.82rem;display:none;">Lütfen bir cinsiyet seçin.</p>
+                        </div>
+                        <div class="wizard-nav">
+                            <button type="button" class="btn-prev" onclick="selectMode(null)"><i class="bi bi-arrow-left"></i> Seçime Dön</button>
+                            <button type="button" class="btn-next" data-action="next">
+                                Devam <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: Keywords -->
+                    <div class="wizard-step" data-step="2" role="tabpanel">
+                        <div class="card-parfum p-4">
+                            <div class="step-header">
+                                <h3>Hangi Duygular?</h3>
+                                <p>Parfümünüzün ifade etmesini istediğiniz duyguları seçin.</p>
+                            </div>
+                            <div class="search-wrapper">
+                                <i class="bi bi-search search-icon"></i>
+                                <input type="text" class="search-input" data-grid="keywordsGrid" placeholder="Duygu ara..." aria-label="Duygularda ara">
+                                <button type="button" class="clear-search" aria-label="Aramayı temizle">&times;</button>
+                            </div>
+                            <div class="sel-count"><strong id="kw-count">0</strong> seçili</div>
+                            <div class="checkbox-grid" id="keywordsGrid" role="group" aria-label="Duygu seçenekleri">
+                                {% set keywords = [
+                                    ("Tatlı", "sweet"), ("Ferah", "fresh"), ("Sıcak", "warm"),
+                                    ("Zarif", "elegant"), ("Seksi", "sexy"), ("Gizemli", "mysterious"),
+                                    ("Kadınsı", "feminine"), ("Erkeksi", "masculine"), ("Temiz", "clean"),
+                                    ("Klasik", "classy"), ("Yumuşak", "soft"), ("Sevimli", "lovely"),
+                                    ("Canlı", "lively"), ("Serinletici", "refreshing"), ("Yaz", "summer"),
+                                    ("Kış", "winter"), ("Çimen", "grass"), ("Bitkisel", "plants"),
+                                    ("Lüks", "luxury"), ("Olgun", "mature"), ("Ağırbaşlı", "reliable"),
+                                    ("Sakin", "low_profile"), ("Yoğun", "strong_smell"), ("Samimi", "easygoing"),
+                                    ("Komşu Kızı", "girl_next_door"), ("Genç Kız", "young_lady"),
+                                    ("Büyük Markalar", "big_brands"), ("Popüler", "well_known"),
+                                    ("Reklamlarda Görülen", "seen_in_ads"), ("Nazik", "gentle")
+                                ] %}
+                                {% for text, val in keywords %}
+                                <label data-search="{{ text }} {{ val }}"><input type="checkbox" name="keywords" value="{{ val }}"> <span>{{ text }}</span></label>
+                                {% endfor %}
+                            </div>
+                            <div class="no-results" id="kw-no-results">Eşleşen duygu bulunamadı.</div>
+                        </div>
+                        <div class="wizard-nav">
+                            <button type="button" class="btn-prev" data-action="prev"><i class="bi bi-arrow-left"></i> Geri</button>
+                            <button type="button" class="btn-next" data-action="next">Devam <i class="bi bi-arrow-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: Notes -->
+                    <div class="wizard-step" data-step="3" role="tabpanel">
+                        <div class="card-parfum p-4">
+                            <div class="step-header">
+                                <h3>Hangi Notalar?</h3>
+                                <p>En sevdiğiniz koku notalarını seçin. (İsteğe bağlı)</p>
+                            </div>
+                            <div class="search-wrapper">
+                                <i class="bi bi-search search-icon"></i>
+                                <input type="text" class="search-input" data-grid="notesGrid" placeholder="Nota ara..." aria-label="Notalarda ara">
+                                <button type="button" class="clear-search" aria-label="Aramayı temizle">&times;</button>
+                            </div>
+                            <div class="sel-count"><strong id="note-count">0</strong> seçili</div>
+                            <div class="checkbox-grid" id="notesGrid" role="group" aria-label="Nota seçenekleri">
+                                {% set notes = [
+                                    ("Misk", "musk"), ("Yasemin", "jasmine"), ("Gül", "rose"),
+                                    ("Bergamot", "bergamot"), ("Limon", "lemon"), ("Portakal Çiçeği", "neroli"),
+                                    ("Lavanta", "lavender"), ("Tonka Fasulyesi", "tonka"), ("Menekşe", "violet"),
+                                    ("Greyfurt", "grapefruit"), ("İris", "iris"), ("Ylang-Ylang", "ylang"),
+                                    ("Şeftali", "peach"), ("Portakal", "orange"), ("Karabiber", "pepper"),
+                                    ("Kakule", "cardamom"), ("Frezya", "freesia"), ("Yeşil Yapraklar", "green_leaves"),
+                                    ("Deri", "leather"), ("Paçuli", "patchouli"), ("Sedir", "cedar"),
+                                    ("Vetiver", "vetiver"), ("Vanilya", "vanilla"), ("Vadideki Zambak", "lily_of_the_valley"),
+                                    ("Sandal Ağacı", "sandalwood"), ("Amber", "amber"), ("Tarçın", "cinnamon"),
+                                    ("Karanfil", "clove"), ("Zencefil", "ginger"), ("Badem", "almond"),
+                                    ("Karamel", "caramel"), ("Kahve", "coffee"), ("Hindistan Cevizi", "coconut"),
+                                    ("Çikolata", "cocoa"), ("Oud", "oud"), ("Tütün", "tobacco"),
+                                    ("Defne", "bay_leaf"), ("Biberiye", "rosemary"), ("Adaçayı", "sage"),
+                                    ("Mercan Köşk", "coriander")
+                                ] %}
+                                {% for text, val in notes %}
+                                <label data-search="{{ text }} {{ val }}"><input type="checkbox" name="notes" value="{{ val }}"> <span>{{ text }}</span></label>
+                                {% endfor %}
+                            </div>
+                            <div class="no-results" id="note-no-results">Eşleşen nota bulunamadı.</div>
+                        </div>
+                        <div class="wizard-nav">
+                            <button type="button" class="btn-prev" data-action="prev"><i class="bi bi-arrow-left"></i> Geri</button>
+                            <button type="button" class="btn-next" data-action="next">Devam <i class="bi bi-arrow-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 4: Themes -->
+                    <div class="wizard-step" data-step="4" role="tabpanel">
+                        <div class="card-parfum p-4">
+                            <div class="step-header">
+                                <h3>Hangi Temalar?</h3>
+                                <p>En çok hangi parfüm ailelerine yakın hissediyorsunuz?</p>
+                            </div>
+                            <div class="search-wrapper">
+                                <i class="bi bi-search search-icon"></i>
+                                <input type="text" class="search-input" data-grid="themesGrid" placeholder="Tema ara..." aria-label="Temalarda ara">
+                                <button type="button" class="clear-search" aria-label="Aramayı temizle">&times;</button>
+                            </div>
+                            <div class="sel-count"><strong id="theme-count">0</strong> seçili</div>
+                            <div class="checkbox-grid" id="themesGrid" role="group" aria-label="Tema seçenekleri">
+                                {% set themes = [
+                                    ("Çiçeksi", "floral"), ("Çiçeksi Meyveli", "floral_fruity"),
+                                    ("Oryantal Çiçeksi", "oriental_floral"), ("Odunsu Çiçeksi", "woody_floral"),
+                                    ("Odunsu Fougere", "woody_fougere"), ("Fougere", "fougere"),
+                                    ("Oryantal Odunsu", "oriental_woody"), ("Oryantal", "oriental"),
+                                    ("Narenciye Fougere", "citrus_fougere"), ("Oryantal Gurme", "oriental_gourmand"),
+                                    ("Baharatlı Odunsu", "woody_spicy"), ("Şipre Çiçeksi", "chypre_floral"),
+                                    ("Meyveli Gurme", "fruity_gourmand"), ("Yeşil Çiçeksi", "floral_green"),
+                                    ("Baharatlı Oryantal", "oriental_spicy"), ("Baharatlı Fougere", "spicy_fougere"),
+                                    ("Narenciye", "citrus"), ("Odunsu", "woody"),
+                                    ("Deri", "leather_theme"), ("Meyveli Fougere", "fruity_fougere"),
+                                    ("Oryantal Fougere", "oriental_fougere"), ("Sucul Çiçeksi", "floral_aquatic"),
+                                    ("Sucul Fougere", "aquatic_fougere"), ("Şipre", "chypre"),
+                                    ("Yeşil Fougere", "green_fougere"), ("Aldehit Çiçeksi", "floral_aldehyde"),
+                                    ("Odunsu Şipre", "chypre_woody"), ("Şipre Meyveli", "chypre_fruity"),
+                                    ("Sucul Odunsu", "aquatic_woody"), ("Narenciye Gurme", "citrus_gourmand")
+                                ] %}
+                                {% for text, val in themes %}
+                                <label data-search="{{ text }} {{ val }}"><input type="checkbox" name="themes" value="{{ val }}"> <span>{{ text }}</span></label>
+                                {% endfor %}
+                            </div>
+                            <div class="no-results" id="theme-no-results">Eşleşen tema bulunamadı.</div>
+                        </div>
+                        <div class="wizard-nav">
+                            <button type="button" class="btn-prev" data-action="prev"><i class="bi bi-arrow-left"></i> Geri</button>
+                            <button type="submit" class="btn-submit" id="expertSubmitBtn">
+                                <i class="bi bi-search"></i> Profilimi Analiz Et
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
-<div id="loadingOverlay" class="overlay-neon" style="display:none;">
-    <div class="overlay-content">
-        <div class="spinner"></div>
-        <h4 style="font-weight:500;">Kokusal Profiliniz Oluşturuluyor</h4>
-        <p id="loadingStatus" style="color:var(--text-secondary);font-size:0.9rem;">Limbik sistem haritalanıyor...</p>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_scripts %}
 <script>
+localStorage.removeItem('lastResult');
 const CSRF_TOKEN = '{{ csrf_token }}';
-const totalQuestions = {{ questions|length }};
-const totalSteps = totalQuestions + 1;
-const questionList = [];
 
-questionList.push('gender');
-document.querySelectorAll('.question-card-neon[data-qid]:not([data-gender])').forEach(el => {
-    questionList.push(parseInt(el.getAttribute('data-qid')));
-});
+// === MODE SELECTION ===
+let currentMode = null;
 
-let currentStep = 0;
-let answers = {};
-let selectedGender = null;
+function selectMode(mode) {
+    currentMode = mode;
+    document.getElementById('modeSelector').style.display = mode === null ? 'block' : 'none';
+    document.getElementById('simpleSurvey').style.display = mode === 'simple' ? 'block' : 'none';
+    document.getElementById('expertSurvey').style.display = mode === 'expert' ? 'block' : 'none';
 
-document.getElementById('totalSteps').textContent = totalSteps;
-
-function updateProgress() {
-    const pct = totalSteps > 0 ? Math.round((currentStep / totalSteps) * 100) : 0;
-    document.getElementById('progressBar').style.width = Math.min(pct, 100) + '%';
-    document.getElementById('currentStep').textContent = Math.min(currentStep, totalSteps);
-}
-
-function showStep(index) {
-    document.querySelectorAll('.question-card-neon').forEach(c => c.style.display = 'none');
-    document.getElementById('nameCard').style.display = 'none';
-
-    if (index >= totalSteps) {
-        document.getElementById('nextBtn').style.display = 'none';
-        document.getElementById('prevBtn').style.display = 'none';
-        document.getElementById('nameCard').style.display = 'block';
-        currentStep = index;
-        updateProgress();
-        return;
-    }
-
-    document.getElementById('nextBtn').style.display = 'inline-flex';
-    document.getElementById('prevBtn').style.display = 'inline-flex';
-
-    const qid = questionList[index];
-    const el = document.querySelector(`.question-card-neon[data-qid="${qid}"]`);
-    if (el) el.style.display = 'block';
-
-    currentStep = index;
-    document.getElementById('prevBtn').disabled = index === 0;
-    updateProgress();
-
-    const isLast = index === totalSteps - 1;
-    document.getElementById('nextBtn').innerHTML = isLast ? 'Tamamla <i class="bi bi-chevron-right"></i>' : 'Sonraki <i class="bi bi-chevron-right"></i>';
-
-    if (qid === 'gender') {
-        const radios = document.querySelectorAll('input[name="gender"]');
-        radios.forEach(r => {
-            if (selectedGender && r.value === selectedGender) {
-                r.checked = true;
-                r.closest('.option-neon').classList.add('selected');
-            } else {
-                r.closest('.option-neon').classList.remove('selected');
-            }
-        });
-    } else {
-        const radios = document.querySelectorAll(`input[name="q${qid}"]`);
-        radios.forEach(r => {
-            if (answers[qid] !== undefined && parseInt(r.value) === answers[qid]) {
-                r.checked = true;
-                r.closest('.option-neon').classList.add('selected');
-            } else {
-                r.checked = false;
-                r.closest('.option-neon').classList.remove('selected');
-            }
-        });
+    if (mode === null) {
+        // Reset expert wizard to step 1 if leaving
+        currentStep = 1;
     }
 }
 
-document.getElementById('nextBtn').addEventListener('click', function() {
-    const qid = questionList[currentStep];
+// === SIMPLE FORM (Beginner Path) ===
+document.getElementById('simpleForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const gender = formData.get('gender') || 'unisex';
 
-    if (qid === 'gender') {
-        const selected = document.querySelector('input[name="gender"]:checked');
-        if (!selected) {
-            document.querySelector('.question-card-neon[data-gender="true"]').style.border = '1px solid var(--neon-magenta)';
-            setTimeout(() => document.querySelector('.question-card-neon[data-gender="true"]').style.border = '1px solid var(--glass-border)', 1000);
-            return;
+    const answers = {};
+    {% for q in questions %}
+    const val_{{ q.id }} = formData.get('q_{{ q.id }}');
+    if (val_{{ q.id }} !== null) answers['{{ q.id }}'] = parseInt(val_{{ q.id }});
+    {% endfor %}
+
+    const btn = document.getElementById('simpleSubmitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Analiz Ediliyor...';
+
+    fetch('/api/submit-simple', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            gender: gender,
+            answers: answers,
+            name: 'Misafir',
+            '_csrf_token': CSRF_TOKEN
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            localStorage.setItem('lastResult', JSON.stringify(data));
+            window.location.href = '/results';
+        } else {
+            alert('Hata: ' + (data.error || 'Bilinmeyen hata'));
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-search"></i> Profilimi Analiz Et';
         }
-        selectedGender = selected.value;
-    } else {
-        const selected = document.querySelector(`input[name="q${qid}"]:checked`);
-        if (!selected) {
-            const card = document.querySelector(`.question-card-neon[data-qid="${qid}"]`);
-            if (card) {
-                card.style.border = '1px solid var(--neon-magenta)';
-                setTimeout(() => card.style.border = '1px solid var(--glass-border)', 1000);
-            }
-            return;
-        }
-        answers[qid] = parseInt(selected.value);
-    }
-
-    showStep(currentStep + 1);
-});
-
-document.getElementById('prevBtn').addEventListener('click', function() {
-    showStep(currentStep - 1);
-});
-
-document.querySelectorAll('.option-neon').forEach(label => {
-    label.addEventListener('click', function() {
-        const parent = this.closest('.question-card-neon');
-        if (parent) {
-            parent.querySelectorAll('.option-neon').forEach(l => l.classList.remove('selected'));
-            this.classList.add('selected');
-            parent.style.border = '1px solid var(--neon-cyan)';
-            setTimeout(() => parent.style.border = '1px solid var(--glass-border)', 500);
-        }
+    })
+    .catch(() => {
+        alert('Bağlantı hatası. Lütfen tekrar deneyin.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-search"></i> Profilimi Analiz Et';
     });
 });
 
-document.getElementById('submitBtn').addEventListener('click', function() {
-    const name = document.getElementById('userName').value.trim() || 'Misafir';
-    const gender = selectedGender || 'unisex';
-    document.getElementById('loadingOverlay').style.display = 'flex';
+// === EXPERT FORM (Wizard) ===
+let currentStep = 1;
+const totalSteps = 4;
 
-    const statuses = [
-        'Limbik sistem haritalanıyor...',
-        'Amigdala duygu profili oluşturuluyor...',
-        'Hipokampus koku-anı bağlantıları analiz ediliyor...',
-        'Top-Middle-Base nota oranları hesaplanıyor...',
-        'Cinsiyet tercihinize göre filtreleme yapılıyor...',
-        'Parfüm veritabanı taranıyor...',
-        'AI eşleme yapılıyor...',
-        'Kişisel kokusal profiliniz oluşturuluyor...'
-    ];
+function goToStep(step) {
+    const prevStep = currentStep;
+    currentStep = Math.max(1, Math.min(step, totalSteps));
+    if (currentStep === prevStep) return;
 
-    let si = 0;
-    const siInterval = setInterval(() => {
-        if (si < statuses.length) document.getElementById('loadingStatus').textContent = statuses[si];
-        si++;
-    }, 600);
+    document.querySelectorAll('#expertSurvey .step-indicator').forEach(el => {
+        const s = parseInt(el.dataset.step);
+        el.classList.toggle('active', s === currentStep);
+        el.classList.toggle('done', s < currentStep);
+        const circle = el.querySelector('.step-circle');
+        if (s < currentStep) {
+            circle.innerHTML = '<i class="bi bi-check" style="font-size:0.75rem;"></i>';
+        } else if (s === currentStep) {
+            circle.textContent = s;
+            circle.setAttribute('aria-current', 'step');
+        } else {
+            circle.textContent = s;
+            circle.removeAttribute('aria-current');
+        }
+    });
+    document.querySelectorAll('#expertSurvey .step-line').forEach(el => {
+        const s = parseInt(el.dataset.step);
+        el.classList.toggle('done', s < currentStep);
+    });
 
-    sessionStorage.removeItem('results');
+    document.querySelectorAll('#expertSurvey .wizard-step').forEach(el => {
+        const s = parseInt(el.dataset.step);
+        el.classList.toggle('active', s === currentStep);
+        el.classList.toggle('step-enter', s === currentStep);
+    });
+
+    const stepper = document.querySelector('#expertSurvey .stepper');
+    stepper.setAttribute('aria-valuenow', currentStep);
+
+    const panel = document.querySelector(`#expertSurvey .wizard-step[data-step="${currentStep}"]`);
+    if (panel) {
+        const firstFocusable = panel.querySelector('input, button, [tabindex]:not([tabindex="-1"])');
+        if (firstFocusable) setTimeout(() => firstFocusable.focus(), 100);
+    }
+
+    document.querySelectorAll('#expertSurvey .btn-prev').forEach(btn => {
+        btn.style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+    });
+}
+
+document.querySelectorAll('#expertSurvey [data-action="next"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        if (currentStep === 1) {
+            const selected = document.querySelector('#expertSurvey input[name="gender"]:checked');
+            if (!selected) {
+                document.getElementById('gender-error').style.display = 'block';
+                return;
+            }
+            document.getElementById('gender-error').style.display = 'none';
+        }
+        goToStep(currentStep + 1);
+    });
+});
+document.querySelectorAll('#expertSurvey [data-action="prev"]').forEach(btn => {
+    btn.addEventListener('click', () => goToStep(currentStep - 1));
+});
+
+document.getElementById('expertForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const keywords = formData.getAll('keywords');
+    const notes = formData.getAll('notes');
+    const themes = formData.getAll('themes');
+    const gender = formData.get('gender') || 'unisex';
+
+    const btn = document.getElementById('expertSubmitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Analiz Ediliyor...';
 
     fetch('/api/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers: answers, gender: gender, name: name, _csrf_token: CSRF_TOKEN })
+        body: JSON.stringify({
+            keywords: keywords,
+            notes: notes,
+            themes: themes,
+            gender: gender,
+            name: 'Misafir',
+            '_csrf_token': CSRF_TOKEN
+        })
     })
     .then(r => r.json())
     .then(data => {
-        clearInterval(siInterval);
         if (data.success) {
-            sessionStorage.setItem('results', JSON.stringify(data));
+            localStorage.setItem('lastResult', JSON.stringify(data));
             window.location.href = '/results';
         } else {
-            alert('Hata: ' + data.error);
-            document.getElementById('loadingOverlay').style.display = 'none';
+            alert('Hata: ' + (data.error || 'Bilinmeyen hata'));
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-search"></i> Profilimi Analiz Et';
         }
     })
-    .catch(err => {
-        clearInterval(siInterval);
-            alert('Bağlantı hatası: ' + err);
-        document.getElementById('loadingOverlay').style.display = 'none';
+    .catch(() => {
+        alert('Bağlantı hatası. Lütfen tekrar deneyin.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-search"></i> Profilimi Analiz Et';
     });
 });
 
-// Swipe navigation support
-let touchStartX = 0;
-let touchEndX = 0;
+// === EXPERT SEARCH ===
+document.querySelectorAll('#expertSurvey .search-input').forEach(input => {
+    const gridId = input.dataset.grid;
+    const grid = document.getElementById(gridId);
+    const noResults = document.getElementById(gridId.replace('Grid', '-no-results'));
+    const clearBtn = input.parentElement.querySelector('.clear-search');
 
-document.addEventListener('touchstart', function(e) {
-    touchStartX = e.changedTouches[0].screenX;
-}, { passive: true });
+    input.addEventListener('input', function() {
+        const q = this.value.toLowerCase().trim();
+        clearBtn.classList.toggle('visible', q.length > 0);
+        let visibleCount = 0;
+        grid.querySelectorAll('label').forEach(label => {
+            const searchData = label.dataset.search ? label.dataset.search.toLowerCase() : '';
+            const match = !q || searchData.includes(q);
+            label.classList.toggle('hidden', !match);
+            if (match) visibleCount++;
+        });
+        if (noResults) noResults.classList.toggle('visible', visibleCount === 0);
+    });
 
-document.addEventListener('touchend', function(e) {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-}, { passive: true });
+    clearBtn.addEventListener('click', function() {
+        input.value = '';
+        input.dispatchEvent(new Event('input'));
+        input.focus();
+    });
+});
 
-function handleSwipe() {
-    const diff = touchStartX - touchEndX;
-    if (Math.abs(diff) < 50) return; // Minimum swipe distance
-    
-    if (diff > 0) {
-        // Swipe left = next
-        document.getElementById('nextBtn').click();
-    } else {
-        // Swipe right = previous
-        if (currentStep > 0) {
-            document.getElementById('prevBtn').click();
-        }
-    }
+// === EXPORT COUNTS ===
+function updateCounts() {
+    document.getElementById('kw-count').textContent = document.querySelectorAll('#keywordsGrid input:checked').length;
+    document.getElementById('note-count').textContent = document.querySelectorAll('#notesGrid input:checked').length;
+    document.getElementById('theme-count').textContent = document.querySelectorAll('#themesGrid input:checked').length;
 }
-
-showStep(0);
+document.querySelectorAll('#expertSurvey .checkbox-grid input').forEach(cb => {
+    cb.addEventListener('change', updateCounts);
+});
+updateCounts();
 </script>
 {% endblock %}

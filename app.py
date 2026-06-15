@@ -9,7 +9,7 @@
 import os
 import secrets
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 from flask_caching import Cache
 from flask_limiter import Limiter
@@ -20,9 +20,18 @@ load_dotenv()
 
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
 if not ADMIN_PASSWORD:
-    ADMIN_PASSWORD = 'admin123'
+    raise RuntimeError("ADMIN_PASSWORD environment variable is required. Set it before running the application.")
 
 FLASK_DEBUG = os.environ.get('FLASK_DEBUG', '0') == '1'
+
+def precompute_similarity():
+    try:
+        from perfume_engine import PERFUME_DATABASE
+        from ml_similarity import precompute_similarity as pcs
+        matrix, vec, ids = pcs(PERFUME_DATABASE)
+        print(f"[ML] Benzerlik matrisi hazır: {len(ids)} parfüm")
+    except Exception as e:
+        print(f"[ML] Benzerlik matrisi yüklenemedi: {e}")
 
 def create_app():
     app = Flask(__name__)
@@ -46,7 +55,10 @@ def create_app():
     # G\u00fcvenlik header'lar\u0131
     @app.after_request
     def add_security_headers(response):
-        response.headers['Cache-Control'] = 'public, max-age=86400'
+        if not request.path.startswith('/admin') and not request.path.startswith('/api'):
+            response.headers['Cache-Control'] = 'public, max-age=86400'
+        else:
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['X-Frame-Options'] = 'DENY'
         response.headers['X-XSS-Protection'] = '1; mode=block'
@@ -61,9 +73,15 @@ def create_app():
     app.register_blueprint(api_bp)
     app.register_blueprint(admin_bp)
 
+    # ML benzerlik matrisini ön hesapla
+    with app.app_context():
+        precompute_similarity()
+
     return app
 
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=FLASK_DEBUG, host='127.0.0.1', port=5000)
+    import sys
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 5001
+    app.run(debug=FLASK_DEBUG, host='127.0.0.1', port=port)

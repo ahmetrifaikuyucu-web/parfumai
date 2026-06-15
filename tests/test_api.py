@@ -61,7 +61,7 @@ def test_api_submit_valid():
         })
         assert resp.status_code == 200
         data = json.loads(resp.data)
-        assert data['success'] is True
+        assert data['success']
         assert 'note_profile' in data
         assert 'recommendations' in data
 
@@ -77,7 +77,7 @@ def test_api_submit_invalid_gender_defaults():
         })
         assert resp.status_code == 200
         data = json.loads(resp.data)
-        assert data['success'] is True
+        assert data['success']
 
 
 def test_api_submit_empty_answers_still_works():
@@ -91,7 +91,7 @@ def test_api_submit_empty_answers_still_works():
         })
         assert resp.status_code == 200
         data = json.loads(resp.data)
-        assert data['success'] is True
+        assert data['success']
 
 
 def test_api_stock_returns_all():

@@ -15,7 +15,14 @@ def csrf_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if request.method == 'POST':
-            token = request.form.get('_csrf_token') or (request.get_json(silent=True) or {}).get('_csrf_token')
+            token = request.form.get('_csrf_token')
+            if not token:
+                try:
+                    json_data = request.get_json()
+                    if json_data:
+                        token = json_data.get('_csrf_token')
+                except Exception:
+                    return jsonify({'success': False, 'error': 'Geçersiz JSON formatı'}), 400
             if not token or token != session.get('_csrf_token'):
                 return jsonify({'success': False, 'error': 'CSRF token geçersiz'}), 403
         return f(*args, **kwargs)

@@ -1,157 +1,61 @@
 {% extends "base.html" %}
-{% block title %}Bilimsel Altyapı — ParfumAI{% endblock %}
+{% block title %}ParfumAI — Hakkında{% endblock %}
 
 {% block content %}
-<div class="container py-4 mt-2">
-    <div class="row mb-5">
-        <div class="col-lg-8 mx-auto text-center entry">
-            <h1 class="fw-bold mb-3" style="letter-spacing:-0.02em;">Bilimsel <span class="text-gradient-magenta">Yaklaşım</span></h1>
-            <p class="lead" style="color:var(--text-secondary);">Nörobilim, Psikiyatri ve Parfümeri Biliminin Kesişimi</p>
-        </div>
+<div class="container py-5 mt-4">
+    <div class="text-center mb-5 reveal">
+        <div class="section-divider"></div>
+        <h1 class="section-title">ParfumAI Hakkında</h1>
+        <p class="section-subtitle">Bilim ve teknolojiyle kişiselleştirilmiş koku deneyimi</p>
     </div>
 
     <div class="row g-4 mb-5">
-        <div class="col-md-4 entry">
-            <div class="card-glass h-100 p-3">
-                <div class="card-body">
-                    <div class="feature-icon-neon mb-3" style="background:rgba(0,245,255,0.08);color:var(--neon-cyan);">
-                        <i class="bi bi-brain"></i>
-                    </div>
-                    <h5>Limbik Sistem &amp; Koku</h5>
-                    <p style="font-size:0.9rem;color:var(--text-secondary);">
-                        Koku duyusu, diğer duyulardan farklı olarak doğrudan limbik sisteme
-                        (amigdala, hipokampus, hipotalamus) bağlanır. Bu nedenle bir koku,
-                        bir anıyı veya duyguyu anında tetikleyebilir.
-                    </p>
-                    <hr style="border-color:var(--glass-border);">
-                    <ul style="font-size:0.85rem;color:var(--text-secondary);padding-left:1.2rem;">
-                        <li class="mb-1"><strong style="color:var(--neon-cyan);">Koku &rarr; Amigdala:</strong> Duygusal tepki eşiği</li>
-                        <li class="mb-1"><strong style="color:var(--neon-magenta);">Koku &rarr; Hipokampus:</strong> Anı-çağrışım bağlantısı</li>
-                        <li><strong style="color:var(--neon-gold);">Koku &rarr; Hipotalamus:</strong> Fizyolojik yanıt</li>
-                    </ul>
-                </div>
+        <div class="col-md-6 reveal">
+            <div class="card-parfum p-4 h-100">
+                <i class="bi bi-braces mb-3" style="font-size:2rem;color:var(--accent-blue);"></i>
+                <h5>Teknolojik Altyapı</h5>
+                <p style="color:var(--text-secondary);font-size:0.92rem;">
+                    Python & Flask ile inşa edilmiştir. Çok katmanlı eşleme algoritması,
+                    342 parfümlük veritabanında nota profili, mevsim ve karakter uyumuna göre arama yapar.
+                </p>
             </div>
         </div>
-        <div class="col-md-4 entry">
-            <div class="card-glass h-100 p-3">
-                <div class="card-body">
-                    <div class="feature-icon-neon mb-3" style="background:rgba(255,0,229,0.08);color:var(--neon-magenta);">
-                        <i class="bi bi-emoji-smile"></i>
-                    </div>
-                    <h5>Duygusal Profil</h5>
-                    <p style="font-size:0.9rem;color:var(--text-secondary);">
-                        Her bireyin koku tercihleri, duygusal yapısıyla doğrudan ilişkilidir.
-                        Amigdalanızın verdiği duygusal tepkiler, hangi nota ailelerine
-                        yöneleceğinizi belirler.
-                    </p>
-                    <hr style="border-color:var(--glass-border);">
-                    <ul style="font-size:0.85rem;color:var(--text-secondary);padding-left:1.2rem;">
-                        <li class="mb-1"><strong style="color:var(--neon-green);">Sakinlik:</strong> Lavanta, papatya, misk</li>
-                        <li class="mb-1"><strong style="color:var(--neon-cyan);">Enerji:</strong> Narenciye, nane, biber</li>
-                        <li><strong style="color:var(--neon-gold);">Özgüven:</strong> Deri, tütün, oud</li>
-                    </ul>
-                </div>
+        <div class="col-md-6 reveal">
+            <div class="card-parfum p-4 h-100">
+                <i class="bi bi-flower1 mb-3" style="font-size:2rem;color:var(--accent-gold);"></i>
+                <h5>Bilimsel Yaklaşım</h5>
+                <p style="color:var(--text-secondary);font-size:0.92rem;">
+                    Üçgen nota yapısı (Üst-Orta-Dip) temelli analiz ile her kullanıcıya
+                    özel koku profili çıkarılır.
+                </p>
             </div>
         </div>
-        <div class="col-md-4 entry">
-            <div class="card-glass h-100 p-3">
-                <div class="card-body">
-                    <div class="feature-icon-neon mb-3" style="background:rgba(0,255,136,0.08);color:var(--neon-green);">
-                        <i class="bi bi-droplet"></i>
-                    </div>
-                    <h5>Top-Middle-Base Sistemi</h5>
-                    <p style="font-size:0.9rem;color:var(--text-secondary);">
-                        Her parfüm üç katmandan oluşur: Üst notalar (ilk 15 dk), kalp notaları
-                        (2-4 saat) ve temel notalar (4+ saat). Kullanıcının hangi katmana
-                        duyarlı olduğunu tespit ediyoruz.
-                    </p>
-                    <hr style="border-color:var(--glass-border);">
-                    <ul style="font-size:0.85rem;color:var(--text-secondary);padding-left:1.2rem;">
-                        <li class="mb-1"><strong style="color:var(--neon-orange);">Top:</strong> Narenciye, yeşil, meyvemsi</li>
-                        <li class="mb-1"><strong style="color:var(--neon-cyan);">Middle:</strong> Çiçek, baharat, bitkisel</li>
-                        <li><strong style="color:var(--neon-gold);">Base:</strong> Odunsu, amber, vanilya, misk</li>
-                    </ul>
-                </div>
+        <div class="col-md-6 reveal">
+            <div class="card-parfum p-4 h-100">
+                <i class="bi bi-people mb-3" style="font-size:2rem;color:var(--accent-cyan);"></i>
+                <h5>Kullanıcı Odaklı</h5>
+                <p style="color:var(--text-secondary);font-size:0.92rem;">
+                    Her kullanıcının koku algısı ve tercihleri farklıdır. Anketimiz, sorularınızı
+                    nota profiline dönüştürerek en uygun parfümleri önerir.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-6 reveal">
+            <div class="card-parfum p-4 h-100">
+                <i class="bi bi-shield-check mb-3" style="font-size:2rem;color:var(--accent-green);"></i>
+                <h5>Güvenlik & Gizlilik</h5>
+                <p style="color:var(--text-secondary);font-size:0.92rem;">
+                    CSRF koruması, HTTPS zorunluluğu, XSS filtreleme ve Session tabanlı güvenlik.
+                    Verileriniz hiçbir üçüncü tarafla paylaşılmaz.
+                </p>
             </div>
         </div>
     </div>
 
-    <div class="row mb-5">
-        <div class="col-12 entry">
-            <div class="card-glass p-4">
-                <div class="card-body">
-                    <h4 class="fw-bold mb-4">
-                        <i class="bi bi-table me-2" style="color:var(--neon-cyan);"></i>
-                        Soru Kategorileri ve Bilimsel Temelleri
-                    </h4>
-                    <div class="table-responsive">
-                        <table class="table-neon">
-                            <thead>
-                                <tr>
-                                    <th>Kategori</th>
-                                    <th>Beyin Bölgesi</th>
-                                    <th>Ölçülen Parametre</th>
-                                    <th>Nota Etkisi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Duyusal Eşik Analizi</td>
-                                    <td>Olfaktör Bulbus</td>
-                                    <td>Koku algılama eşiği</td>
-                                    <td>Duyarlılık seviyesi</td>
-                                </tr>
-                                <tr>
-                                    <td>Limbik Duygu Haritası</td>
-                                    <td>Amigdala</td>
-                                    <td>Duygusal tepki modeli</td>
-                                    <td>Nota karakteri ve yönü</td>
-                                </tr>
-                                <tr>
-                                    <td>Kişilik Projektörü</td>
-                                    <td>Prefrontal Korteks</td>
-                                    <td>Öz-algı ve kimlik</td>
-                                    <td>Klasik vs deneysel</td>
-                                </tr>
-                                <tr>
-                                    <td>Kimyasal Nota Tercihi</td>
-                                    <td>Koku Reseptörleri</td>
-                                    <td>Moleküler tercih</td>
-                                    <td>Doğrudan nota ataması</td>
-                                </tr>
-                                <tr>
-                                    <td>Bağlamsal Uyum</td>
-                                    <td>Hipokampus</td>
-                                    <td>Durumsal koku kullanımı</td>
-                                    <td>Mevsim ve ortam uyumu</td>
-                                </tr>
-                                <tr>
-                                    <td>Derin Bilinç Profili</td>
-                                    <td>Cross-modal Korteks</td>
-                                    <td>Bilinçdışı tercih</td>
-                                    <td>Renk-metafor eşlemesi</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mb-5">
-        <div class="col-12 entry">
-            <div class="card-glass p-4 text-center" style="background:rgba(0,245,255,0.04);border-color:rgba(0,245,255,0.1);">
-                <div class="card-body py-4">
-                    <h4 class="fw-bold mb-3">Hazır mısınız?</h4>
-                    <p class="mb-4" style="color:var(--text-secondary);">
-                        6 bilimsel soru ile kokusal parmak izinizi keşfedin.
-                    </p>
-                    <a href="/survey" class="btn-neon text-decoration-none d-inline-flex align-items-center gap-2">
-                        Analize Başla <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
+    <div class="text-center reveal">
+        <div class="card-parfum p-4 d-inline-block">
+            <p class="mb-2" style="color:var(--text-muted);font-size:0.85rem;">Sürüm</p>
+            <p class="mb-0" style="font-weight:700;font-family:var(--font-heading);font-size:1.5rem;color:var(--accent-blue);">v1.6</p>
         </div>
     </div>
 </div>

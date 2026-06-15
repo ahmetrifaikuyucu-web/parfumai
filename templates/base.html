@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <link rel="manifest" href="/static/vendor/manifest.json">
-    <meta name="theme-color" content="#0a0a0f">
+    <meta name="theme-color" content="#0f1117" id="themeColor">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{% block title %}ParfumAI — Kişisel Koku Analizi{% endblock %}</title>
     <link href="{{ url_for('static', filename='vendor/bootstrap.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons.min.css') }}">
+    <link href="https://fonts.googleapis.com/css?family=Cormorant:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-neon fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-parfum fixed-top" id="mainNav">
         <div class="container">
             <a class="navbar-brand" href="/">
                 <i class="bi bi-droplet me-2"></i>ParfumAI
@@ -26,8 +28,13 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="/">Ana Sayfa</a></li>
                     <li class="nav-item"><a class="nav-link" href="/survey">Koku Analizi</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/about">Bilimsel Altyapı</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/admin" style="font-size:0.8rem;opacity:0.5;">Admin</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/about">Hakkında</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin" style="font-size:0.7rem;opacity:0.4;">Admin</a></li>
+                    <li class="nav-item">
+                        <button class="theme-toggle ms-2" id="themeToggle" aria-label="Tema değiştir">
+                            <i class="bi bi-sun-fill" id="themeIcon"></i>
+                        </button>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -35,13 +42,13 @@
 
     <main>{% block content %}{% endblock %}</main>
 
-    <footer class="footer-neon">
+    <footer class="footer-parfum">
         <div class="container">
             <p class="mb-1">
-                <i class="bi bi-droplet me-2" style="color:var(--neon-cyan);"></i>ParfumAI &mdash; Kokusal Zekanıza Bilimsel Bir Bakış
+                <i class="bi bi-droplet me-2" style="color:var(--accent-cyan);"></i>ParfumAI &mdash; Kokusal Zekanıza Bilimsel Bir Bakış
             </p>
-            <p class="mb-0" style="font-size:0.75rem;">
-                Limbik Sistem <span style="color:var(--neon-cyan);">&middot;</span> Amigdala <span style="color:var(--neon-magenta);">&middot;</span> Hipokampus <span style="color:var(--neon-gold);">&middot;</span> Olfaktor Bellek
+            <p class="mb-0" style="font-size:0.7rem;">
+                <span style="color:var(--accent-cyan);">&copy;</span> 2026 Ahmet Rıfai Kuyucu &middot; Tüm Hakları Saklıdır
             </p>
         </div>
     </footer>
@@ -53,6 +60,52 @@
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/static/vendor/service-worker.js');
     }
+    document.addEventListener('DOMContentLoaded', function() {
+        var nav = document.getElementById('mainNav');
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 80) {
+                nav.classList.add('navbar-scrolled');
+            } else {
+                nav.classList.remove('navbar-scrolled');
+            }
+        });
+
+        // Dark mode
+        var themeToggle = document.getElementById('themeToggle');
+        var themeIcon = document.getElementById('themeIcon');
+        var themeColor = document.getElementById('themeColor');
+
+        function setTheme(dark) {
+            if (dark) {
+                document.body.classList.add('dark-mode');
+                document.body.classList.remove('light-mode');
+                themeIcon.className = 'bi bi-moon-fill';
+                if (themeColor) themeColor.content = '#0f1117';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.body.classList.add('light-mode');
+                themeIcon.className = 'bi bi-sun-fill';
+                if (themeColor) themeColor.content = '#ffffff';
+            }
+            try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch(e) {}
+        }
+
+        var saved = null;
+        try { saved = localStorage.getItem('theme'); } catch(e) {}
+        if (saved === 'dark') {
+            setTheme(true);
+        } else if (saved === 'light') {
+            setTheme(false);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            setTheme(true);
+        }
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', function() {
+                setTheme(!document.body.classList.contains('dark-mode'));
+            });
+        }
+    });
     </script>
     {% block extra_scripts %}{% endblock %}
 </body>

@@ -2,47 +2,137 @@
 {% block title %}ParfumAI — Keşfedin{% endblock %}
 
 {% block content %}
-<div class="hero-neon">
-    <div class="particle-container" id="particles"></div>
-    <div class="container position-relative" style="z-index:1;">
+<div class="hero-parfum">
+    <div class="hero-decor hero-decor-1"></div>
+    <div class="hero-decor hero-decor-2"></div>
+    <div class="hero-overlay"></div>
+    <div class="container position-relative" style="z-index:2;">
         <div class="row align-items-center">
             <div class="col-lg-7">
                 <div class="entry">
-                    <h1 class="hero-title-neon mb-4">
+                    <h1 class="hero-title mb-3">
                         Kokusal<br>
-                        <span class="gradient-neon">Parmak İzinizi</span><br>
-                        Keşfedin
+                        <span class="highlight">Parmak İzinizi</span> Keşfedin
                     </h1>
-                    <p class="hero-subtitle-neon mb-4">
-                        6 bilimsel soruyla nörobilim, psikiyatri ve parfümeri biliminin
-                        kesiştiği noktada <strong style="color:var(--text-primary);">size özel</strong> koku profilinizi
+                    <p class="hero-subtitle mb-4">
+                        Altı soruda kişiliğinize ve zevklerinize göre
+                        <strong style="color:#fff;">size özel</strong> koku profilinizi
                         oluşturuyoruz.
                     </p>
                     <div class="d-flex flex-wrap gap-3 mb-4">
-                        <a href="/survey" class="btn-neon text-decoration-none">
+                        <a href="/survey" class="btn-parfum text-decoration-none">
                             Analize Başla
                             <i class="bi bi-arrow-right"></i>
                         </a>
-                        <a href="/about" class="btn-neon-outline text-decoration-none">
+                        <a href="/about" class="btn-parfum-light text-decoration-none">
                             Bilimsel Altyapı
                         </a>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
-                        <span class="badge rounded-pill" style="background:rgba(0,245,255,0.08);color:var(--neon-cyan);font-weight:400;padding:6px 14px;border:1px solid rgba(0,245,255,0.15);">
-                            Limbik Sistem
+                        <span class="badge rounded-pill" style="background:rgba(14,165,233,0.12);color:#7dd3fc;font-weight:400;padding:6px 18px;border:1px solid rgba(14,165,233,0.2);font-size:var(--text-xs);">
+                            <i class="bi bi-droplet me-1"></i>Koku Piramidi
                         </span>
-                        <span class="badge rounded-pill" style="background:rgba(255,0,229,0.08);color:var(--neon-magenta);font-weight:400;padding:6px 14px;border:1px solid rgba(255,0,229,0.15);">
-                            Amigdala Analizi
+                        <span class="badge rounded-pill" style="background:rgba(219,39,119,0.12);color:#f9a8d4;font-weight:400;padding:6px 18px;border:1px solid rgba(219,39,119,0.2);font-size:var(--text-xs);">
+                            <i class="bi bi-stars me-1"></i>Nota Profili
                         </span>
-                        <span class="badge rounded-pill" style="background:rgba(255,215,0,0.08);color:var(--neon-gold);font-weight:400;padding:6px 14px;border:1px solid rgba(255,215,0,0.15);">
-                            Top-Middle-Base Notes
+                        <span class="badge rounded-pill" style="background:rgba(217,119,6,0.12);color:#fcd34d;font-weight:400;padding:6px 18px;border:1px solid rgba(217,119,6,0.2);font-size:var(--text-xs);">
+                            <i class="bi bi-layers me-1"></i>AI Eşleme
                         </span>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-5 d-none d-lg-flex justify-content-center">
-                <div class="entry" style="animation-delay:0.2s;">
-                    <i class="bi bi-droplet" style="font-size:10rem;color:rgba(0,245,255,0.06);"></i>
+            <div class="col-lg-5 d-none d-lg-flex justify-content-center align-items-center">
+                <div class="entry" style="animation-delay:0.3s;">
+                    <div style="position:relative;width:300px;height:400px;">
+                        <img src="/static/perfume_images/Creed_Aventus.jpg" alt="Parfüm"
+                             style="width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 20px 60px rgba(0,0,0,0.5));border-radius:12px;"
+                             onerror="this.style.display='none'">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5 my-4">
+    <div class="text-center mb-5">
+        <div class="section-divider"></div>
+        <h2 class="section-title">Nasıl Çalışır?</h2>
+        <p class="section-subtitle">Bilimsel temelli 3 adımda size özel koku profiliniz</p>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4 entry">
+            <div class="feature-card h-100">
+                <div class="feature-icon" style="background:linear-gradient(135deg,var(--accent-blue),#1d4e8c);">
+                    <i class="bi bi-clipboard-data"></i>
+                </div>
+                <h5>6 Bilimsel Soru</h5>
+                <p>Nörobilim, duygusal profil, kişilik analizi ve nota haritalama temelli kapsamlı değerlendirme.</p>
+            </div>
+        </div>
+        <div class="col-md-4 entry">
+            <div class="feature-card h-100">
+                <div class="feature-icon" style="background:linear-gradient(135deg,var(--accent-cyan),#0284c7);">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <h5>AI Destekli Eşleme</h5>
+                <p>Koku profilinize göre yazlık, kışlık ve 4 mevsim unisex parfüm önerileri.</p>
+            </div>
+        </div>
+        <div class="col-md-4 entry">
+            <div class="feature-card h-100">
+                <div class="feature-icon" style="background:linear-gradient(135deg,var(--accent-gold),#b45309);">
+                    <i class="bi bi-database"></i>
+                </div>
+                <h5>Zengin Veritabanı</h5>
+                <p><strong style="color:var(--accent-blue);font-size:1.4rem;">342</strong> premium parfüm, her biri detaylı nota profilleriyle analiz edildi.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-light py-5">
+    <div class="container py-3">
+        <div class="text-center mb-5">
+            <div class="section-divider"></div>
+            <h2 class="section-title">Öne Çıkan Parfümler</h2>
+            <p class="section-subtitle">Veritabanımızdan seçilmiş premium kokular</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-sm-6 col-lg-3 entry">
+                <div class="img-card">
+                    <img src="/static/perfume_images/Creed_Aventus.jpg" alt="Creed Aventus" loading="lazy" onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg-secondary);color:var(--text-muted);font-size:var(--text-sm);\'>Creed Aventus</div>'">
+                    <div class="img-overlay">
+                        <h6>Creed Aventus</h6>
+                        <small>Meyvemsi-Odunsu</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3 entry">
+                <div class="img-card">
+                    <img src="/static/perfume_images/Chanel_Bleu de Chanel.jpg" alt="Bleu de Chanel" loading="lazy" onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg-secondary);color:var(--text-muted);font-size:var(--text-sm);\'>Bleu de Chanel</div>'">
+                    <div class="img-overlay">
+                        <h6>Bleu de Chanel</h6>
+                        <small>Odunsu-Taze</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3 entry">
+                <div class="img-card">
+                    <img src="/static/perfume_images/Dior_Sauvage.jpg" alt="Dior Sauvage" loading="lazy" onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg-secondary);color:var(--text-muted);font-size:var(--text-sm);\'>Dior Sauvage</div>'">
+                    <div class="img-overlay">
+                        <h6>Dior Sauvage</h6>
+                        <small>Ferh-Baharatlı</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3 entry">
+                <div class="img-card">
+                    <img src="/static/perfume_images/Tom Ford_Tobacco Vanille.jpg" alt="Tom Ford Tobacco Vanille" loading="lazy" onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg-secondary);color:var(--text-muted);font-size:var(--text-sm);\'>Tobacco Vanille</div>'">
+                    <div class="img-overlay">
+                        <h6>Tom Ford</h6>
+                        <small>Tütün-Vanilya</small>
+                    </div>
                 </div>
             </div>
         </div>
@@ -50,126 +140,76 @@
 </div>
 
 <div class="container py-5 my-3">
-    <div class="row g-4">
-        <div class="col-md-4 entry">
-            <div class="card-glass h-100 p-3">
-                <div class="card-body">
-                    <div class="feature-icon-neon mb-3" style="background:rgba(0,245,255,0.08);color:var(--neon-cyan);">
-                        <i class="bi bi-clipboard-data"></i>
-                    </div>
-                    <h5 class="fw-bold">6 Bilimsel Soru</h5>
-                    <p style="color:var(--text-secondary);font-size:0.9rem;">
-                        Nörobilim, duygusal profil, kişilik analizi ve nota haritalama
-                        temelli kapsamlı değerlendirme.
-                    </p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 entry">
-            <div class="card-glass h-100 p-3">
-                <div class="card-body">
-                    <div class="feature-icon-neon mb-3" style="background:rgba(255,0,229,0.08);color:var(--neon-magenta);">
-                        <i class="bi bi-graph-up-arrow"></i>
-                    </div>
-                    <h5 class="fw-bold">AI Destekli Eşleme</h5>
-                    <p style="color:var(--text-secondary);font-size:0.9rem;">
-                        Koku profilinize göre yazlık, kışlık ve 4 mevsim unisex
-                        parfüm önerileri.
-                    </p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 entry">
-            <div class="card-glass h-100 p-3">
-                <div class="card-body">
-                    <div class="feature-icon-neon mb-3" style="background:rgba(255,215,0,0.08);color:var(--neon-gold);">
-                        <i class="bi bi-database"></i>
-                    </div>
-                    <h5 class="fw-bold">Zengin Veritabanı</h5>
-                    <p style="color:var(--text-secondary);font-size:0.9rem;">
-                        <span data-count="342" class="fw-bold" style="color:var(--neon-gold);">0</span> premium parfüm, her biri detaylı nota profilleriyle
-                        analiz edildi.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="section-divider"></div>
-
-<div class="container py-5">
     <div class="row align-items-center">
         <div class="col-lg-6 mb-4 mb-lg-0 entry">
-            <h2 class="fw-bold mb-4" style="font-size:2rem;letter-spacing:-0.02em;">Nasıl Çalışır?</h2>
-            <div class="d-flex mb-4 align-items-start">
-                <div class="question-number me-3 flex-shrink-0">1</div>
+            <h2 class="section-title mb-4">Keşif Süreci</h2>
+            <div class="step-item">
+                <div class="step-number" style="background:linear-gradient(135deg,var(--accent-blue),#1d4e8c);">1</div>
                 <div>
-                    <h6 class="fw-semibold" style="color:var(--neon-cyan);">Koku Analizi</h6>
-                    <p style="color:var(--text-secondary);font-size:0.9rem;">6 soruluk bilimsel anketi yanıtlayın. Her soru limbik sisteminizdeki koku-duygu bağlantısını haritalar.</p>
+                    <h6 style="color:var(--accent-blue);">Koku Analizi</h6>
+                    <p>6 soruluk bilimsel anketi yanıtlayın. Her soru limbik sisteminizdeki koku-duygu bağlantısını haritalar.</p>
                 </div>
             </div>
-            <div class="d-flex mb-4 align-items-start">
-                <div class="question-number me-3 flex-shrink-0" style="background:rgba(255,0,229,0.1);color:var(--neon-magenta);border-color:rgba(255,0,229,0.2);">2</div>
+            <div class="step-item">
+                <div class="step-number" style="background:linear-gradient(135deg,var(--accent-cyan),#0284c7);">2</div>
                 <div>
-                    <h6 class="fw-semibold" style="color:var(--neon-magenta);">Nota Profili Çıkarma</h6>
-                    <p style="color:var(--text-secondary);font-size:0.9rem;">Yanıtlarınız analiz edilir, Top-Middle-Base nota oranlarınız hesaplanır.</p>
+                    <h6 style="color:var(--accent-cyan);">Nota Profili Çıkarma</h6>
+                    <p>Yanıtlarınız analiz edilir, Top-Middle-Base nota oranlarınız hesaplanır.</p>
                 </div>
             </div>
-            <div class="d-flex mb-4 align-items-start">
-                <div class="question-number me-3 flex-shrink-0" style="background:rgba(0,255,136,0.1);color:var(--neon-green);border-color:rgba(0,255,136,0.2);">3</div>
+            <div class="step-item">
+                <div class="step-number" style="background:linear-gradient(135deg,var(--accent-gold),#b45309);">3</div>
                 <div>
-                    <h6 class="fw-semibold" style="color:var(--neon-green);">AI Eşleme</h6>
-                    <p style="color:var(--text-secondary);font-size:0.9rem;">Yapay zeka, profilinize en uygun parfümleri veritabanımızdan seçer.</p>
-                </div>
-            </div>
-            <div class="d-flex align-items-start">
-                <div class="question-number me-3 flex-shrink-0" style="background:rgba(255,215,0,0.1);color:var(--neon-gold);border-color:rgba(255,215,0,0.2);">4</div>
-                <div>
-                    <h6 class="fw-semibold" style="color:var(--neon-gold);">3 Özel Öneri</h6>
-                    <p style="color:var(--text-secondary);font-size:0.9rem;">Her mevsim için 3 parfüm önerisi alırsınız.</p>
+                    <h6 style="color:var(--accent-gold);">AI Eşleme</h6>
+                    <p>Yapay zeka, profilinize en uygun parfümleri veritabanımızdan seçer.</p>
                 </div>
             </div>
         </div>
         <div class="col-lg-6 text-center entry">
-            <div class="card-glass d-inline-block p-4" style="min-width:260px;">
-                <div class="d-flex gap-3 justify-content-center">
-                    <div><span class="badge-neon-season" style="background:var(--neon-cyan);color:#000;">Top</span></div>
-                    <div><span class="badge-neon-season" style="background:var(--neon-magenta);color:#000;">Middle</span></div>
-                    <div><span class="badge-neon-season" style="background:var(--neon-gold);color:#000;">Base</span></div>
+            <div class="card-parfum d-inline-block p-4" style="min-width:260px;box-shadow:var(--shadow-lg);">
+                <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+                    <div style="text-align:center;">
+                        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--accent-blue),#1d4e8c);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;margin:0 auto 6px;">T</div>
+                        <small style="color:var(--text-muted);font-size:var(--text-xs);">Top Note</small>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--accent-cyan),#0284c7);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;margin:0 auto 6px;">M</div>
+                        <small style="color:var(--text-muted);font-size:var(--text-xs);">Middle Note</small>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--accent-gold),#b45309);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;margin:0 auto 6px;">B</div>
+                        <small style="color:var(--text-muted);font-size:var(--text-xs);">Base Note</small>
+                    </div>
                 </div>
-                <p class="mt-3 mb-0" style="color:var(--text-tertiary);font-size:0.85rem;">Nota katmanları ve duyusal profiliniz</p>
+                <p class="mt-3 mb-0" style="color:var(--text-muted);font-size:var(--text-sm);">Nota katmanları ve duyusal profiliniz</p>
             </div>
         </div>
     </div>
 </div>
+
+<div class="bg-light py-5">
+    <div class="container text-center py-3">
+        <div class="section-divider"></div>
+        <h2 class="section-title">Hazır mısınız?</h2>
+        <p class="section-subtitle mb-4">Kokusal kimliğinizi keşfetmeye başlayın</p>
+        <a href="/survey" class="btn-parfum text-decoration-none d-inline-flex align-items-center gap-2" style="font-size:1.05rem;padding:16px 48px;">
+            <i class="bi bi-magic"></i> Analize Başla
+        </a>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const container = document.getElementById('particles');
-    if (!container) return;
-    
-    const colors = ['#00f5ff', '#ff00e5', '#ffd700', '#00ff88'];
-    
-    function createParticle() {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        const size = Math.random() * 6 + 2;
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        p.style.cssText = `
-            width: ${size}px;
-            height: ${size}px;
-            background: ${color};
-            left: ${Math.random() * 100}%;
-            animation-duration: ${Math.random() * 8 + 6}s;
-            animation-delay: ${Math.random() * 4}s;
-        `;
-        container.appendChild(p);
-        setTimeout(() => p.remove(), 15000);
-    }
-    
-    for (let i = 0; i < 15; i++) createParticle();
-    
-    setInterval(createParticle, 800);
+    const entries = document.querySelectorAll('.entry');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('entered');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    entries.forEach(el => observer.observe(el));
 });
 </script>
 {% endblock %}

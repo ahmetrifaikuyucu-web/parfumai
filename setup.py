@@ -59,7 +59,7 @@ def generate(brand, name, season):
         try:
             if fb is None: fb = ImageFont.truetype(p, 90)
             if fn is None: fn = ImageFont.truetype(p, 20)
-        except: pass
+        except Exception: pass
     if fb is None: fb = ImageFont.load_default()
     if fn is None: fn = ImageFont.load_default()
     init = brand[0].upper() if brand else '?'

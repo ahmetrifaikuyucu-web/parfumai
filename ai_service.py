@@ -98,6 +98,8 @@ def _build_prompt(profile_text, recommendations, gender, name):
     """AI'a gönderilecek prompt'u oluşturur."""
     perfumes_text = ""
     for season, plist in recommendations.items():
+        if not isinstance(plist, list):
+            continue
         label = {"yaz": "Yaz", "kis": "Kış", "dört_mevsim": "4 Mevsim"}.get(season, season)
         perfumes_text += f"\n{label}:\n"
         for p in plist[:3]:
