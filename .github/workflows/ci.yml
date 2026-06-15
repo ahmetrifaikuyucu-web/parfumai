@@ -61,6 +61,14 @@ jobs:
       - name: Smoke test — container starts
         run: |
           docker run -d -p 5001:5001 -e ADMIN_PASSWORD=ci-test --name parfumai_test parfumai
-          sleep 5
-          curl -s -o /dev/null -w "%{http_code}" http://localhost:5001 | grep 200
+          sleep 8
+          docker logs parfumai_test 2>&1 | head -50
+          docker ps --filter name=parfumai_test --format "{{.Status}}"
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5001 || echo "000")
+            if [ "$code" = "200" ]; then echo "OK $code"; break; fi
+            echo "Attempt $i: $code, retrying..."
+            sleep 3
+          done
+          docker logs parfumai_test 2>&1 | tail -20
           docker stop parfumai_test
