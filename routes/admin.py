@@ -1,15 +1,17 @@
 import os
+import json
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
 from utils import generate_csrf_token, csrf_required, login_required
 from perfume_engine import _init_database, save_database, PERFUME_DATABASE, _write_audit, check_critical_stock
 from ml_similarity import clear_cache as clear_ml_cache
+
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 
 admin_bp = Blueprint('admin', __name__)
 
 
 @admin_bp.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
-    from app import ADMIN_PASSWORD
     if request.method == 'POST':
         token = request.form.get('_csrf_token')
         if not token or token != session.get('_csrf_token'):
@@ -86,7 +88,7 @@ def edit_perfume():
         if p['name'] == name and field in p:
             old_val = p[field]
             if field in ('in_stock',):
-                p[field] = value == 'true' or value is True
+                p[field] = str(value).lower() in ('true', '1')
             elif field in ('price_range', 'description', 'season', 'gender'):
                 p[field] = str(value) if value else p[field]
             elif field in ('notes_top', 'notes_middle', 'notes_base'):
@@ -174,3 +176,20 @@ def admin_stats():
                           total_sales=len(sales),
                           total_perfumes=total_perfumes,
                           in_stock=in_stock)
+
+
+@admin_bp.route('/api/admin/audit-log')
+@login_required
+def audit_log():
+    log_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'audit_log.jsonl')
+    logs = []
+    if os.path.exists(log_path):
+        with open(log_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        logs.append(json.loads(line))
+                    except json.JSONDecodeError:
+                        pass
+    return jsonify({'logs': logs[-50:]})

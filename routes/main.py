@@ -10,7 +10,7 @@ def index():
 
 @main_bp.route('/survey')
 def survey():
-    from questions import get_gender_question, get_regular_questions
+    from legacy.questions import get_gender_question, get_regular_questions
     gender_q = get_gender_question()
     regular_qs = get_regular_questions()
     return render_template('survey.html', gender_question=gender_q, questions=regular_qs, csrf_token=generate_csrf_token())
@@ -26,7 +26,7 @@ def about():
 @main_bp.route('/benzer/<path:name>')
 def benzer(name):
     from perfume_engine import PERFUME_DATABASE, matching_engine
-    from scoring import ScoringEngine
+    from legacy.scoring import ScoringEngine
     from ml_similarity import find_similar
 
     decoded = unquote(name)

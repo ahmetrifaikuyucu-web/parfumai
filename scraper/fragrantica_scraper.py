@@ -23,7 +23,7 @@ def scrape_perfume(url):
         resp = requests.get(url, headers=HEADERS, timeout=15)
         resp.raise_for_status()
     except Exception as e:
-        return {'error': str(e)}
+        return {'error': f'Fragrantica bağlantı hatası'}
 
     soup = BeautifulSoup(resp.text, 'html.parser')
     result = {'url': url, 'name': '', 'brand': '', 'notes_top': [], 'notes_middle': [], 'notes_base': []}

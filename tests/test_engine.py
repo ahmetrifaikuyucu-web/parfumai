@@ -8,7 +8,7 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from scoring import ScoringEngine
+from legacy.scoring import ScoringEngine
 from perfume_engine import PerfumeMatchingEngine
 
 

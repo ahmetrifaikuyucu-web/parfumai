@@ -82,4 +82,6 @@ def create_app():
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=FLASK_DEBUG, host='127.0.0.1', port=5000)
+    import sys
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 5001
+    app.run(debug=FLASK_DEBUG, host='127.0.0.1', port=port)

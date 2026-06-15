@@ -13,9 +13,6 @@ VECTORIZER_PATH = os.path.join(DATA_DIR, 'vectorizer.pkl')
 PERFUME_IDS_PATH = os.path.join(DATA_DIR, 'perfume_ids.pkl')
 
 
-def _tokenizer(t):
-    return t.split()
-
 def clear_cache():
     for path in (MATRIX_PATH, VECTORIZER_PATH, PERFUME_IDS_PATH):
         try:
@@ -37,7 +34,7 @@ def build_note_text(perfume):
 
 def precompute_similarity(perfumes):
     texts = [build_note_text(p) for p in perfumes]
-    vectorizer = CountVectorizer(tokenizer=_tokenizer, lowercase=True)
+    vectorizer = CountVectorizer(analyzer='word', token_pattern=r'(?u)\b\w+\b', lowercase=True)
     X = vectorizer.fit_transform(texts)
     matrix = cosine_similarity(X, X)
     perfume_ids = [p.get('id', p['name']) for p in perfumes]
@@ -89,26 +86,3 @@ def find_similar(perfume_name, perfumes, top_n=10):
             results.append(p)
     return results
 
-
-def compute_jaccard_similarity(profile_vector, perfume):
-    profile_notes = set()
-    for layer_key, perfume_key in [('top', 'notes_top'), ('middle', 'notes_middle'), ('base', 'notes_base')]:
-        vals = perfume.get(perfume_key, [])
-        if isinstance(vals, list):
-            profile_notes.update(vals)
-        elif isinstance(vals, str):
-            profile_notes.update(v.strip().lower() for v in vals.split(',') if v.strip())
-
-    perfume_notes = set()
-    for key in ('notes_top', 'notes_middle', 'notes_base'):
-        vals = perfume.get(key, [])
-        if isinstance(vals, list):
-            perfume_notes.update(v.lower().replace(' ', '_') for v in vals)
-        elif isinstance(vals, str):
-            perfume_notes.update(v.strip().lower().replace(' ', '_') for v in vals.split(',') if v.strip())
-
-    intersection = profile_notes & perfume_notes
-    union = profile_notes | perfume_notes
-    if not union:
-        return 0.0
-    return round(len(intersection) / len(union), 4)

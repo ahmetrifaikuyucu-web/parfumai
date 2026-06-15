@@ -213,22 +213,18 @@ def merge_with_existing(fragdb_perfumes, existing_path=None):
     """FragDB'yi mevcut veritabaniyla birlestir (tekrar edenleri atla)"""
     from perfume_engine import _init_database, save_database, PERFUME_DATABASE
 
-    mevcut = _init_database()
-    mevcut_isimler = {p['name'].lower() for p in mevcut}
+    _init_database()
+    mevcut_isimler = {p['name'].lower() for p in PERFUME_DATABASE}
 
-    eklenen = 0
-    for p in fragdb_perfumes:
-        if p['name'].lower() not in mevcut_isimler:
-            PERFUME_DATABASE.append(p)
-            mevcut_isimler.add(p['name'].lower())
-            eklenen += 1
+    yeni_perfumler = [p for p in fragdb_perfumes if p['name'].lower() not in mevcut_isimler]
 
-    if eklenen > 0:
+    if yeni_perfumler:
+        PERFUME_DATABASE.extend(yeni_perfumler)
         save_database()
-        print(f"[FRAGDB] {eklenen} yeni parfum eklendi. Toplam: {len(PERFUME_DATABASE)}")
+        print(f"[FRAGDB] {len(yeni_perfumler)} yeni parfum eklendi. Toplam: {len(PERFUME_DATABASE)}")
     else:
         print("[FRAGDB] Eklenecek yeni parfum yok.")
-    
+
     return PERFUME_DATABASE
 
 

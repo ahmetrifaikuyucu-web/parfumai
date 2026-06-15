@@ -4,74 +4,479 @@
 <meta name="description" content="ParfumAI ile kişisel koku profilinizi keşfedin.">
 <meta property="og:title" content="ParfumAI — Koku Profiliniz">
 <meta property="og:description" content="Kişisel koku profiliniz bilimsel olarak analiz edildi.">
+<style>
+.result-hero {
+    background: var(--bg-dark);
+    padding: 5.5rem 0 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.result-hero::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 350px; height: 350px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(43,108,176,0.12) 0%, transparent 60%);
+}
+.result-hero h1 { color: #fff; position: relative; z-index: 1; font-size: var(--text-5xl); }
+.result-hero p { color: rgba(255,255,255,0.6); position: relative; z-index: 1; font-size: var(--text-base); max-width: 600px; margin: 0 auto; }
+
+.profile-summary {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-sm);
+    margin-top: -1.5rem;
+    position: relative;
+    z-index: 2;
+}
+.profile-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 22px;
+    border-radius: 50px;
+    font-size: var(--text-base);
+    font-weight: 600;
+    background: rgba(43,108,176,0.08);
+    color: var(--accent-blue);
+    border: 1px solid rgba(43,108,176,0.15);
+}
+.profile-score-ring {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+}
+.profile-score-ring svg { transform: rotate(-90deg); }
+.profile-score-ring .score-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    font-family: var(--font-heading);
+}
+.profile-score-ring .score-label {
+    position: absolute;
+    top: calc(50% + 24px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+}
+
+/* Season tabs */
+.season-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+}
+.season-tab {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: var(--text-base);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    color: var(--text-muted);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.season-tab:hover { color: var(--text-primary); }
+.season-tab.active {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    font-weight: 600;
+}
+.season-tab .tab-count {
+    font-size: var(--text-xs);
+    background: var(--border-light);
+    padding: 2px 10px;
+    border-radius: 50px;
+    color: var(--text-muted);
+}
+.season-tab.active .tab-count {
+    background: var(--accent-blue);
+    color: #fff;
+}
+
+/* Enhanced perfume cards */
+.result-perfume-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.result-perfume-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+}
+.result-perfume-card .top-match-badge {
+    position: absolute;
+    top: 10px; left: 10px;
+    z-index: 3;
+    background: linear-gradient(135deg, var(--accent-gold), #f59e0b);
+    color: #fff;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 4px 12px;
+    border-radius: 50px;
+    box-shadow: 0 2px 8px rgba(217,119,6,0.3);
+}
+.result-perfume-card .perfume-img-wrapper {
+    width: 100%;
+    aspect-ratio: 4/3;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg-secondary);
+}
+.result-perfume-card .perfume-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+.result-perfume-card:hover .perfume-img-wrapper img {
+    transform: scale(1.06);
+}
+.result-perfume-card .perfume-img-wrapper .img-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: rgba(0,0,0,0.06);
+}
+.result-perfume-card .card-body {
+    padding: 1rem 1.25rem 1.25rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+.result-perfume-card .card-body h5 {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 1px;
+}
+.result-perfume-card .card-body .brand-name {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+.result-perfume-card .similarity-meter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0.75rem;
+}
+.result-perfume-card .similarity-meter .meter-bar {
+    flex: 1;
+    height: 5px;
+    background: var(--border-light);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.result-perfume-card .similarity-meter .meter-bar .meter-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease;
+}
+.result-perfume-card .similarity-meter .meter-pct {
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--accent-blue);
+    min-width: 40px;
+    text-align: right;
+}
+.result-perfume-card .notes-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: auto;
+}
+.result-perfume-card .notes-row .note-dot {
+    font-size: var(--text-xs);
+    padding: 3px 10px;
+    border-radius: 50px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-light);
+}
+.result-perfume-card .notes-row .note-dot.top { border-color: rgba(43,108,176,0.3); }
+.result-perfume-card .notes-row .note-dot.mid { border-color: rgba(14,165,233,0.3); }
+.result-perfume-card .notes-row .note-dot.base { border-color: rgba(22,163,74,0.3); }
+.result-perfume-card .season-icon {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 0.5rem;
+}
+
+/* Charts section */
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+.chart-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-sm);
+}
+.chart-box .chart-title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
+/* Stats row */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+.stat-item {
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+}
+.stat-item .stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    font-family: var(--font-heading);
+    line-height: 1.2;
+}
+.stat-item .stat-label {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+}
+
+/* Share button */
+.share-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.btn-share {
+    padding: 10px 22px;
+    border-radius: 50px;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid var(--border-light);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.btn-share:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+}
+.empty-state .empty-icon {
+    font-size: 2.5rem;
+    color: var(--border-medium);
+    margin-bottom: 1rem;
+}
+.empty-state p { color: var(--text-muted); font-size: var(--text-base); }
+
+/* Animations */
+.res-card { opacity: 0; transform: translateY(20px); }
+.res-card.entered { animation: resIn 0.5s ease forwards; }
+@keyframes resIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.chart-enter { animation: chartFade 0.6s ease forwards; }
+@keyframes chartFade {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .charts-grid { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    .stat-item .stat-value { font-size: 1.1rem; }
+    .profile-summary { margin-top: 0; border-radius: 0; }
+    .season-tabs { gap: 2px; padding: 3px; }
+    .season-tab { padding: 8px 10px; font-size: var(--text-sm); }
+}
+</style>
 {% endblock %}
 
 {% block content %}
 <div id="loadingScreen" class="overlay-parfum">
     <div style="text-align:center;">
         <div class="spinner"></div>
-        <p style="color:var(--text-secondary);font-size:0.9rem;">Profiliniz yükleniyor...</p>
+        <p style="color:var(--text-secondary);font-size:var(--text-base);">Profiliniz yükleniyor...</p>
     </div>
 </div>
 
 <div id="resultsContent" style="display:none;">
-    <div class="hero-small">
+    <div class="result-hero">
         <div class="container">
-            <span class="profile-badge mb-3" id="profileBadge"><i class="bi bi-droplet"></i> <span id="profilAdi"></span></span>
-            <h1>Koku Profiliniz</h1>
+            <span class="profile-type-badge mb-3" id="profileBadge"><i class="bi bi-droplet"></i> <span id="profilAdi"></span></span>
+            <h1 style="font-family:var(--font-heading);font-size:var(--text-5xl);font-weight:700;color:#fff;">Koku Profiliniz</h1>
             <p id="aciklama"></p>
         </div>
     </div>
 
-    <div class="container py-5">
-        <div class="row g-4 mb-5">
-            <div class="col-lg-6">
-                <div class="chart-wrapper fade-in">
-                    <canvas id="radarChart"></canvas>
+    <div class="container py-4">
+        <!-- Profile Summary Card -->
+        <div class="profile-summary reveal" id="profileSummary">
+            <div class="row align-items-center g-3">
+                <div class="col-md-4 text-center">
+                    <div class="profile-score-ring">
+                        <svg width="100" height="100" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="42" fill="none" stroke="var(--border-light)" stroke-width="6"/>
+                            <circle id="scoreCircle" cx="50" cy="50" r="42" fill="none" stroke="#2b6cb0" stroke-width="6"
+                                stroke-linecap="round" stroke-dasharray="263.89" stroke-dashoffset="263.89" transform="rotate(-90, 50, 50)"/>
+                        </svg>
+                        <div class="score-text" id="profilYuzde">0</div>
+                        <div class="score-label">Profil Gücü</div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="chart-wrapper fade-in">
-                    <canvas id="pieChart"></canvas>
+                <div class="col-md-8">
+                    <div class="stats-row" id="statsRow">
+                        <div class="stat-item">
+                            <div class="stat-value" id="statTop">0%</div>
+                            <div class="stat-label">Üst Nota</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="statMid">0%</div>
+                            <div class="stat-label">Orta Nota</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="statBase">0%</div>
+                            <div class="stat-label">Alt Nota</div>
+                        </div>
+                    </div>
+                    <div style="font-size:var(--text-sm);color:var(--text-muted);text-align:center;">
+                        <span id="selectionInfo"></span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="text-center mb-5 reveal">
-            <div class="card-parfum p-4 d-inline-block" style="min-width:300px;box-shadow:var(--shadow-lg);">
-                <p class="mb-2" style="color:var(--text-muted);font-size:0.85rem;">Koku Profili Gücü</p>
-                <div class="d-inline-flex align-items-center gap-2">
-                    <span id="profilYuzde" style="font-size:2.8rem;font-weight:700;color:var(--accent-blue);font-family:var(--font-heading);"></span>
-                    <span style="color:var(--text-muted);font-size:0.9rem;">/ 100</span>
-                </div>
-                <div class="progress-parfum mt-2" style="width:220px;margin:0 auto;height:8px;">
-                    <div class="progress-bar" id="profilBar" style="width:0%;height:100%;"></div>
-                </div>
+        <!-- Charts -->
+        <div class="charts-grid my-4 reveal" id="chartsRow">
+            <div class="chart-box chart-enter">
+                <div class="chart-title">Koku Piramidi</div>
+                <canvas id="radarChart" height="200"></canvas>
+            </div>
+            <div class="chart-box chart-enter">
+                <div class="chart-title">Nota Dağılımı</div>
+                <canvas id="pieChart" height="200"></canvas>
             </div>
         </div>
 
-        <div class="text-center mb-4 reveal">
-            <h2 class="section-title" style="font-size:1.6rem;">Size En Uygun Parfümler</h2>
+        <!-- Recommendations -->
+        <div class="text-center mb-3 reveal">
+            <h2 class="section-title">Size En Uygun Parfümler</h2>
             <p class="section-subtitle">Koku profilinize göre seçilmiş öneriler</p>
         </div>
 
-        <div id="yetersizUyari" class="text-center py-4 reveal" style="display:none;">
-            <div class="card-parfum p-4 d-inline-block">
-                <i class="bi bi-emoji-neutral" style="font-size:2rem;color:var(--accent-gold);"></i>
-                <p class="mt-2 mb-0" style="color:var(--text-secondary);">Henüz yeterli parfüm veritabanımız bulunmuyor.</p>
-            </div>
+        <!-- Season Tabs -->
+        <div class="season-tabs reveal" role="tablist" id="seasonTabs">
+            <button class="season-tab active" data-season="yaz" role="tab" aria-selected="true">
+                <i class="bi bi-sun"></i> Yaz <span class="tab-count" id="yazCount">0</span>
+            </button>
+            <button class="season-tab" data-season="kis" role="tab" aria-selected="false">
+                <i class="bi bi-snow2"></i> Kış <span class="tab-count" id="kisCount">0</span>
+            </button>
+            <button class="season-tab" data-season="dort_mevsim" role="tab" aria-selected="false">
+                <i class="bi bi-globe"></i> 4 Mevsim <span class="tab-count" id="dortMevsimCount">0</span>
+            </button>
+            <button class="season-tab" data-season="all" role="tab" aria-selected="false">
+                <i class="bi bi-grid-3x3-gap"></i> Tümü <span class="tab-count" id="allCount">0</span>
+            </button>
         </div>
 
-        <div class="row g-4" id="sonuclar"></div>
-
-        <div class="text-center mt-5 reveal">
-            <a href="/survey" class="btn-parfum-outline">
+        <div id="emptyState" class="empty-state reveal" style="display:none;">
+            <div class="empty-icon"><i class="bi bi-emoji-neutral"></i></div>
+            <p>Henüz yeterli parfüm veritabanımız bulunmuyor.</p>
+            <a href="/survey" class="btn-parfum-outline mt-3" style="display:inline-flex;">
                 <i class="bi bi-arrow-left"></i> Tekrar Dene
             </a>
+        </div>
+
+        <div class="row g-3" id="sonuclar"></div>
+
+        <!-- Bottom Actions -->
+        <div class="text-center mt-4 reveal">
+            <div class="share-row">
+                <a href="/survey" class="btn-parfum-outline">
+                    <i class="bi bi-arrow-left"></i> Tekrar Dene
+                </a>
+                <button class="btn-share" id="shareBtn" onclick="shareResults()">
+                    <i class="bi bi-share"></i> Paylaş
+                </button>
+                <button class="btn-share" id="printBtn" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Yazdır
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 (function() {
     const dataStr = localStorage.getItem('lastResult');
@@ -81,7 +486,7 @@
     }
     const data = JSON.parse(dataStr);
     if (!data.success) {
-        document.getElementById('loadingScreen').innerHTML = '<div style="text-align:center;"><p style="color:#e74c3c;">Analiz sonucu alınamadı. <a href="/survey" class="btn-parfum-outline mt-3" style="font-size:0.85rem;display:inline-flex;">Tekrar Dene</a></p></div>';
+        document.getElementById('loadingScreen').innerHTML = '<div style="text-align:center;"><p style="color:#e74c3c;">Analiz sonucu alınamadı. <a href="/survey" class="btn-parfum-outline mt-3" style="display:inline-flex;">Tekrar Dene</a></p></div>';
         return;
     }
 
@@ -91,6 +496,7 @@
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('resultsContent').style.display = 'block';
 
+    // Profile name
     const profileNames = {
         'Yaz-Kehribar (Top Note Ağırlıklı)': 'Yaz-Kehribar Profil',
         'Kış-Derin (Base Note Ağırlıklı)': 'Kış-Derin Profil',
@@ -101,65 +507,123 @@
         'Karma Profil': 'Karma Profil',
         'Dengeli': 'Dengeli Profil'
     };
-    const pn = profileNames[np.profile_type] || np.profile_type;
-    document.getElementById('profilAdi').textContent = pn;
-    const selectedCount = (data.selected_notes || 0) + (data.selected_keywords || 0) + (data.selected_themes || 0);
-    document.getElementById('aciklama').textContent = `Seçtiğiniz notalara göre Jaccard benzerlik hesaplaması ile eşleştirildi.`;
+    document.getElementById('profilAdi').textContent = profileNames[np.profile_type] || np.profile_type;
+    document.getElementById('aciklama').textContent = `Seçtiğiniz notalara göre çok katmanlı eşleme algoritması ile seçildi.`;
 
+    // Stats
+    document.getElementById('statTop').textContent = np.top_pct + '%';
+    document.getElementById('statMid').textContent = np.middle_pct + '%';
+    document.getElementById('statBase').textContent = np.base_pct + '%';
+    const selCount = (data.selected_notes || 0) + (data.selected_keywords || 0) + (data.selected_themes || 0);
+    document.getElementById('selectionInfo').textContent = selCount + ' seçim ile ' + (data.recommendations.yaz.length + data.recommendations.kis.length + data.recommendations.dört_mevsim.length) + ' parfüm eşleştirildi.';
+
+    // Score ring
     const avg = Math.round((np.top_pct + np.middle_pct + np.base_pct) / 3);
     document.getElementById('profilYuzde').textContent = avg;
-    document.getElementById('profilBar').style.width = avg + '%';
+    const circumference = 2 * Math.PI * 42;
+    const offset = circumference - (avg / 100) * circumference;
+    setTimeout(() => {
+        document.getElementById('scoreCircle').style.strokeDasharray = circumference;
+        document.getElementById('scoreCircle').style.strokeDashoffset = offset;
+        document.getElementById('scoreCircle').style.transition = 'stroke-dashoffset 1.2s ease';
+    }, 200);
 
-    const allPerfumes = (recs.yaz || []).concat(recs.kis || []).concat(recs.dört_mevsim || []);
+    // Organize perfumes
+    const seasonMap = {
+        'yaz': recs.yaz || [],
+        'kis': recs.kis || [],
+        'dort_mevsim': recs.dört_mevsim || []
+    };
+    const allPerfumes = [...seasonMap.yaz, ...seasonMap.kis, ...seasonMap.dort_mevsim];
+
+    // Tab counts
+    document.getElementById('yazCount').textContent = seasonMap.yaz.length;
+    document.getElementById('kisCount').textContent = seasonMap.kis.length;
+    document.getElementById('dortMevsimCount').textContent = seasonMap.dort_mevsim.length;
+    document.getElementById('allCount').textContent = allPerfumes.length;
+
     const container = document.getElementById('sonuclar');
 
     if (allPerfumes.length === 0) {
-        document.getElementById('yetersizUyari').style.display = 'block';
+        document.getElementById('emptyState').style.display = 'block';
+        document.getElementById('seasonTabs').style.display = 'none';
     }
 
-    allPerfumes.forEach(function(p, idx) {
-        const col = document.createElement('div');
-        col.className = 'col-md-6 col-xl-4 result-card';
-        col.style.animationDelay = (idx * 0.1) + 's';
+    function renderPerfumes(perfumes) {
+        container.innerHTML = '';
+        if (perfumes.length === 0) return;
+        perfumes.forEach(function(p, idx) {
+            const col = document.createElement('div');
+            col.className = 'col-sm-6 col-lg-4 res-card';
+            col.style.animationDelay = (idx * 0.08) + 's';
 
-        const notesHtml = [];
-        if (p.notes_top && p.notes_top.length) {
-            if (p.benzerlik_yuzde) {
-                notesHtml.push('<div class="mb-2"><span class="badge-parfum" style="background:var(--accent-blue);color:#fff;font-size:0.75rem;">%' + p.benzerlik_yuzde + ' Eşleşme</span></div>');
+            const sim = p.benzerlik_yuzde || 0;
+            const simColor = sim >= 70 ? '#16a34a' : sim >= 40 ? '#d97706' : '#2b6cb0';
+
+            const notesHtml = [];
+            const allNotes = [];
+            if (p.notes_top && p.notes_top.length) {
+                p.notes_top.slice(0, 3).forEach(function(n) { allNotes.push({ note: n, cls: 'top' }); });
             }
-            notesHtml.push('<div class="mb-1"><small style="color:var(--text-muted);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;">Üst</small> ' +
-                p.notes_top.slice(0,4).map(function(n) { return '<span class="note-badge">' + n + '</span>'; }).join(' ') + '</div>');
-        }
-        if (p.notes_middle && p.notes_middle.length) {
-            notesHtml.push('<div class="mb-1"><small style="color:var(--text-muted);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;">Orta</small> ' +
-                p.notes_middle.slice(0,4).map(function(n) { return '<span class="note-badge">' + n + '</span>'; }).join(' ') + '</div>');
-        }
-        if (p.notes_base && p.notes_base.length) {
-            notesHtml.push('<div class="mb-1"><small style="color:var(--text-muted);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;">Alt</small> ' +
-                p.notes_base.slice(0,4).map(function(n) { return '<span class="note-badge">' + n + '</span>'; }).join(' ') + '</div>');
-        }
+            if (p.notes_middle && p.notes_middle.length) {
+                p.notes_middle.slice(0, 3).forEach(function(n) { allNotes.push({ note: n, cls: 'mid' }); });
+            }
+            if (p.notes_base && p.notes_base.length) {
+                p.notes_base.slice(0, 3).forEach(function(n) { allNotes.push({ note: n, cls: 'base' }); });
+            }
+            allNotes.slice(0, 8).forEach(function(n) {
+                notesHtml.push('<span class="note-dot ' + n.cls + '">' + n.note + '</span>');
+            });
 
-        const imgPath = '/static/perfume_images/' + encodeURIComponent(p.brand) + '_' + encodeURIComponent(p.name) + '.jpg';
+            const imgPath = '/static/perfume_images/' + encodeURIComponent(p.brand) + '_' + encodeURIComponent(p.name) + '.jpg';
+            const seasonIcons = { yaz: 'bi-sun', kis: 'bi-snow2', dört_mevsim: 'bi-globe', dort_mevsim: 'bi-globe' };
+            const seasonIcon = seasonIcons[p.season] || 'bi-droplet';
 
-        col.innerHTML = '<div class="perfume-card">' +
-            '<div class="perfume-image-wrapper">' +
-                '<img class="perfume-img" src="' + imgPath + '" alt="' + p.name + '" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=\\\'perfume-img-fallback\\\'><i class=\\\'bi bi-droplet\\\' style=\\\'color:var(--accent-blue);opacity:0.15;font-size:4rem;\\\'></i></div>\'">' +
-            '</div>' +
-            '<div class="perfume-header"><h5>' + p.name + '</h5><small>' + p.brand + '</small></div>' +
-            '<div class="perfume-body">' +
-                '<div class="d-flex justify-content-between mb-2">' +
-                    '<span class="badge-parfum"><i class="bi bi-droplet"></i> ' + p.season + '</span>' +
+            col.innerHTML = '<div class="result-perfume-card">' +
+                (idx === 0 && sim > 0 ? '<div class="top-match-badge"><i class="bi bi-star-fill me-1"></i>En İyi Eşleşme</div>' : '') +
+                '<div class="perfume-img-wrapper">' +
+                    '<img src="' + imgPath + '" alt="' + p.name + '" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=\\\'img-fallback\\\'><i class=\\\'bi bi-droplet\\\' style=\\\'color:var(--accent-blue);opacity:0.12;font-size:4rem;\\\'></i></div>\'">' +
                 '</div>' +
-                notesHtml.join('') +
-            '</div>' +
-        '</div>';
-        container.appendChild(col);
+                '<div class="card-body">' +
+                    '<h5>' + p.name + '</h5>' +
+                    '<div class="brand-name">' + p.brand + '</div>' +
+                    (sim > 0 ? '<div class="similarity-meter"><div class="meter-bar"><div class="meter-fill" style="width:0%;background:' + simColor + ';" data-w="' + sim + '"></div></div><span class="meter-pct" style="color:' + simColor + ';">%' + sim + '</span></div>' : '') +
+                    '<div class="season-icon"><i class="bi ' + seasonIcon + '"></i> ' + p.season + ' &middot; ' + (p.price_range || '') + '</div>' +
+                    '<div class="notes-row">' + notesHtml.join('') + '</div>' +
+                '</div>' +
+            '</div>';
+            container.appendChild(col);
 
-        setTimeout(function() {
-            col.classList.add('entered');
-        }, idx * 100 + 100);
+            setTimeout(function() {
+                col.classList.add('entered');
+                const fill = col.querySelector('.meter-fill');
+                if (fill) fill.style.width = fill.dataset.w + '%';
+            }, idx * 80 + 100);
+        });
+    }
+
+    // Initial render (all)
+    renderPerfumes(allPerfumes);
+
+    // Tab switching
+    document.querySelectorAll('.season-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.season-tab').forEach(function(t) {
+                t.classList.remove('active');
+                t.setAttribute('aria-selected', 'false');
+            });
+            this.classList.add('active');
+            this.setAttribute('aria-selected', 'true');
+            const season = this.dataset.season;
+            if (season === 'all') {
+                renderPerfumes(allPerfumes);
+            } else {
+                renderPerfumes(seasonMap[season] || []);
+            }
+        });
     });
 
+    // Charts
     new Chart(document.getElementById('radarChart'), {
         type: 'radar',
         data: {
@@ -178,28 +642,43 @@
         },
         options: {
             responsive: true, maintainAspectRatio: true,
-            plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { size: 11, family: "'Inter', sans-serif" } } } },
-            scales: { r: { beginAtZero: true, max: 100, ticks: { stepSize: 25, font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.06)' }, angleLines: { color: 'rgba(0,0,0,0.06)' }, pointLabels: { font: { size: 11, family: "'Inter', sans-serif" }, color: '#3d4048' } } }
+            plugins: { legend: { display: false } },
+            scales: { r: { beginAtZero: true, max: 100, ticks: { stepSize: 25, font: { size: 9 } }, grid: { color: 'rgba(0,0,0,0.05)' }, angleLines: { color: 'rgba(0,0,0,0.05)' }, pointLabels: { font: { size: 10, family: "'Inter', sans-serif" }, color: '#3d4048' } } }
         }
     });
 
     new Chart(document.getElementById('pieChart'), {
         type: 'doughnut',
         data: {
-            labels: ['Üst Nota', 'Orta Nota', 'Alt Nota'],
+            labels: ['Üst Nota (' + np.top_pct + '%)', 'Orta Nota (' + np.middle_pct + '%)', 'Alt Nota (' + np.base_pct + '%)'],
             datasets: [{ data: [np.top_pct, np.middle_pct, np.base_pct], backgroundColor: ['#2b6cb0', '#0ea5e9', '#16a34a'], borderWidth: 0 }]
         },
         options: {
-            responsive: true, maintainAspectRatio: true, cutout: '62%',
-            plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { size: 11, family: "'Inter', sans-serif" } } } }
+            responsive: true, maintainAspectRatio: true, cutout: '60%',
+            plugins: { legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true, font: { size: 10, family: "'Inter', sans-serif" } } } }
         }
     });
 
+    // Reveal animations
     const reveals = document.querySelectorAll('.reveal');
     const ro = new IntersectionObserver(function(entries) {
         entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('revealed'); ro.unobserve(e.target); } });
     }, { threshold: 0.1 });
     reveals.forEach(function(r) { ro.observe(r); });
 })();
+
+function shareResults() {
+    const text = 'ParfumAI ile koku profili analizimi yaptım! Sen de dene: ' + window.location.origin + '/survey';
+    if (navigator.share) {
+        navigator.share({ title: 'ParfumAI Koku Profilim', text: text, url: window.location.href }).catch(function(){});
+    } else {
+        navigator.clipboard.writeText(text).then(function() {
+            const btn = document.getElementById('shareBtn');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check-lg"></i> Kopyalandı';
+            setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        }).catch(function(){});
+    }
+}
 </script>
 {% endblock %}

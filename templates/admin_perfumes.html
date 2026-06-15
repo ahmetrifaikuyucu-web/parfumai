@@ -1,240 +1,487 @@
 {% extends "base.html" %}
 {% block title %}Parfüm Yönetimi — ParfumAI{% endblock %}
+{% block extra_head %}
+<style>
+.pm-header {
+    background: var(--bg-dark);
+    padding: 5rem 0 1.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.pm-header::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(43,108,176,0.12) 0%, transparent 60%);
+}
+.pm-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+.pm-toolbar .search-form {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    max-width: 380px;
+}
+.pm-toolbar .search-form input {
+    flex: 1;
+    padding: 8px 14px;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    outline: none;
+    transition: var(--transition);
+}
+.pm-toolbar .search-form input:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(43,108,176,0.1);
+}
+.pm-table-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+.pm-table-wrap .pm-table-header {
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.pm-table-wrap table { width: 100%; border-collapse: collapse; }
+.pm-table-wrap table th {
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--border-light);
+    text-align: left;
+    white-space: nowrap;
+}
+.pm-table-wrap table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    vertical-align: middle;
+}
+.pm-table-wrap table tr:hover td { background: rgba(0,0,0,0.015); }
+.pm-table-wrap table tr:last-child td { border-bottom: none; }
+
+/* Modal */
+.pm-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    overflow-y: auto;
+    padding: 40px 16px;
+}
+.pm-overlay.open { display: block; }
+.pm-modal {
+    max-width: 640px;
+    margin: 0 auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-xl);
+    animation: modalIn 0.2s ease;
+}
+@keyframes modalIn {
+    from { opacity: 0; transform: translateY(-20px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.pm-modal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+.pm-modal .modal-header h5 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    margin: 0;
+}
+.pm-modal .modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+    border-radius: 6px;
+    transition: var(--transition);
+}
+.pm-modal .modal-close:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.pm-modal .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.pm-modal .form-grid .full { grid-column: 1 / -1; }
+.pm-modal .form-label {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 2px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.pm-modal .form-control {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    outline: none;
+    transition: var(--transition);
+}
+.pm-modal .form-control:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(43,108,176,0.1);
+}
+.pm-modal select.form-control { cursor: pointer; }
+.pm-modal .modal-error {
+    color: #e74c3c;
+    font-size: 0.82rem;
+    display: none;
+    margin-top: 8px;
+}
+
+/* Toast */
+.pm-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+.pm-toast-item {
+    pointer-events: auto;
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    animation: toastIn 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+}
+.pm-toast-item.success { background: var(--accent-green); }
+.pm-toast-item.error { background: #e74c3c; }
+.pm-toast-item.info { background: var(--accent-blue); }
+@keyframes toastIn {
+    from { opacity: 0; transform: translateX(40px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.pagination {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--border-light);
+}
+.pagination a, .pagination span {
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    text-decoration: none;
+    transition: var(--transition);
+}
+.pagination a:hover { background: var(--bg-secondary); }
+.pagination .active {
+    background: var(--accent-blue);
+    color: #fff;
+}
+.pagination .disabled {
+    color: var(--text-muted);
+    opacity: 0.4;
+}
+
+@media (max-width: 768px) {
+    .pm-modal .form-grid { grid-template-columns: 1fr; }
+    .pm-toolbar .search-form { max-width: 100%; }
+    .pm-table-wrap { overflow-x: auto; }
+}
+</style>
+{% endblock %}
 {% block content %}
-<div class="container py-4 mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="section-title mb-0" style="font-size:1.5rem;">
-            <i class="bi bi-box-seam me-2" style="color:var(--accent-blue);"></i>Parfüm Yönetimi
-        </h1>
+<div class="pm-header">
+    <div class="container">
+        <h1 style="color:#fff;position:relative;z-index:1;font-family:var(--font-heading);font-weight:700;font-size:var(--text-5xl);">Parfüm Yönetimi</h1>
+        <p style="color:rgba(255,255,255,0.5);position:relative;z-index:1;font-size:0.9rem;">{{ total }} parfüm kaydı</p>
+    </div>
+</div>
+
+<div class="container py-3">
+    <div class="pm-toolbar">
         <div class="d-flex gap-2">
-            <a href="/admin" class="btn-parfum-outline text-decoration-none" style="padding:8px 20px;font-size:0.85rem;">
-                <i class="bi bi-arrow-left me-1"></i> Admin Panel
+            <a href="/admin" class="btn-parfum-outline" style="padding:8px 18px;font-size:0.82rem;">
+                <i class="bi bi-arrow-left me-1"></i> Panel
             </a>
-            <button onclick="showAddModal()" class="btn-parfum text-decoration-none" style="padding:8px 20px;font-size:0.85rem;">
-                <i class="bi bi-plus-lg me-1"></i> Yeni Ekle
+            <button onclick="openModal('add')" class="btn-parfum" style="padding:8px 18px;font-size:0.82rem;">
+                <i class="bi bi-plus-lg me-1"></i> Yeni
             </button>
         </div>
+        <form method="GET" class="search-form">
+            <input type="text" name="q" placeholder="Parfüm veya marka ara..." value="{{ search }}" aria-label="Ara">
+            <button type="submit" class="btn-parfum" style="padding:8px 18px;font-size:0.82rem;">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-md-6 mx-auto">
-            <form method="GET" class="d-flex gap-2">
-                <input type="text" name="q" class="form-control" placeholder="Parfüm veya marka ara..." value="{{ search }}"
-                       style="border:1px solid var(--border-light);border-radius:var(--radius);">
-                <button type="submit" class="btn-parfum" style="padding:10px 24px;">
-                    <i class="bi bi-search"></i>
-                </button>
-            </form>
+    <div class="pm-table-wrap">
+        <div class="pm-table-header">
+            <span style="font-size:0.82rem;color:var(--text-secondary);">{{ total }} sonuç</span>
+            {% if pages > 1 %}
+            <span style="font-size:0.72rem;color:var(--text-muted);">Sayfa {{ page }} / {{ pages }}</span>
+            {% endif %}
         </div>
-    </div>
 
-    <div>
-        <p style="color:var(--text-muted);font-size:0.85rem;">{{ total }} parfüm bulundu</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Parfüm</th>
+                    <th>Marka</th>
+                    <th>Sezon</th>
+                    <th>Cinsiyet</th>
+                    <th>Fiyat</th>
+                    <th>Stok</th>
+                    <th style="width:80px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in perfumes %}
+                <tr>
+                    <td style="color:var(--text-muted);font-size:0.72rem;">{{ loop.index + (page-1)*50 }}</td>
+                    <td style="font-weight:500;">{{ p.name }}</td>
+                    <td>{{ p.brand }}</td>
+                    <td>
+                        <span class="badge rounded-pill" style="background:{% if p.season == 'yaz' %}rgba(245,166,35,0.1);color:var(--accent-gold);border:1px solid rgba(245,166,35,0.2);{% elif p.season == 'kis' %}rgba(74,144,217,0.1);color:var(--accent-blue);border:1px solid rgba(74,144,217,0.2);{% else %}rgba(0,188,212,0.1);color:var(--accent-cyan);border:1px solid rgba(0,188,212,0.2);{% endif %}padding:2px 10px;font-size:0.7rem;">
+                            {{ p.season }}
+                        </span>
+                    </td>
+                    <td style="font-size:0.8rem;">{{ p.gender }}</td>
+                    <td style="font-size:0.8rem;">{{ p.price_range }}</td>
+                    <td>
+                        <button class="btn btn-sm rounded-pill toggle-stock"
+                                data-name="{{ p.name }}"
+                                onclick="toggleStock(this)"
+                                style="padding:2px 12px;font-size:0.72rem;border:1px solid;font-weight:500;
+                                {% if p.get('in_stock', True) %}background:rgba(22,163,74,0.08);color:var(--accent-green);border-color:rgba(22,163,74,0.2);{% else %}background:rgba(231,76,60,0.08);color:#e74c3c;border-color:rgba(231,76,60,0.2);{% endif %}">
+                            {% if p.get('in_stock', True) %}<i class="bi bi-check-circle me-1"></i>Stokta{% else %}<i class="bi bi-x-circle me-1"></i>Yok{% endif %}
+                        </button>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <button onclick="editPerfume(this)" data-name="{{ p.name|e }}"
+                                    data-brand="{{ p.brand|e }}" data-season="{{ p.season|e }}"
+                                    data-gender="{{ p.gender|e }}" data-price="{{ p.price_range|e }}"
+                                    data-desc="{{ (p.description or '')|e }}"
+                                    data-notes-top="{{ (p.notes_top|join(', '))|e }}"
+                                    data-notes-mid="{{ (p.notes_middle|join(', '))|e }}"
+                                    data-notes-base="{{ (p.notes_base|join(', '))|e }}"
+                                    data-stock="{{ 'true' if p.get('in_stock', True) else 'false' }}"
+                                    style="background:none;border:none;color:var(--accent-blue);font-size:0.9rem;cursor:pointer;padding:4px 6px;border-radius:4px;transition:var(--transition);"
+                                    title="Düzenle" aria-label="Düzenle"><i class="bi bi-pencil"></i></button>
+                            <button onclick="deletePerfume('{{ p.name|e }}')"
+                                    style="background:none;border:none;color:#e74c3c;font-size:1rem;cursor:pointer;padding:4px 6px;border-radius:4px;transition:var(--transition);"
+                                    title="Sil" aria-label="Sil"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
         {% if pages > 1 %}
-        <div class="d-flex gap-2 mb-3 flex-wrap">
+        <div class="pagination">
+            {% if page > 1 %}
+            <a href="?page={{ page - 1 }}{% if search %}&q={{ search }}{% endif %}"><i class="bi bi-chevron-left"></i></a>
+            {% else %}
+            <span class="disabled"><i class="bi bi-chevron-left"></i></span>
+            {% endif %}
             {% for p in range(1, pages + 1) %}
-            <a href="?page={{ p }}{% if search %}&q={{ search }}{% endif %}"
-               class="badge rounded-pill text-decoration-none"
-               style="{% if p == page %}background:var(--accent-blue);color:#fff;{% else %}background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border-light);{% endif %}padding:4px 14px;font-size:0.8rem;">{{ p }}</a>
+            <a href="?page={{ p }}{% if search %}&q={{ search }}{% endif %}" {% if p == page %}class="active"{% endif %}>{{ p }}</a>
             {% endfor %}
+            {% if page < pages %}
+            <a href="?page={{ page + 1 }}{% if search %}&q={{ search }}{% endif %}"><i class="bi bi-chevron-right"></i></a>
+            {% else %}
+            <span class="disabled"><i class="bi bi-chevron-right"></i></span>
+            {% endif %}
         </div>
         {% endif %}
-        <div class="card-parfum p-3">
-            <div style="overflow-x:auto;">
-                <table class="table-parfum">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Parfüm</th>
-                            <th>Marka</th>
-                            <th>Sezon</th>
-                            <th>Cinsiyet</th>
-                            <th>Fiyat</th>
-                            <th>Stok</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for p in perfumes %}
-                        <tr>
-                            <td style="color:var(--text-muted);">{{ loop.index + (page-1)*50 }}</td>
-                            <td style="font-weight:500;">{{ p.name }}</td>
-                            <td>{{ p.brand }}</td>
-                            <td>
-                                <span class="badge rounded-pill" style="background:{% if p.season == 'yaz' %}rgba(245,166,35,0.1);color:var(--accent-gold);border:1px solid rgba(245,166,35,0.2);{% elif p.season == 'kis' %}rgba(74,144,217,0.1);color:var(--accent-blue);border:1px solid rgba(74,144,217,0.2);{% else %}rgba(0,188,212,0.1);color:var(--accent-cyan);border:1px solid rgba(0,188,212,0.2);{% endif %}padding:3px 10px;font-size:0.75rem;">
-                                    {{ p.season }}
-                                </span>
-                            </td>
-                            <td style="color:var(--text-secondary);font-size:0.85rem;">{{ p.gender }}</td>
-                            <td style="color:var(--text-secondary);font-size:0.85rem;">{{ p.price_range }}</td>
-                            <td>
-                                <button class="toggle-stock btn-parfum-outline" data-name="{{ p.name }}"
-                                        style="padding:4px 12px;font-size:0.75rem;{% if p.get('in_stock', True) %}color:var(--accent-green);border-color:var(--accent-green);{% else %}color:#e74c3c;border-color:#e74c3c;{% endif %}"
-                                        onclick="toggleStock(this)">
-                                    {% if p.get('in_stock', True) %}Stokta{% else %}Yok{% endif %}
-                                </button>
-                            </td>
-                            <td>
-                                <div class="d-flex gap-1">
-                                    <button onclick="editPerfume('{{ p.name|e }}', '{{ p.brand|e }}', '{{ p.season|e }}', '{{ p.gender|e }}', '{{ p.price_range|e }}', '{{ (p.description or '')|e }}', '{{ (p.notes_top|join(', '))|e }}', '{{ (p.notes_middle|join(', '))|e }}', '{{ (p.notes_base|join(', '))|e }}')"
-                                            style="background:none;border:none;color:var(--accent-blue);font-size:1rem;cursor:pointer;padding:4px 8px;"
-                                            title="Düzenle"><i class="bi bi-pencil"></i></button>
-                                    <button onclick="deletePerfume('{{ p.name|e }}')"
-                                            style="background:none;border:none;color:#e74c3c;font-size:1.1rem;cursor:pointer;padding:4px 8px;"
-                                            title="Sil">&times;</button>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    </div>
+</div>
+
+<!-- Add Modal -->
+<div class="pm-overlay" id="addModal">
+    <div class="pm-modal">
+        <div class="modal-header">
+            <h5><i class="bi bi-plus-circle me-2" style="color:var(--accent-blue);"></i>Yeni Parfüm</h5>
+            <button class="modal-close" onclick="closeModal('add')">&times;</button>
+        </div>
+        <div class="form-grid">
+            <div>
+                <label class="form-label">Parfüm Adı</label>
+                <input class="form-control" id="addName" placeholder="örn: Light Blue">
+            </div>
+            <div>
+                <label class="form-label">Marka</label>
+                <input class="form-control" id="addBrand" placeholder="örn: Dolce & Gabbana">
+            </div>
+            <div>
+                <label class="form-label">Sezon</label>
+                <select id="addSeason" class="form-control">
+                    <option value="yaz">Yaz</option>
+                    <option value="kis">Kış</option>
+                    <option value="dört_mevsim">4 Mevsim</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Cinsiyet</label>
+                <select id="addGender" class="form-control">
+                    <option value="kadin">Kadın</option>
+                    <option value="erkek">Erkek</option>
+                    <option value="unisex">Unisex</option>
+                </select>
+            </div>
+            <div class="full">
+                <label class="form-label">Fiyat Aralığı</label>
+                <input class="form-control" id="addPrice" placeholder="örn: 1000-1500 TL">
+            </div>
+            <div class="full">
+                <label class="form-label">Açıklama</label>
+                <input class="form-control" id="addDesc" placeholder="Kısa açıklama">
+            </div>
+            <div>
+                <label class="form-label">Üst Notalar</label>
+                <input class="form-control" id="addNotesTop" placeholder="bergamot, limon">
+            </div>
+            <div>
+                <label class="form-label">Orta Notalar</label>
+                <input class="form-control" id="addNotesMid" placeholder="yasemin, gül">
+            </div>
+            <div class="full">
+                <label class="form-label">Alt Notalar</label>
+                <input class="form-control" id="addNotesBase" placeholder="misk, amber">
             </div>
         </div>
+        <div class="modal-error" id="addError"></div>
+        <button onclick="submitAdd()" class="btn-parfum w-100 justify-content-center mt-3">
+            <i class="bi bi-check-lg me-1"></i> Kaydet
+        </button>
     </div>
 </div>
 
-<div id="editModal" class="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;overflow:auto;">
-  <div class="modal-content" style="max-width:600px;margin:60px auto;background:#fff;border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:30px;box-shadow:var(--shadow-lg);">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h5 class="mb-0" style="font-family:var(--font-heading);font-weight:600;">
-        <i class="bi bi-pencil me-2" style="color:var(--accent-blue);"></i>Parfüm Düzenle
-      </h5>
-      <button onclick="closeEditModal()" style="background:none;border:none;color:var(--text-muted);font-size:1.5rem;">&times;</button>
+<!-- Edit Modal -->
+<div class="pm-overlay" id="editModal">
+    <div class="pm-modal">
+        <div class="modal-header">
+            <h5><i class="bi bi-pencil me-2" style="color:var(--accent-blue);"></i>Parfüm Düzenle</h5>
+            <button class="modal-close" onclick="closeModal('edit')">&times;</button>
+        </div>
+        <div id="editPerfumeName" style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.75rem;"></div>
+        <div class="form-grid">
+            <div>
+                <label class="form-label">Marka</label>
+                <input class="form-control" id="editBrand">
+            </div>
+            <div>
+                <label class="form-label">Fiyat</label>
+                <input class="form-control" id="editPrice" placeholder="1000-1500 TL">
+            </div>
+            <div>
+                <label class="form-label">Sezon</label>
+                <select id="editSeason" class="form-control">
+                    <option value="yaz">Yaz</option>
+                    <option value="kis">Kış</option>
+                    <option value="dört_mevsim">4 Mevsim</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Cinsiyet</label>
+                <select id="editGender" class="form-control">
+                    <option value="kadin">Kadın</option>
+                    <option value="erkek">Erkek</option>
+                    <option value="unisex">Unisex</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Stok</label>
+                <select id="editStock" class="form-control">
+                    <option value="true">Stokta</option>
+                    <option value="false">Stokta Yok</option>
+                </select>
+            </div>
+            <div class="full">
+                <label class="form-label">Açıklama</label>
+                <textarea class="form-control" id="editDesc" rows="2"></textarea>
+            </div>
+            <div>
+                <label class="form-label">Üst Notalar</label>
+                <input class="form-control" id="editNotesTop" placeholder="virgülle ayır">
+            </div>
+            <div>
+                <label class="form-label">Orta Notalar</label>
+                <input class="form-control" id="editNotesMid" placeholder="virgülle ayır">
+            </div>
+            <div class="full">
+                <label class="form-label">Alt Notalar</label>
+                <input class="form-control" id="editNotesBase" placeholder="virgülle ayır">
+            </div>
+        </div>
+        <div class="modal-error" id="editError"></div>
+        <button onclick="submitEdit()" class="btn-parfum w-100 justify-content-center mt-3">
+            <i class="bi bi-check-lg me-1"></i> Kaydet
+        </button>
     </div>
-    <div id="editForm" style="display:flex;flex-direction:column;gap:12px;">
-      <p style="color:var(--text-muted);font-size:0.85rem;" id="editPerfumeName"></p>
-      <div class="row g-2">
-        <div class="col-md-6">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Marka</label>
-          <input class="form-control" id="editBrand" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-        </div>
-        <div class="col-md-6">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Fiyat</label>
-          <input class="form-control" id="editPrice" placeholder="örn: 1000-1500 TL" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-        </div>
-      </div>
-      <div>
-        <label style="font-size:0.75rem;color:var(--text-muted);">Açıklama</label>
-        <textarea class="form-control" id="editDesc" rows="2" style="border:1px solid var(--border-light);border-radius:var(--radius);"></textarea>
-      </div>
-      <div class="row g-2">
-        <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Sezon</label>
-          <select id="editSeason" class="form-control" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-            <option value="yaz">Yaz</option>
-            <option value="kis">Kış</option>
-            <option value="dört_mevsim">4 Mevsim</option>
-          </select>
-        </div>
-        <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Cinsiyet</label>
-          <select id="editGender" class="form-control" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-            <option value="kadın">Kadın</option>
-            <option value="erkek">Erkek</option>
-            <option value="unisex">Unisex</option>
-          </select>
-        </div>
-        <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Stok</label>
-          <select id="editStock" class="form-control" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-            <option value="true">Stokta</option>
-            <option value="false">Stokta Yok</option>
-          </select>
-        </div>
-      </div>
-      <div class="row g-2">
-        <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Üst notalar</label>
-          <input class="form-control" id="editNotesTop" placeholder="virgülle ayır" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-        </div>
-        <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Orta notalar</label>
-          <input class="form-control" id="editNotesMid" placeholder="virgülle ayır" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-        </div>
-        <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Alt notalar</label>
-          <input class="form-control" id="editNotesBase" placeholder="virgülle ayır" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-        </div>
-      </div>
-      <button onclick="submitEdit()" class="btn-parfum w-100 justify-content-center mt-2">
-        <i class="bi bi-check-lg me-1"></i> Kaydet
-      </button>
-      <div id="editError" style="color:#e74c3c;font-size:0.85rem;display:none;"></div>
-    </div>
-  </div>
 </div>
 
-<div id="addModal" class="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;overflow:auto;">
-  <div class="modal-content" style="max-width:600px;margin:60px auto;background:#fff;border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:30px;box-shadow:var(--shadow-lg);">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h5 class="mb-0" style="font-family:var(--font-heading);font-weight:600;">
-        <i class="bi bi-plus-circle me-2" style="color:var(--accent-blue);"></i>Yeni Parfüm Ekle
-      </h5>
-      <button onclick="closeAddModal()" style="background:none;border:none;color:var(--text-muted);font-size:1.5rem;">&times;</button>
-    </div>
-    <div id="addForm" style="display:flex;flex-direction:column;gap:12px;">
-      <div class="row g-2">
-        <div class="col-md-6">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Parfüm Adı</label>
-          <input class="form-control" id="addName" placeholder="örn: Light Blue" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-        </div>
-        <div class="col-md-6">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Marka</label>
-          <input class="form-control" id="addBrand" placeholder="örn: Dolce & Gabbana" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-        </div>
-      </div>
-      <div class="row g-2">
-        <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Sezon</label>
-          <select id="addSeason" class="form-control" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-            <option value="yaz">Yaz</option>
-            <option value="kis">Kış</option>
-            <option value="dört_mevsim">4 Mevsim</option>
-          </select>
-        </div>
-        <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Cinsiyet</label>
-          <select id="addGender" class="form-control" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-            <option value="kadın">Kadın</option>
-            <option value="erkek">Erkek</option>
-            <option value="unisex">Unisex</option>
-          </select>
-        </div>
-        <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Fiyat Aralığı</label>
-          <input class="form-control" id="addPrice" placeholder="örn: 1000-1500 TL" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-        </div>
-      </div>
-      <div>
-        <label style="font-size:0.75rem;color:var(--text-muted);">Açıklama</label>
-        <input class="form-control" id="addDesc" placeholder="Parfüm hakkında kısa açıklama" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-      </div>
-      <div class="row g-2">
-        <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Üst Notalar</label>
-          <input class="form-control" id="addNotesTop" placeholder="virgülle ayır: bergamot, limon" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-        </div>
-        <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Orta Notalar</label>
-          <input class="form-control" id="addNotesMid" placeholder="virgülle ayır: yasemin, gül" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-        </div>
-        <div class="col-md-4">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Alt Notalar</label>
-          <input class="form-control" id="addNotesBase" placeholder="virgülle ayır: misk, amber" style="border:1px solid var(--border-light);border-radius:var(--radius);">
-        </div>
-      </div>
-      <button onclick="submitAdd()" class="btn-parfum w-100 justify-content-center mt-2">
-        <i class="bi bi-check-lg me-1"></i> Kaydet
-      </button>
-      <div id="addError" style="color:#e74c3c;font-size:0.85rem;display:none;"></div>
-    </div>
-  </div>
-</div>
+<!-- Toast container -->
+<div class="pm-toast" id="toastContainer"></div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
 const CSRF_TOKEN = '{{ csrf_token }}';
+
+function toast(msg, type) {
+    const t = document.getElementById('toastContainer');
+    const el = document.createElement('div');
+    el.className = 'pm-toast-item ' + (type || 'info');
+    const icons = { success: 'bi-check-circle-fill', error: 'bi-exclamation-circle-fill', info: 'bi-info-circle-fill' };
+    el.innerHTML = '<i class="bi ' + (icons[type] || icons.info) + '"></i> ' + msg;
+    t.appendChild(el);
+    setTimeout(function() { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(function() { el.remove(); }, 300); }, 3000);
+}
+
 function toggleStock(btn) {
     const name = btn.getAttribute('data-name');
     fetch('/admin/perfumes/toggle-stock', {
@@ -243,81 +490,120 @@ function toggleStock(btn) {
         body: JSON.stringify({ name: name, _csrf_token: CSRF_TOKEN })
     })
     .then(r => r.json())
-    .then(data => {
+    .then(function(data) {
         if (data.success) {
             if (data.in_stock) {
-                btn.textContent = 'Stokta';
+                btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Stokta';
+                btn.style.background = 'rgba(22,163,74,0.08)';
                 btn.style.color = 'var(--accent-green)';
-                btn.style.borderColor = 'var(--accent-green)';
+                btn.style.borderColor = 'rgba(22,163,74,0.2)';
+                toast('Stok güncellendi: stokta', 'success');
             } else {
-                btn.textContent = 'Yok';
+                btn.innerHTML = '<i class="bi bi-x-circle me-1"></i>Yok';
+                btn.style.background = 'rgba(231,76,60,0.08)';
                 btn.style.color = '#e74c3c';
-                btn.style.borderColor = '#e74c3c';
+                btn.style.borderColor = 'rgba(231,76,60,0.2)';
+                toast('Stok güncellendi: yok', 'info');
             }
+        } else {
+            toast('Hata: ' + (data.error || 'Bilinmeyen hata'), 'error');
+        }
+    })
+    .catch(function() { toast('Bağlantı hatası', 'error'); });
+}
+
+function openModal(type) {
+    document.getElementById(type + 'Modal').classList.add('open');
+    document.getElementById(type + 'Error').style.display = 'none';
+    document.body.style.overflow = 'hidden';
+    setTimeout(function() {
+        const firstInput = document.querySelector('#' + type + 'Modal input:not([readonly])');
+        if (firstInput) firstInput.focus();
+    }, 200);
+}
+
+function closeModal(type) {
+    document.getElementById(type + 'Modal').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+// Backdrop click
+document.querySelectorAll('.pm-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            overlay.classList.remove('open');
+            document.body.style.overflow = '';
         }
     });
-}
+});
 
-function showAddModal() {
-    document.getElementById('addModal').style.display = 'block';
-    document.getElementById('addError').style.display = 'none';
-}
-
-function closeAddModal() {
-    document.getElementById('addModal').style.display = 'none';
-}
+// Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.pm-overlay.open').forEach(function(o) {
+            o.classList.remove('open');
+            document.body.style.overflow = '';
+        });
+    }
+});
 
 function submitAdd() {
-    const name = document.getElementById('addName').value.trim();
-    const brand = document.getElementById('addBrand').value.trim();
-    const season = document.getElementById('addSeason').value;
-    const gender = document.getElementById('addGender').value;
-    const price = document.getElementById('addPrice').value.trim();
-    const desc = document.getElementById('addDesc').value.trim();
-    const notes_top = document.getElementById('addNotesTop').value.trim();
-    const notes_middle = document.getElementById('addNotesMid').value.trim();
-    const notes_base = document.getElementById('addNotesBase').value.trim();
+    const data = {
+        name: document.getElementById('addName').value.trim(),
+        brand: document.getElementById('addBrand').value.trim(),
+        season: document.getElementById('addSeason').value,
+        gender: document.getElementById('addGender').value,
+        price_range: document.getElementById('addPrice').value.trim(),
+        description: document.getElementById('addDesc').value.trim(),
+        notes_top: document.getElementById('addNotesTop').value.trim(),
+        notes_middle: document.getElementById('addNotesMid').value.trim(),
+        notes_base: document.getElementById('addNotesBase').value.trim(),
+        _csrf_token: CSRF_TOKEN
+    };
     const err = document.getElementById('addError');
 
-    if (!name || !brand || !price || !desc) {
+    if (!data.name || !data.brand || !data.price_range || !data.description) {
         err.textContent = 'Ad, marka, fiyat ve açıklama zorunludur.';
-        err.style.display = 'block';
-        return;
+        err.style.display = 'block'; return;
     }
+    err.style.display = 'none';
 
     fetch('/admin/perfumes/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            name, brand, season, gender, price_range: price,
-            description: desc, notes_top, notes_middle, notes_base,
-            _csrf_token: CSRF_TOKEN
-        })
+        body: JSON.stringify(data)
     })
     .then(r => r.json())
-    .then(data => {
-        if (data.success) { location.reload(); }
-        else { err.textContent = data.error || 'Hata oluştu.'; err.style.display = 'block'; }
+    .then(function(d) {
+        if (d.success) {
+            toast('Parfüm eklendi: ' + data.name, 'success');
+            setTimeout(function() { location.reload(); }, 800);
+        } else {
+            err.textContent = d.error || 'Hata oluştu.';
+            err.style.display = 'block';
+        }
     })
-    .catch(() => { err.textContent = 'Bağlantı hatası.'; err.style.display = 'block'; });
+    .catch(function() {
+        err.textContent = 'Bağlantı hatası.';
+        err.style.display = 'block';
+    });
 }
 
-function editPerfume(name, brand, season, gender, price, desc, notesTop, notesMid, notesBase) {
-    document.getElementById('editPerfumeName').textContent = 'Düzenlenen: ' + name;
-    document.getElementById('editBrand').value = brand;
-    document.getElementById('editPrice').value = price;
-    document.getElementById('editDesc').value = desc;
-    document.getElementById('editSeason').value = season;
-    document.getElementById('editGender').value = gender;
-    document.getElementById('editNotesTop').value = notesTop;
-    document.getElementById('editNotesMid').value = notesMid;
-    document.getElementById('editNotesBase').value = notesBase;
-    document.getElementById('editModal').dataset.perfumeName = name;
-    document.getElementById('editModal').style.display = 'block';
-    document.getElementById('editError').style.display = 'none';
+function editPerfume(btn) {
+    const d = btn.dataset;
+    document.getElementById('editPerfumeName').textContent = 'Düzenlenen: ' + d.name;
+    document.getElementById('editBrand').value = d.brand;
+    document.getElementById('editPrice').value = d.price;
+    document.getElementById('editDesc').value = d.desc;
+    document.getElementById('editSeason').value = d.season;
+    document.getElementById('editGender').value = d.gender;
+    document.getElementById('editStock').value = d.stock;
+    document.getElementById('editNotesTop').value = d.notesTop;
+    document.getElementById('editNotesMid').value = d.notesMid;
+    document.getElementById('editNotesBase').value = d.notesBase;
+    document.getElementById('editModal').dataset.perfumeName = d.name;
+    openModal('edit');
 }
-
-function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
 
 function submitEdit() {
     const name = document.getElementById('editModal').dataset.perfumeName;
@@ -336,32 +622,42 @@ function submitEdit() {
         err.textContent = 'Marka ve fiyat zorunludur.';
         err.style.display = 'block'; return;
     }
+    err.style.display = 'none';
 
     const updates = [
-        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'brand', value: brand, _csrf_token: CSRF_TOKEN }) }),
-        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'price_range', value: price, _csrf_token: CSRF_TOKEN }) }),
-        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'description', value: desc, _csrf_token: CSRF_TOKEN }) }),
-        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'season', value: season, _csrf_token: CSRF_TOKEN }) }),
-        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'gender', value: gender, _csrf_token: CSRF_TOKEN }) }),
-        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'in_stock', value: inStock, _csrf_token: CSRF_TOKEN }) })
+        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, field: 'brand', value: brand, _csrf_token: CSRF_TOKEN }) }),
+        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, field: 'price_range', value: price, _csrf_token: CSRF_TOKEN }) }),
+        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, field: 'description', value: desc, _csrf_token: CSRF_TOKEN }) }),
+        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, field: 'season', value: season, _csrf_token: CSRF_TOKEN }) }),
+        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, field: 'gender', value: gender, _csrf_token: CSRF_TOKEN }) }),
+        fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, field: 'in_stock', value: inStock, _csrf_token: CSRF_TOKEN }) })
     ];
-    if (notesTop) {
-        updates.push(fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'notes_top', value: notesTop, _csrf_token: CSRF_TOKEN }) }));
-    }
-    if (notesMid) {
-        updates.push(fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'notes_middle', value: notesMid, _csrf_token: CSRF_TOKEN }) }));
-    }
-    if (notesBase) {
-        updates.push(fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, field: 'notes_base', value: notesBase, _csrf_token: CSRF_TOKEN }) }));
-    }
-    Promise.all(updates).then(() => location.reload()).catch(() => { err.textContent = 'Güncelleme hatası.'; err.style.display = 'block'; });
+    if (notesTop) updates.push(fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, field: 'notes_top', value: notesTop, _csrf_token: CSRF_TOKEN }) }));
+    if (notesMid) updates.push(fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, field: 'notes_middle', value: notesMid, _csrf_token: CSRF_TOKEN }) }));
+    if (notesBase) updates.push(fetch('/admin/perfumes/edit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, field: 'notes_base', value: notesBase, _csrf_token: CSRF_TOKEN }) }));
+
+    Promise.all(updates)
+        .then(function() { toast('Parfüm güncellendi: ' + name, 'success'); setTimeout(function() { location.reload(); }, 800); })
+        .catch(function() { err.textContent = 'Güncelleme hatası.'; err.style.display = 'block'; });
 }
 
 function deletePerfume(name) {
     if (!confirm('"' + name + '" silinsin mi?')) return;
-    fetch('/admin/perfumes/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, _csrf_token: CSRF_TOKEN }) })
+    fetch('/admin/perfumes/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, _csrf_token: CSRF_TOKEN })
+    })
     .then(r => r.json())
-    .then(data => { if (data.success) location.reload(); else alert(data.error || 'Silme hatası'); });
+    .then(function(data) {
+        if (data.success) {
+            toast('Silindi: ' + name, 'success');
+            setTimeout(function() { location.reload(); }, 600);
+        } else {
+            toast('Hata: ' + (data.error || 'Silinemedi'), 'error');
+        }
+    })
+    .catch(function() { toast('Bağlantı hatası', 'error'); });
 }
 </script>
 {% endblock %}

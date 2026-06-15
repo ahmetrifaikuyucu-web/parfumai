@@ -1,0 +1,46 @@
+C:\Users\ahmet\AppData\Roaming\Python\Python314\site-packages\flask_limiter\_extension.py:364: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+  warnings.warn(
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5001
+Press CTRL+C to quit
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET /static/vendor/bootstrap.min.css HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET /static/vendor/bootstrap-icons.min.css HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET /static/perfume_images/Creed_Aventus.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET /static/vendor/bootstrap.bundle.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET /static/vendor/chart.umd.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET /static/vendor/manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET /static/vendor/fonts/bootstrap-icons.woff2?7141511ac37f13e1a387fb9fc6646256 HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET /static/perfume_images/Chanel_Bleu%20de%20Chanel.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET /static/perfume_images/Dior_Sauvage.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET /static/perfume_images/Tom%20Ford_Tobacco%20Vanille.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET /static/vendor/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET /survey HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [15/Jun/2026 14:00:34] "GET /static/vendor/pwa-192.png HTTP/1.1" 200 -
+C:\Users\ahmet\AppData\Roaming\Python\Python314\site-packages\requests\__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.4.0.post2)/charset_normalizer (3.4.4) doesn't match a supported version!
+  warnings.warn(
+127.0.0.1 - - [15/Jun/2026 14:01:22] "POST /api/submit-simple HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:01:22] "GET /results HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:01:22] "GET /static/perfume_images/Ralph%20Lauren_Polo%20Blue.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:01:22] "GET /static/perfume_images/Bvlgari_Bvlgari%20Aqva.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:01:22] "GET /static/perfume_images/Emporio%20Armani_Stronger%20With%20You%20Intensely.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:01:22] "GET /static/perfume_images/Maison%20Margiela_Jazz%20Club.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:01:22] "GET /static/perfume_images/Emporio%20Armani_Stronger%20With%20You.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:01:23] "GET /static/perfume_images/Guess_Guess%201981%20Los%20Angeles.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:01:23] "GET /static/perfume_images/Giorgio%20Armani_Acqua%20di%20Gio%20Profumo.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:01:23] "GET /static/perfume_images/Davidoff_Davidoff%20Cool%20Water%20Reborn.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2026 14:01:42] "GET /static/vendor/bootstrap.min.css HTTP/1.1" 304 -
+127.0.0.1 - - [15/Jun/2026 14:01:42] "GET /static/vendor/bootstrap-icons.min.css HTTP/1.1" 304 -
+127.0.0.1 - - [15/Jun/2026 14:01:42] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [15/Jun/2026 14:01:42] "GET /static/perfume_images/Creed_Aventus.jpg HTTP/1.1" 304 -
+127.0.0.1 - - [15/Jun/2026 14:01:42] "GET /static/vendor/bootstrap.bundle.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [15/Jun/2026 14:01:42] "GET /static/vendor/chart.umd.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [15/Jun/2026 14:01:42] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [15/Jun/2026 14:01:42] "GET /static/vendor/manifest.json HTTP/1.1" 304 -
+127.0.0.1 - - [15/Jun/2026 14:01:42] "GET /static/perfume_images/Chanel_Bleu%20de%20Chanel.jpg HTTP/1.1" 304 -
+127.0.0.1 - - [15/Jun/2026 14:01:42] "GET /static/perfume_images/Dior_Sauvage.jpg HTTP/1.1" 304 -
+127.0.0.1 - - [15/Jun/2026 14:01:42] "GET /static/perfume_images/Tom%20Ford_Tobacco%20Vanille.jpg HTTP/1.1" 304 -
+127.0.0.1 - - [15/Jun/2026 14:01:42] "GET /static/vendor/pwa-192.png HTTP/1.1" 304 -

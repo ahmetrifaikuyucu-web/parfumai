@@ -9,7 +9,7 @@
 #
 # Desteklenen sağlayıcılar:
 #   - google (Gemini 2.0 Flash) — ücretsiz, önerilen
-#   - openrouter (GPT-4o Mini, Claude Haiku vb.)
+#   - openrouter (Gemini 2.0 Flash ücretsiz API üzerinden)
 
 import os
 import json
@@ -98,6 +98,8 @@ def _build_prompt(profile_text, recommendations, gender, name):
     """AI'a gönderilecek prompt'u oluşturur."""
     perfumes_text = ""
     for season, plist in recommendations.items():
+        if not isinstance(plist, list):
+            continue
         label = {"yaz": "Yaz", "kis": "Kış", "dört_mevsim": "4 Mevsim"}.get(season, season)
         perfumes_text += f"\n{label}:\n"
         for p in plist[:3]:
