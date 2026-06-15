@@ -17,8 +17,8 @@ RUN mkdir -p static/perfume_images data logs yedekler && \
     python setup.py && \
     rm -rf __pycache__ *.pyc .pytest_cache
 
-EXPOSE 5001
+EXPOSE 5000
 ENV FLASK_ENV=production
 ENV PYTHONUNBUFFERED=1
 
-CMD ["waitress-serve", "--host=0.0.0.0", "--port=5001", "app:create_app()"]
+CMD ["waitress-serve", "--host=0.0.0.0", "--port=5000", "app:create_app()"]

@@ -86,3 +86,23 @@ def find_similar(perfume_name, perfumes, top_n=10):
             results.append(p)
     return results
 
+
+def compute_jaccard_similarity(user_notes, perfume):
+    if not user_notes or not isinstance(user_notes, (set, list)):
+        return 0.0
+
+    user_set = set(n.lower().replace(' ', '_') for n in user_notes)
+
+    perfume_set = set()
+    for key in ('notes_top', 'notes_middle', 'notes_base'):
+        vals = perfume.get(key, [])
+        if isinstance(vals, list):
+            perfume_set.update(v.lower().replace(' ', '_') for v in vals)
+        elif isinstance(vals, str):
+            perfume_set.update(v.strip().lower().replace(' ', '_') for v in vals.split(',') if v.strip())
+
+    intersection = user_set & perfume_set
+    union = user_set | perfume_set
+    if not union:
+        return 0.0
+    return round(len(intersection) / len(union), 4)

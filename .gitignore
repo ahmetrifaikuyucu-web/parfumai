@@ -20,6 +20,7 @@ data/perfume_database.json
 data/audit_log.jsonl
 data/sales_log.csv
 data/cache/
+data/*.pkl
 
 # Logs
 logs/

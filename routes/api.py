@@ -3,6 +3,7 @@ from utils import generate_csrf_token, csrf_required, login_required
 from legacy.scoring import ScoringEngine, NOTE_CATEGORIES
 from perfume_engine import matching_engine, _init_database, save_database, _write_audit, check_critical_stock
 from ai_service import generate_explanations
+from ml_similarity import compute_jaccard_similarity
 import json
 import os
 
