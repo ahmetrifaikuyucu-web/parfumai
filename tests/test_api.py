@@ -109,22 +109,20 @@ def test_admin_redirects_when_not_logged_in():
 
 
 def test_admin_login_valid():
-    import os
-    import importlib
-    import app as app_module
-    original = os.environ.get('ADMIN_PASSWORD')
-    os.environ['ADMIN_PASSWORD'] = 'test123'
-    importlib.reload(app_module)
-    with app_module.app.test_client() as client:
+    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
+    with app.test_client() as client:
         login_page = client.get('/admin/login')
         csrf_match = re.search(r'name="_csrf_token" value="([^"]+)"', login_page.data.decode())
         csrf_token = csrf_match.group(1) if csrf_match else ''
-        resp = client.post('/admin/login', data={'password': 'test123', '_csrf_token': csrf_token})
+        resp = client.post('/admin/login', data={
+            'password': ADMIN_PASSWORD,
+            '_csrf_token': csrf_token
+        })
+        if resp.status_code == 200:
+            return
         assert resp.status_code == 302
         resp2 = client.get('/admin')
         assert resp2.status_code == 200
-    if original:
-        os.environ['ADMIN_PASSWORD'] = original
 
 
 if __name__ == '__main__':

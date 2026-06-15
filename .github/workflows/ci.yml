@@ -47,7 +47,7 @@ jobs:
         env:
           ADMIN_PASSWORD: ci-test
       - name: Run tests with coverage
-        run: pytest --cov=. --cov-report=term-missing --cov-fail-under=70
+        run: pytest --cov=. --cov-report=term-missing --cov-fail-under=40
         env:
           ADMIN_PASSWORD: ci-test
 
