@@ -20,7 +20,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install flake8
-          if (Test-Path requirements.txt) { pip install -r requirements.txt }
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Lint with flake8
         run: |
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
@@ -60,7 +60,7 @@ jobs:
         run: docker build -t parfumai .
       - name: Smoke test — container starts
         run: |
-          docker run -d -p 5000:5000 -e ADMIN_PASSWORD=ci-test --name parfumai_test parfumai
+          docker run -d -p 5001:5001 -e ADMIN_PASSWORD=ci-test --name parfumai_test parfumai
           sleep 5
-          curl -s -o /dev/null -w "%{http_code}" http://localhost:5000 | grep 200
+          curl -s -o /dev/null -w "%{http_code}" http://localhost:5001 | grep 200
           docker stop parfumai_test
