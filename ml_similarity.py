@@ -3,7 +3,7 @@
 
 import os
 import pickle
-import numpy as np
+import numpy as np  # noqa: F401
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -20,6 +20,7 @@ def clear_cache():
                 os.remove(path)
         except Exception:
             pass
+
 
 def build_note_text(perfume):
     notes = []

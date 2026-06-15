@@ -2,14 +2,13 @@
 # Copyright (c) 2026 Ahmet Rıfai Kuyucu
 # Tüm Hakları Saklıdır — All Rights Reserved.
 
-import json
 import sys
 import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from legacy.scoring import ScoringEngine
-from perfume_engine import PerfumeMatchingEngine
+from legacy.scoring import ScoringEngine  # noqa: E402
+from perfume_engine import PerfumeMatchingEngine  # noqa: E402
 
 
 def test_scoring_engine_returns_required_keys():

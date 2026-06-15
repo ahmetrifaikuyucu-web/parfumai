@@ -24,6 +24,7 @@ if not ADMIN_PASSWORD:
 
 FLASK_DEBUG = os.environ.get('FLASK_DEBUG', '0') == '1'
 
+
 def precompute_similarity():
     try:
         from perfume_engine import PERFUME_DATABASE
@@ -32,6 +33,7 @@ def precompute_similarity():
         print(f"[ML] Benzerlik matrisi hazır: {len(ids)} parfüm")
     except Exception as e:
         print(f"[ML] Benzerlik matrisi yüklenemedi: {e}")
+
 
 def create_app():
     app = Flask(__name__)
@@ -78,6 +80,7 @@ def create_app():
         precompute_similarity()
 
     return app
+
 
 app = create_app()
 

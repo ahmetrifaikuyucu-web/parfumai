@@ -15,7 +15,7 @@ def admin_login():
     if request.method == 'POST':
         token = request.form.get('_csrf_token')
         if not token or token != session.get('_csrf_token'):
-            return render_template('admin_login.html', error='CSRF token ge\u00e7ersiz!', csrf_token=generate_csrf_token())
+            return render_template('admin_login.html', error='CSRF token ge\u00e7ersiz!', csrf_token=generate_csrf_token())  # noqa: E501
         pwd = request.form.get('password', '')
         if pwd == ADMIN_PASSWORD:
             session['admin_logged_in'] = True
@@ -47,13 +47,15 @@ def admin_perfumes():
     end = start + per_page
     page_perfumes = perfumes[start:end]
 
-    return render_template('admin_perfumes.html',
-                          perfumes=page_perfumes,
-                          search=search,
-                          page=page,
-                          pages=pages,
-                          total=total,
-                          csrf_token=generate_csrf_token())
+    return render_template(
+        'admin_perfumes.html',
+        perfumes=page_perfumes,
+        search=search,
+        page=page,
+        pages=pages,
+        total=total,
+        csrf_token=generate_csrf_token(),
+    )
 
 
 @admin_bp.route('/admin/perfumes/toggle-stock', methods=['POST'])
@@ -68,8 +70,10 @@ def toggle_stock():
             old_val = p.get('in_stock', True)
             p['in_stock'] = not old_val
             save_database()
-            _write_audit("admin", "TOGGLE_STOCK", "perfume_database",
-                        perfumes.index(p), {"in_stock": old_val}, {"in_stock": p['in_stock']})
+            _write_audit(
+                "admin", "TOGGLE_STOCK", "perfume_database",
+                perfumes.index(p), {"in_stock": old_val}, {"in_stock": p['in_stock']},
+            )
             check_critical_stock(name, old_val, p['in_stock'])
             return jsonify({'success': True, 'in_stock': p['in_stock']})
     return jsonify({'success': False, 'error': 'Parf\u00fcm bulunamad\u0131'}), 404
@@ -95,8 +99,10 @@ def edit_perfume():
                 raw = str(value) if value else ''
                 p[field] = [n.strip().lower().replace(' ', '_') for n in raw.split(',') if n.strip()]
             save_database()
-            _write_audit("admin", "EDIT", "perfume_database",
-                        perfumes.index(p), {field: old_val}, {field: p[field]})
+            _write_audit(
+                "admin", "EDIT", "perfume_database",
+                perfumes.index(p), {field: old_val}, {field: p[field]},
+            )
             if field == "in_stock":
                 check_critical_stock(name, old_val, p['in_stock'])
             return jsonify({'success': True, 'value': p[field]})
@@ -171,11 +177,13 @@ def admin_stats():
     total_perfumes = len(perfumes)
     in_stock = sum(1 for p in perfumes if p.get('in_stock', True))
 
-    return render_template('admin.html',
-                          sales=sales,
-                          total_sales=len(sales),
-                          total_perfumes=total_perfumes,
-                          in_stock=in_stock)
+    return render_template(
+        'admin.html',
+        sales=sales,
+        total_sales=len(sales),
+        total_perfumes=total_perfumes,
+        in_stock=in_stock,
+    )
 
 
 @admin_bp.route('/api/admin/audit-log')

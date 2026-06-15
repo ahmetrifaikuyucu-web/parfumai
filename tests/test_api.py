@@ -8,7 +8,7 @@ import os
 import re
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from app import app
+from app import app  # noqa: E402
 
 
 def _csrf(client):

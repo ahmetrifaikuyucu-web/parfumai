@@ -14,8 +14,6 @@
 import os
 import json
 import re
-from datetime import datetime
-
 # ============================================================
 # KONFİGÜRASYON
 # ============================================================
@@ -31,6 +29,7 @@ PROVIDER = os.environ.get("AI_PROVIDER", "google")
 # ============================================================
 # AI AÇIKLAMA ÜRETİCİ
 # ============================================================
+
 
 def generate_explanations(note_profile, recommendations, gender, name="Misafir"):
     """Kullanıcının profiline göre parfüm önerilerine AI açıklaması ekler.
@@ -200,28 +199,28 @@ def _template_explanations(note_profile, recommendations, name):
 
     templates = {
         "Taze": [
-            f"{name}, ferah ve canlı üst notaları ({top}) seven bir profile sahip. Bu parfüm, taze açılışıyla size enerji verecek.",
-            f"Canlı ve dinamik kokuları tercih ediyorsunuz. Bu öneri, {top} ve {mid} notalarının mükemmel dengesini sunuyor.",
+            f"{name}, ferah ve canlı üst notaları ({top}) seven bir profile sahip. Bu parfüm, taze açılışıyla size enerji verecek.",  # noqa: E501
+            f"Canlı ve dinamik kokuları tercih ediyorsunuz. Bu öneri, {top} ve {mid} notalarının mükemmel dengesini sunuyor.",  # noqa: E501
             f"Enerjik yapınıza en uygun seçeneklerden biri. {top} üst notalarıyla güne ferah bir başlangıç yapın."
         ],
         "Dengeli": [
-            f"{name}, dengeli bir koku profiline sahip. Bu parfüm, {top}, {mid} ve {base} notaları arasında uyumlu bir geçiş sunar.",
+            f"{name}, dengeli bir koku profiline sahip. Bu parfüm, {top}, {mid} ve {base} notaları arasında uyumlu bir geçiş sunar.",  # noqa: E501
             f"Klasik ve her daim şık bir tercih. {mid} kalp notaları size zarif bir hava katacak.",
             f"Her ortama uyum sağlayabilecek bu seçenek, {base} temel notalarıyla kalıcı bir iz bırakır."
         ],
         "Derin": [
-            f"{name}, derin ve etkileyici kokulardan hoşlanıyor. {base} alt notaları bu parfümün karakterini belirliyor.",
-            f"Gizemli ve çekici bir profil. Bu parfüm, {mid} ve {base} notalarıyla sofistike bir deneyim vaat ediyor.",
+            f"{name}, derin ve etkileyici kokulardan hoşlanıyor. {base} alt notaları bu parfümün karakterini belirliyor.",  # noqa: E501
+            f"Gizemli ve çekici bir profil. Bu parfüm, {mid} ve {base} notalarıyla sofistike bir deneyim vaat ediyor.",  # noqa: E501
             f"Etkileyici bir koku arayışınızda, {base} notalarının sıcaklığı ve derinliği sizi saracak."
         ],
         "Karma": [
-            f"{name}, çok yönlü bir koku zevkine sahip. Bu parfüm, {top} ile {base} arasında keyifli bir yolculuk sunar.",
+            f"{name}, çok yönlü bir koku zevkine sahip. Bu parfüm, {top} ile {base} arasında keyifli bir yolculuk sunar.",  # noqa: E501
             f"Farklı notaları bir arada sevenler için ideal. {mid} kalp notaları öne çıkıyor.",
             f"Her mevsime uygun bu seçenek, {top} ve {base} dengesiyle her anınıza eşlik eder."
         ]
     }
 
-    ptype_key = "Taze" if "taze" in ptype.lower() else "Dengeli" if "dengeli" in ptype.lower() else "Derin" if "derin" in ptype.lower() else "Karma"
+    ptype_key = "Taze" if "taze" in ptype.lower() else "Dengeli" if "dengeli" in ptype.lower() else "Derin" if "derin" in ptype.lower() else "Karma"  # noqa: E501
     pool = templates.get(ptype_key, templates["Karma"])
 
     result = {}

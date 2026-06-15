@@ -6,10 +6,12 @@ import secrets
 from functools import wraps
 from flask import session, request, jsonify, redirect, url_for
 
+
 def generate_csrf_token():
     if '_csrf_token' not in session:
         session['_csrf_token'] = secrets.token_hex(16)
     return session['_csrf_token']
+
 
 def csrf_required(f):
     @wraps(f)
@@ -27,6 +29,7 @@ def csrf_required(f):
                 return jsonify({'success': False, 'error': 'CSRF token geçersiz'}), 403
         return f(*args, **kwargs)
     return decorated
+
 
 def login_required(f):
     @wraps(f)

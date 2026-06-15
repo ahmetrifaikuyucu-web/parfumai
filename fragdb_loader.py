@@ -13,10 +13,10 @@
 import os
 import re
 import json
-import csv
 
 DB_PATH = os.path.join(os.path.dirname(__file__), 'data', 'fragdb_database.json')
 SAMPLE_SIZE = 10  # HuggingFace'deki ornek boyutu
+
 
 def parse_notes_pyramid(notes_str):
     """FragDB notes_pyramid -> {top: [note_names], middle: [note_names], base: [note_names]}"""

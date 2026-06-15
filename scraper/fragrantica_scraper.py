@@ -9,7 +9,7 @@ import requests
 from bs4 import BeautifulSoup
 
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',  # noqa: E501
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
 }
@@ -22,8 +22,8 @@ def scrape_perfume(url):
     try:
         resp = requests.get(url, headers=HEADERS, timeout=15)
         resp.raise_for_status()
-    except Exception as e:
-        return {'error': f'Fragrantica bağlantı hatası'}
+    except Exception:
+        return {'error': 'Fragrantica bağlantı hatası'}
 
     soup = BeautifulSoup(resp.text, 'html.parser')
     result = {'url': url, 'name': '', 'brand': '', 'notes_top': [], 'notes_middle': [], 'notes_base': []}
@@ -63,7 +63,7 @@ def scrape_by_brand(brand_name, max_pages=2):
         try:
             resp = requests.get(url, headers=HEADERS, timeout=15)
             resp.raise_for_status()
-        except Exception as e:
+        except Exception:
             break
 
         soup = BeautifulSoup(resp.text, 'html.parser')
@@ -127,7 +127,7 @@ def merge_into_database():
             'profile': {'top_pct': 33, 'middle_pct': 33, 'base_pct': 34},
             'season': 'dört_mevsim',
             'gender': 'unisex',
-            'description': f"Fragrantica'dan eklendi.",
+            'description': "Fragrantica'dan eklendi.",
             'price_range': 'Belirtilmemiş',
             'in_stock': True
         })

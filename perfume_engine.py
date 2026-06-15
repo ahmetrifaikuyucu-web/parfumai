@@ -6,7 +6,6 @@ import json
 import os
 import threading
 import tempfile
-import traceback
 from datetime import datetime
 
 PERFUME_DATABASE = []
@@ -30,6 +29,7 @@ DB_PATH = os.path.join(DATA_DIR, "perfume_database.json")
 SEED_PATH = os.path.join(DATA_DIR, "perfumes.json")
 DB_LOCK = threading.Lock()
 
+
 def _init_database():
     global PERFUME_DATABASE
     os.makedirs(DATA_DIR, exist_ok=True)
@@ -44,8 +44,8 @@ def _init_database():
         corrupted_path = DB_PATH + ".corrupted." + datetime.now().strftime("%Y%m%d_%H%M%S")
         try:
             os.rename(DB_PATH, corrupted_path)
-            _write_audit("system", "RECOVER", "perfume_database", 0,
-                        {"error": "corrupted_json"}, {"recovered_to": corrupted_path})
+            _write_audit("system", "RECOVER", "perfume_database", 0, {
+                        "error": "corrupted_json"}, {"recovered_to": corrupted_path})
         except Exception:
             pass
     if os.path.exists(SEED_PATH):
@@ -61,6 +61,7 @@ def _init_database():
     save_database()
     return PERFUME_DATABASE
 
+
 def save_database():
     os.makedirs(DATA_DIR, exist_ok=True)
     with DB_LOCK:
@@ -72,6 +73,7 @@ def save_database():
         except Exception:
             os.unlink(tmp_path)
             raise
+
 
 def _write_audit(actor, action, table_name, record_id, old_values=None, new_values=None):
     try:
@@ -91,24 +93,26 @@ def _write_audit(actor, action, table_name, record_id, old_values=None, new_valu
     except Exception:
         pass
 
+
 def check_critical_stock(perfume_name=None, old_stock=None, new_stock=None):
     try:
         if old_stock is not None and new_stock is not None:
             if isinstance(old_stock, bool) and isinstance(new_stock, bool):
                 if old_stock and not new_stock:
                     _write_audit("system", "CRITICAL_STOCK", "perfume_database", 0,
-                                {}, {"message": f"Stok bitti: {perfume_name}"})
+                                 {}, {"message": f"Stok bitti: {perfume_name}"})
             elif isinstance(old_stock, (int, float)) and isinstance(new_stock, (int, float)):
                 if old_stock > 0 and new_stock <= 0:
                     _write_audit("system", "CRITICAL_STOCK", "perfume_database", 0,
-                                {}, {"message": f"Stok bitti: {perfume_name}"})
+                                 {}, {"message": f"Stok bitti: {perfume_name}"})
                 else:
                     CRITIK_SEVIYE = 10
                     if new_stock < CRITIK_SEVIYE:
                         _write_audit("system", "LOW_STOCK", "perfume_database", 0,
-                                    {}, {"message": f"Stok azalıyor: {perfume_name} ({new_stock})"})
+                                     {}, {"message": f"Stok azalıyor: {perfume_name} ({new_stock})"})
     except Exception:
         pass
+
 
 class PerfumeMatchingEngine:
     def __init__(self):
@@ -116,7 +120,7 @@ class PerfumeMatchingEngine:
         self.cache_dir = os.path.join(os.path.dirname(__file__), "data", "cache")
         os.makedirs(self.cache_dir, exist_ok=True)
 
-    def find_matches(self, nota_profili, gender="unisex"):
+    def find_matches(self, nota_profili, gender="unisex"):  # noqa: C901
         top_dominant = nota_profili.get("top_dominant", "citrus")
         middle_dominant = nota_profili.get("middle_dominant", "floral")
         base_dominant = nota_profili.get("base_dominant", "musk")
@@ -129,7 +133,9 @@ class PerfumeMatchingEngine:
         for p in self.parfumler:
             if not self._gender_allowed(p["gender"], gender):
                 continue
-            sim = self._calculate_similarity(p, top_dominant, middle_dominant, base_dominant, top_pct, middle_pct, base_pct)
+            sim = self._calculate_similarity(
+                p, top_dominant, middle_dominant, base_dominant,
+                top_pct, middle_pct, base_pct)
             bonus = 30 if p["gender"] == gender else (15 if p["gender"] == "unisex" and gender != "unisex" else 0)
             scored.append((sim + bonus, sim, p))
 
@@ -140,14 +146,18 @@ class PerfumeMatchingEngine:
         dort_mevsim = [x for x in scored if x[2]["season"] in ("dört_mevsim", "dort_mevsim")]
 
         def season_sort_key(season_list, weight_field):
-            return sorted(season_list, key=lambda x: x[2]["profile"][weight_field] * SEZON_AGIRLIK + x[1] * SKOR_AGIRLIK, reverse=True)
+            return sorted(season_list,
+                          key=lambda x: x[2]["profile"][weight_field] * SEZON_AGIRLIK + x[1] * SKOR_AGIRLIK,
+                          reverse=True)
 
         yazlik = season_sort_key(yazlik, "top_pct")
         kislik = season_sort_key(kislik, "base_pct")
 
         def balance_key(x):
             p = x[2]["profile"]
-            return (PROFIL_MUK_KAR - abs(p["top_pct"] - MUK_TOP) - abs(p["middle_pct"] - MUK_ORTA) - abs(p["base_pct"] - MUK_DIP)) * SEZON_AGIRLIK + x[1] * SKOR_AGIRLIK
+            return (PROFIL_MUK_KAR - abs(p["top_pct"] - MUK_TOP)
+                    - abs(p["middle_pct"] - MUK_ORTA)
+                    - abs(p["base_pct"] - MUK_DIP)) * SEZON_AGIRLIK + x[1] * SKOR_AGIRLIK
         dort_mevsim = sorted(dort_mevsim, key=balance_key, reverse=True)
 
         def pick_unique(candidates, count, exclude_names):
@@ -165,12 +175,15 @@ class PerfumeMatchingEngine:
             if len(result) >= count:
                 return result
             for _, _, p in all_scored:
-                if p["season"] != season_value and (season_value == "dört_mevsim" or p["season"] != ("dört_mevsim" if season_value == "kis" else "dört_mevsim")):
+                season_check = (season_value == "dört_mevsim"
+                                or p["season"] != ("dört_mevsim" if season_value == "kis" else "dört_mevsim"))
+                if p["season"] != season_value and season_check:
                     if season_value == "yaz" and p["season"] not in ("yaz", "dört_mevsim", "dort_mevsim"):
                         continue
                     if season_value == "kis" and p["season"] not in ("kis", "dört_mevsim", "dort_mevsim"):
                         continue
-                    if season_value in ("dört_mevsim", "dort_mevsim") and p["season"] not in ("dört_mevsim", "dort_mevsim"):
+                    if season_value in ("dört_mevsim", "dort_mevsim") and \
+                            p["season"] not in ("dört_mevsim", "dort_mevsim"):
                         continue
                 if p["name"] not in exclude_names and len(result) < count:
                     result.append(p)
@@ -225,30 +238,30 @@ class PerfumeMatchingEngine:
     def _calculate_similarity(self, parfum, top_dom, mid_dom, base_dom, top_pct, mid_pct, base_pct):
         score = 0
         note_map = {
-            "citrus": ["citrus", "bergamot", "lemon", "orange", "grapefruit", "mandarin", "lime", "yuzu", "tangerine", "blood_orange", "blood_mandarin", "green_tangerine", "green_mandarin", "bitter_orange"],
+            "citrus": ["citrus", "bergamot", "lemon", "orange", "grapefruit", "mandarin", "lime", "yuzu", "tangerine", "blood_orange", "blood_mandarin", "green_tangerine", "green_mandarin", "bitter_orange"],  # noqa: E501
             "bergamot": ["bergamot"],
-            "green": ["green", "grass", "leaf", "galbanum", "fig", "violet_leaf", "hay_top", "bamboo", "cucumber", "cane", "bay_leaf", "crystal_moss"],
-            "aqua": ["aqua", "marine", "sea", "salt", "ozone", "calone", "ocean", "water", "caviar", "ice", "sea_water", "water_hyacinth", "seaweed"],
-            "fruity_top": ["apple", "pear", "pineapple", "tropical", "berry", "melon", "cassis", "strawberry", "papaya", "goji", "quince", "cranberry", "blueberry", "nectarine", "rhubarb", "cloudberry", "red_apple", "fruity"],
+            "green": ["green", "grass", "leaf", "galbanum", "fig", "violet_leaf", "hay_top", "bamboo", "cucumber", "cane", "bay_leaf", "crystal_moss"],  # noqa: E501
+            "aqua": ["aqua", "marine", "sea", "salt", "ozone", "calone", "ocean", "water", "caviar", "ice", "sea_water", "water_hyacinth", "seaweed"],  # noqa: E501
+            "fruity_top": ["apple", "pear", "pineapple", "tropical", "berry", "melon", "cassis", "strawberry", "papaya", "goji", "quince", "cranberry", "blueberry", "nectarine", "rhubarb", "cloudberry", "red_apple", "fruity"],  # noqa: E501
             "aldehyde": ["aldehyde", "aldehydic", "soapy", "sparkling", "solar_notes"],
             "spice_top": ["pepper", "pink_pepper", "black_pepper", "chili", "elemi"],
             "aromatic_top": ["mint", "peppermint", "eucalyptus", "anis", "anise", "basil", "tarragon", "star_anise"],
-            "floral": ["rose", "jasmine", "ylang", "orchid", "gardenia", "freesia", "lily", "carnation", "champaca", "violet", "peony", "magnolia", "hibiscus", "osmanthus", "lilac", "hyacinth", "wisteria", "cyclamen", "daisy", "hawthorn", "narcissus", "marigold", "buttercup", "bluebell", "lotus", "muguet", "syringa", "white_rose"],
-            "white_floral": ["jasmine", "tuberose", "gardenia", "lily", "neroli", "orange_blossom", "stephanotis", "honeysuckle"],
-            "spice_mid": ["cinnamon", "clove", "cardamom", "ginger", "nutmeg", "saffron", "coriander", "caraway", "cumin", "mace", "paprika", "spice"],
-            "herbal": ["lavender", "sage", "rosemary", "thyme", "basil", "mint", "chamomile", "clary_sage", "geranium", "angelica", "cannabis", "myrtle", "tea", "white_thyme", "nard"],
-            "fruity_mid": ["peach", "apricot", "plum", "raspberry", "lychee", "blackberry", "cherry", "apple_mid", "pear_mid", "black_currant", "pomegranate", "mirabelle", "red_fruit"],
-            "powdery": ["iris", "violet", "almond", "heliotrope", "powdery", "orris", "mimosa", "bitter_almond", "licorice"],
+            "floral": ["rose", "jasmine", "ylang", "orchid", "gardenia", "freesia", "lily", "carnation", "champaca", "violet", "peony", "magnolia", "hibiscus", "osmanthus", "lilac", "hyacinth", "wisteria", "cyclamen", "daisy", "hawthorn", "narcissus", "marigold", "buttercup", "bluebell", "lotus", "muguet", "syringa", "white_rose"],  # noqa: E501
+            "white_floral": ["jasmine", "tuberose", "gardenia", "lily", "neroli", "orange_blossom", "stephanotis", "honeysuckle"],  # noqa: E501
+            "spice_mid": ["cinnamon", "clove", "cardamom", "ginger", "nutmeg", "saffron", "coriander", "caraway", "cumin", "mace", "paprika", "spice"],  # noqa: E501
+            "herbal": ["lavender", "sage", "rosemary", "thyme", "basil", "mint", "chamomile", "clary_sage", "geranium", "angelica", "cannabis", "myrtle", "tea", "white_thyme", "nard"],  # noqa: E501
+            "fruity_mid": ["peach", "apricot", "plum", "raspberry", "lychee", "blackberry", "cherry", "apple_mid", "pear_mid", "black_currant", "pomegranate", "mirabelle", "red_fruit"],  # noqa: E501
+            "powdery": ["iris", "violet", "almond", "heliotrope", "powdery", "orris", "mimosa", "bitter_almond", "licorice"],  # noqa: E501
             "honey_tobacco": ["honey", "tobacco_blossom", "beeswax", "hay", "broom"],
             "woody_mid": ["cedar_mid", "sandalwood_mid", "pine_mid", "cashmeran_mid", "cedar", "sandalwood"],
-            "woody": ["cedar", "sandalwood", "pine", "woody", "cashmeran", "cypress", "juniper", "akigalawood", "guaiac_wood", "teak", "rosewood", "wood"],
-            "amber": ["amber", "ambroxan", "ambergris", "labdanum", "golden_amber", "succinic", "ambre", "cistus", "iso_e_super"],
-            "vanilla_gourmand": ["vanilla", "tonka", "benzoin", "caramel", "praline", "cocoa", "chocolate", "sugar", "cotton_candy", "almond", "coffee", "coconut", "cognac", "rum", "pistachio", "chestnut"],
+            "woody": ["cedar", "sandalwood", "pine", "woody", "cashmeran", "cypress", "juniper", "akigalawood", "guaiac_wood", "teak", "rosewood", "wood"],  # noqa: E501
+            "amber": ["amber", "ambroxan", "ambergris", "labdanum", "golden_amber", "succinic", "ambre", "cistus", "iso_e_super"],  # noqa: E501
+            "vanilla_gourmand": ["vanilla", "tonka", "benzoin", "caramel", "praline", "cocoa", "chocolate", "sugar", "cotton_candy", "almond", "coffee", "coconut", "cognac", "rum", "pistachio", "chestnut"],  # noqa: E501
             "musk": ["musk", "white_musk", "vegetal_musk", "silky_musk", "ambrette"],
             "leather": ["leather", "suede", "isobutyl_quinoline", "birch_tar", "styrax", "asphalt"],
             "oud": ["oud", "agarwood", "oudh"],
-            "patchouli_earthy": ["patchouli", "earthy", "soil", "moss", "oakmoss", "tree_moss", "vetiver", "mineral", "truffle", "fir_resin"],
-            "incense_tobacco": ["incense", "frankincense", "myrrh", "tobacco", "hay", "dried_fruit", "raisin", "olibanum"]
+            "patchouli_earthy": ["patchouli", "earthy", "soil", "moss", "oakmoss", "tree_moss", "vetiver", "mineral", "truffle", "fir_resin"],  # noqa: E501
+            "incense_tobacco": ["incense", "frankincense", "myrrh", "tobacco", "hay", "dried_fruit", "raisin", "olibanum"]  # noqa: E501
         }
 
         # 1) Dominant note matching — strong signal
@@ -266,9 +279,9 @@ class PerfumeMatchingEngine:
                             break
 
         # 2) Profile percentage similarity — PRIMARY differentiator
-        pct_diff = abs(parfum["profile"]["top_pct"] - top_pct) + \
-                   abs(parfum["profile"]["middle_pct"] - mid_pct) + \
-                   abs(parfum["profile"]["base_pct"] - base_pct)
+        pct_diff = (abs(parfum["profile"]["top_pct"] - top_pct) +
+                    abs(parfum["profile"]["middle_pct"] - mid_pct) +
+                    abs(parfum["profile"]["base_pct"] - base_pct))
         score += max(0, PROFIL_MUK_KAR - pct_diff)
 
         # 3) Penalty for mismatched dominant layer
@@ -291,6 +304,7 @@ class PerfumeMatchingEngine:
     def search_parfumo(self, query, max_results=5):
         from scraper.external_search import search_parfumo as _search_parfumo
         return _search_parfumo(query, max_results)
+
 
 # Global matching engine instance (used by routes)
 matching_engine = PerfumeMatchingEngine()

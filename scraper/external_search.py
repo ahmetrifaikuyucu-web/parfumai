@@ -7,12 +7,14 @@ from bs4 import BeautifulSoup
 
 CACHE_DIR = None
 
+
 def _get_cache_dir():
     global CACHE_DIR
     if CACHE_DIR is None:
         CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "cache")
     os.makedirs(CACHE_DIR, exist_ok=True)
     return CACHE_DIR
+
 
 def search_fragrantica(query, max_results=5):
     cache_dir = _get_cache_dir()
@@ -23,7 +25,7 @@ def search_fragrantica(query, max_results=5):
             return json.load(f)
 
     try:
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}  # noqa: E501
         url = f"https://www.fragrantica.com/search/?q={query.replace(' ', '+')}"
         resp = requests.get(url, headers=headers, timeout=10)
         if resp.status_code != 200:
@@ -35,7 +37,7 @@ def search_fragrantica(query, max_results=5):
             name = item.get_text(strip=True)
             link = item.get("href", "")
             if name and link:
-                results.append({"name": name, "url": f"https://www.fragrantica.com{link}" if link.startswith("/") else link})
+                results.append({"name": name, "url": f"https://www.fragrantica.com{link}" if link.startswith("/") else link})  # noqa: E501
         with open(cache_path, "w") as f:
             json.dump(results, f)
         return results
@@ -53,7 +55,7 @@ def search_parfumo(query, max_results=5):
         with open(cache_path, "r") as f:
             return json.load(f)
     try:
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}  # noqa: E501
         url = f"https://www.parf%C3%BCmo.com/search?q={query.replace(' ', '+')}"
         resp = requests.get(url, headers=headers, timeout=10)
         if resp.status_code != 200:

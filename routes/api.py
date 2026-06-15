@@ -1,9 +1,8 @@
-from flask import Blueprint, render_template, request, jsonify, session
-from utils import generate_csrf_token, csrf_required, login_required
+from flask import Blueprint, request, jsonify
+from utils import csrf_required
 from legacy.scoring import ScoringEngine, NOTE_CATEGORIES
-from perfume_engine import matching_engine, _init_database, save_database, _write_audit, check_critical_stock
+from perfume_engine import matching_engine
 from ai_service import generate_explanations
-from ml_similarity import compute_jaccard_similarity
 import json
 import os
 
@@ -42,9 +41,9 @@ keyword_note_map = {
 }
 
 theme_note_map = {
-    'floral': ['rose', 'jasmine', 'peony', 'gardenia', 'tuberose', 'freesia', 'lily', 'orchid', 'champaca', 'ylang', 'iris', 'violet', 'honeysuckle', 'magnolia', 'hyacinth', 'narcissus', 'lilac', 'muguet', 'carnation', 'lotus', 'water_lily', 'bluebell', 'mimosa', 'heliotrope', 'geranium', 'orange_blossom', 'neroli', 'lavender'],
-    'floral_fruity': ['rose', 'jasmine', 'peony', 'peach', 'strawberry', 'raspberry', 'lychee', 'bergamot', 'pear', 'apple', 'black_currant', 'freesia', 'lily', 'gardenia'],
-    'oriental_floral': ['rose', 'jasmine', 'amber', 'incense', 'vanilla', 'patchouli', 'sandalwood', 'tuberose', 'gardenia', 'orange_blossom'],
+    'floral': ['rose', 'jasmine', 'peony', 'gardenia', 'tuberose', 'freesia', 'lily', 'orchid', 'champaca', 'ylang', 'iris', 'violet', 'honeysuckle', 'magnolia', 'hyacinth', 'narcissus', 'lilac', 'muguet', 'carnation', 'lotus', 'water_lily', 'bluebell', 'mimosa', 'heliotrope', 'geranium', 'orange_blossom', 'neroli', 'lavender'],  # noqa: E501
+    'floral_fruity': ['rose', 'jasmine', 'peony', 'peach', 'strawberry', 'raspberry', 'lychee', 'bergamot', 'pear', 'apple', 'black_currant', 'freesia', 'lily', 'gardenia'],  # noqa: E501
+    'oriental_floral': ['rose', 'jasmine', 'amber', 'incense', 'vanilla', 'patchouli', 'sandalwood', 'tuberose', 'gardenia', 'orange_blossom'],  # noqa: E501
     'woody_floral': ['rose', 'jasmine', 'cedar', 'sandalwood', 'violet', 'iris', 'patchouli', 'musk'],
     'woody_fougere': ['cedar', 'sandalwood', 'oakmoss', 'lavender', 'geranium', 'patchouli', 'coumarin'],
     'fougere': ['lavender', 'coumarin', 'oakmoss', 'geranium', 'bergamot'],
@@ -63,16 +62,17 @@ theme_note_map = {
     'leather_theme': ['leather', 'suede', 'isobutyl_quinoline', 'birch_tar', 'styrax', 'leather_theme'],
     'fruity_fougere': ['lavender', 'geranium', 'oakmoss', 'peach', 'raspberry', 'apple', 'black_currant'],
     'oriental_fougere': ['lavender', 'geranium', 'oakmoss', 'amber', 'vanilla', 'incense', 'labdanum'],
-    'floral_aquatic': ['rose', 'jasmine', 'lily', 'sea', 'aqua', 'marine', 'ozone', 'calone', 'water', 'lotus', 'water_lily'],
+    'floral_aquatic': ['rose', 'jasmine', 'lily', 'sea', 'aqua', 'marine', 'ozone', 'calone', 'water', 'lotus', 'water_lily'],  # noqa: E501
     'aquatic_fougere': ['lavender', 'oakmoss', 'geranium', 'sea', 'aqua', 'marine', 'calone', 'coumarin'],
     'chypre': ['bergamot', 'oakmoss', 'patchouli', 'labdanum', 'cistus', 'opoponax'],
     'green_fougere': ['lavender', 'geranium', 'oakmoss', 'green', 'galbanum', 'violet_leaf', 'stem', 'coumarin'],
-    'floral_aldehyde': ['rose', 'jasmine', 'lily', 'muguet', 'aldehyde', 'aldehydic', 'sparkling', 'orange_blossom', 'neroli'],
+    'floral_aldehyde': ['rose', 'jasmine', 'lily', 'muguet', 'aldehyde', 'aldehydic', 'sparkling', 'orange_blossom', 'neroli'],  # noqa: E501
     'chypre_woody': ['bergamot', 'oakmoss', 'patchouli', 'cedar', 'sandalwood', 'labdanum', 'vetiver'],
-    'chypre_fruity': ['bergamot', 'oakmoss', 'patchouli', 'labdanum', 'peach', 'raspberry', 'black_currant', 'strawberry'],
+    'chypre_fruity': ['bergamot', 'oakmoss', 'patchouli', 'labdanum', 'peach', 'raspberry', 'black_currant', 'strawberry'],  # noqa: E501
     'aquatic_woody': ['cedar', 'sandalwood', 'sea', 'aqua', 'marine', 'ozone', 'calone', 'pine', 'cypress'],
     'citrus_gourmand': ['bergamot', 'lemon', 'orange', 'vanilla', 'tonka', 'caramel', 'praline', 'cocoa'],
 }
+
 
 def _clean_perfume(p, score=0):
     return {
@@ -90,9 +90,10 @@ def _clean_perfume(p, score=0):
         'benzerlik_yuzde': round(score * 100, 1) if score else p.get('benzerlik_yuzde', 0)
     }
 
+
 @api_bp.route('/api/submit', methods=['POST'])
 @csrf_required
-def submit_survey():
+def submit_survey():  # noqa: C901
     try:
         data = request.get_json()
         gender_raw = data.get('gender', 'unisex')
@@ -193,8 +194,9 @@ def submit_survey():
             'selected_keywords': len(selected_keywords),
             'selected_themes': len(selected_themes)
         })
-    except Exception as e:
+    except Exception:
         return jsonify({'success': False, 'error': 'İşlem sırasında bir hata oluştu'}), 400
+
 
 @api_bp.route('/api/submit-simple', methods=['POST'])
 @csrf_required
@@ -220,7 +222,7 @@ def submit_simple():
             'yaz': [_clean_perfume(p) for p in raw_recs.get('yaz', [])],
             'kis': [_clean_perfume(p) for p in raw_recs.get('kis', [])],
             'd\u00f6rt_mevsim': [_clean_perfume(p) for p in raw_recs.get('d\u00f6rt_mevsim', [])],
-            'profile_type': raw_recs.get('profile_type', note_profile.get('profile_type', 'Kullan\u0131c\u0131 Profili'))
+            'profile_type': raw_recs.get('profile_type', note_profile.get('profile_type', 'Kullan\u0131c\u0131 Profili'))  # noqa: E501
         }
         note_profile['profile_type'] = recommendations['profile_type']
 
@@ -237,7 +239,7 @@ def submit_simple():
             'recommendations': recommendations,
             'ai_explanations': ai_explanations
         })
-    except Exception as e:
+    except Exception:
         return jsonify({'success': False, 'error': 'Cevap işlenirken bir hata oluştu'}), 400
 
 
@@ -248,9 +250,11 @@ def get_questions():
     regular_qs = get_regular_questions()
     return jsonify({"gender": gender_q, "regular": regular_qs})
 
+
 @api_bp.route('/api/node_categories')
 def get_note_categories():
     return jsonify(NOTE_CATEGORIES)
+
 
 @api_bp.route('/api/stock')
 def get_stock():
@@ -263,6 +267,7 @@ def get_stock():
         }
     return jsonify(stock)
 
+
 @api_bp.route('/api/explain', methods=['POST'])
 @csrf_required
 def api_explain():
@@ -271,8 +276,10 @@ def api_explain():
         perfumes = data.get('perfumes', []) if isinstance(data, dict) else []
         note_profile = data.get('note_profile', {}) if isinstance(data, dict) else data
         if isinstance(note_profile, str):
-            try: note_profile = json.loads(note_profile)
-            except Exception: note_profile = {}
+            try:
+                note_profile = json.loads(note_profile)
+            except Exception:
+                note_profile = {}
         gender = data.get('gender', 'unisex') if isinstance(data, dict) else 'unisex'
         name = data.get('name', 'Misafir') if isinstance(data, dict) else 'Misafir'
 
@@ -285,8 +292,9 @@ def api_explain():
                 result[p] = explanations[p]
 
         return jsonify({'success': True, 'explanations': result})
-    except Exception as e:
+    except Exception:
         return jsonify({'success': False, 'error': 'Açıklama alınamadı'}), 400
+
 
 @api_bp.route('/api/log-sale', methods=['POST'])
 @csrf_required
@@ -310,7 +318,7 @@ def log_sale():
                 data.get('amount', '')
             ])
         return jsonify({'success': True})
-    except Exception as e:
+    except Exception:
         return jsonify({'success': False, 'error': 'Satış kaydedilemedi'}), 400
 
 
