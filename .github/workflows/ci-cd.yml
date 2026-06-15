@@ -10,7 +10,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
       - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y libatlas-base-dev gfortran
+        run: sudo apt-get update && sudo apt-get install -y libgomp1 gfortran
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
