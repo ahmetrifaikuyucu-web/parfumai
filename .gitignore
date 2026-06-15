@@ -32,3 +32,5 @@ static/perfume_images/
 # OS
 Thumbs.db
 .DS_Store
+.coverage
+*.coverage
